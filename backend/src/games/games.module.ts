@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { GamesController } from './games.controller';
 import { GamesService } from './games.service';
+import { RawgModule } from 'src/rawg/rawg.module';
 
 @Module({
+  imports: [RawgModule],
   controllers: [GamesController],
-  providers: [GamesService]
+  providers: [GamesService],
 })
 export class GamesModule {}
