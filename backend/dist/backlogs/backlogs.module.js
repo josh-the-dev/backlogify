@@ -6,21 +6,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AppModule = void 0;
+exports.BacklogsModule = void 0;
 const common_1 = require("@nestjs/common");
-const app_controller_1 = require("./app.controller");
-const app_service_1 = require("./app.service");
-const games_module_1 = require("./games/games.module");
-const config_1 = require("@nestjs/config");
-const backlogs_module_1 = require("./backlogs/backlogs.module");
-let AppModule = class AppModule {
+const backlogs_controller_1 = require("./backlogs.controller");
+const backlogs_service_1 = require("./backlogs.service");
+let BacklogsModule = class BacklogsModule {
 };
-exports.AppModule = AppModule;
-exports.AppModule = AppModule = __decorate([
+exports.BacklogsModule = BacklogsModule;
+exports.BacklogsModule = BacklogsModule = __decorate([
     (0, common_1.Module)({
-        controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
-        imports: [games_module_1.GamesModule, config_1.ConfigModule.forRoot(), backlogs_module_1.BacklogsModule],
+        controllers: [backlogs_controller_1.BacklogsController],
+        providers: [backlogs_service_1.BacklogsService]
     })
-], AppModule);
-//# sourceMappingURL=app.module.js.map
+], BacklogsModule);
+//# sourceMappingURL=backlogs.module.js.map

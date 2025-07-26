@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RawgService } from '../rawg/rawg.service';
-import { GameSearchResult } from './types/games.types';
+import { GameSearchResult } from './games.types';
 
 @Injectable()
 export class GamesService {

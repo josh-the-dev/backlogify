@@ -1,5 +1,5 @@
 import { RawgService } from '../rawg/rawg.service';
-import { GameSearchResult } from './types/games.types';
+import { GameSearchResult } from './games.types';
 export declare class GamesService {
     private readonly rawgService;
     private readonly logger;

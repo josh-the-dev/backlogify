@@ -1,4 +1,4 @@
-import { RawgSearchResponse } from './types/rawg.types';
+import { RawgSearchResponse } from './rawg.types';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 export declare class RawgService {
