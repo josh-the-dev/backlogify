@@ -8,16 +8,25 @@ import { randomUUID } from 'crypto';
 
 @Injectable()
 export class BacklogsService {
-  private backlogs: Backlog[] = [
-    {
-      id: 'default',
-      name: 'My Backlog',
-      items: [],
-    },
-  ];
+  private backlogs: Backlog[] = [];
 
   getBacklog(id: string) {
-    return this.backlogs.find((b) => b.id === id);
+    const backlog = this.backlogs.find((b) => b.id === id);
+
+    return backlog;
+  }
+
+  createBacklog(id: string, name: string) {
+    if (this.getBacklog(id)) {
+      throw new ConflictException('Backlog already exists');
+    }
+    const newBacklog: Backlog = {
+      id,
+      name,
+      items: [],
+    };
+    this.backlogs.push(newBacklog);
+    return newBacklog;
   }
 
   addItemToBacklog(
