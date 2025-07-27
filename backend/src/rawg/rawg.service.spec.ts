@@ -1,0 +1,99 @@
+import { HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import { of, throwError } from 'rxjs';
+import { RawgService } from './rawg.service';
+
+describe('RawgService', () => {
+  let service: RawgService;
+  let httpService: Partial<HttpService>;
+  let configService: Partial<ConfigService>;
+  beforeAll(() => {
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => {});
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
+  });
+  beforeEach(() => {
+    httpService = {
+      get: jest.fn(),
+    };
+    configService = {
+      get: jest.fn().mockReturnValue('test-api-key'),
+    };
+
+    service = new RawgService(
+      httpService as HttpService,
+      configService as ConfigService,
+    );
+  });
+
+  it('should throw error if API key is missing', () => {
+    configService.get = jest.fn().mockReturnValue(undefined);
+    expect(
+      () =>
+        new RawgService(
+          httpService as HttpService,
+          configService as ConfigService,
+        ),
+    ).toThrow('RAWG_API_KEY is required');
+  });
+
+  it('should call httpService.get and return data on success', async () => {
+    const mockResponse = { data: { results: [{ id: 1, name: 'Game 1' }] } };
+    (httpService.get as jest.Mock).mockReturnValue(of(mockResponse));
+
+    const result = await service.searchGames('zelda');
+
+    expect(httpService.get).toHaveBeenCalledWith(
+      'https://api.rawg.io/api/games',
+      {
+        params: {
+          key: 'test-api-key',
+          search: encodeURIComponent('zelda'),
+        },
+      },
+    );
+    expect(result).toEqual(mockResponse.data);
+  });
+
+  it('should throw UNAUTHORIZED HttpException on 401 error', async () => {
+    const error = {
+      message: 'Unauthorized',
+      response: { status: 401 },
+      stack: 'stack trace',
+    };
+    (httpService.get as jest.Mock).mockReturnValue(throwError(() => error));
+
+    await expect(service.searchGames('zelda')).rejects.toMatchObject({
+      status: HttpStatus.UNAUTHORIZED,
+      response: 'Invalid RAWG API key',
+    });
+  });
+
+  it('should throw TOO_MANY_REQUESTS HttpException on 429 error', async () => {
+    const error = {
+      message: 'Too Many Requests',
+      response: { status: 429 },
+      stack: 'stack trace',
+    };
+    (httpService.get as jest.Mock).mockReturnValue(throwError(() => error));
+
+    await expect(service.searchGames('zelda')).rejects.toMatchObject({
+      status: HttpStatus.TOO_MANY_REQUESTS,
+      response: 'RAWG API rate limit exceeded',
+    });
+  });
+
+  it('should throw SERVICE_UNAVAILABLE HttpException on other errors', async () => {
+    const error = {
+      message: 'Unknown error',
+      response: { status: 500 },
+      stack: 'stack trace',
+    };
+    (httpService.get as jest.Mock).mockReturnValue(throwError(() => error));
+
+    await expect(service.searchGames('zelda')).rejects.toMatchObject({
+      status: HttpStatus.SERVICE_UNAVAILABLE,
+      response: 'Failed to fetch data from RAWG API',
+    });
+  });
+});
