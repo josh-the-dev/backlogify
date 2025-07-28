@@ -9,7 +9,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { BacklogsService } from './backlogs.service';
-import { AddItemToBacklogDto } from './dto/add-item-to-backlog.dto';
+import { AddItemToBacklogDto } from './dtos/add-item-to-backlog.dto';
 
 @Controller('backlogs')
 export class BacklogsController {
