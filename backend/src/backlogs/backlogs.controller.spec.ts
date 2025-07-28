@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BacklogsController } from './backlogs.controller';
 import { BacklogsService } from './backlogs.service';
-import { AddItemToBacklogDto } from './backlogs.dto';
 import { BadRequestException } from '@nestjs/common';
 
 describe('BacklogsController', () => {
@@ -56,7 +55,7 @@ describe('BacklogsController', () => {
 
   describe('addItem', () => {
     it('should add an item and return its id and a message', () => {
-      const dto: AddItemToBacklogDto = {
+      const dto = {
         externalServiceId: 123,
         name: 'The Witcher 3',
         coverUrl: 'http://example.com/witcher.jpg',

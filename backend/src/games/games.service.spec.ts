@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { RawgService } from '../rawg/rawg.service';
-import { GameSearchResult } from './games.types';
+import { GameSearchResult } from './interfaces/games.interface';
 
 describe('GamesService', () => {
   let service: GamesService;

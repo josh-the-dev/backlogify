@@ -5,9 +5,3 @@ export interface BacklogItem {
   coverUrl: string | null;
   addedAt: Date;
 }
-
-export interface Backlog {
-  id: string;
-  name: string;
-  items: BacklogItem[];
-}
