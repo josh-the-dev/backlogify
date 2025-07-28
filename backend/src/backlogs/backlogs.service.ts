@@ -17,15 +17,15 @@ export class BacklogsService {
     return backlog;
   }
 
-  createBacklog(id: string, name: string) {
-    if (this.getBacklog(id)) {
-      throw new ConflictException('Backlog already exists');
-    }
+  createBacklog(name: string) {
+    const id = randomUUID();
+
     const newBacklog: Backlog = {
       id,
       name,
       items: [],
     };
+
     this.backlogs.push(newBacklog);
     return newBacklog;
   }

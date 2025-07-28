@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { BacklogsService } from './backlogs.service';
 import { AddItemToBacklogDto } from './dtos/add-item-to-backlog.dto';
+import { CreateBacklogDto } from './dtos/create-backlog.dto';
 
 @Controller('backlogs')
 export class BacklogsController {
@@ -22,6 +23,17 @@ export class BacklogsController {
       throw new BadRequestException('Backlog not found');
     }
     return backlog;
+  }
+
+  @Post()
+  @HttpCode(201)
+  createBacklog(@Body(ValidationPipe) body: CreateBacklogDto) {
+    const backlog = this.backlogsService.createBacklog(body.name);
+    return {
+      id: backlog.id,
+      name: backlog.name,
+      message: 'Backlog created successfully',
+    };
   }
 
   @Post(':id/items')
