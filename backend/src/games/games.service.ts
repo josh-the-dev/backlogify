@@ -24,7 +24,7 @@ export class GamesService {
         `Failed to search games: ${error.message}`,
         error.stack,
       );
-      throw error; // Re-throw to let NestJS handle it
+      throw error;
     }
   }
 }
