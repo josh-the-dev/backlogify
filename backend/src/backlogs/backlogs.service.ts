@@ -3,8 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Backlog, BacklogItem } from './backlogs.types';
 import { randomUUID } from 'crypto';
+import { Backlog } from './interfaces/backlog.interface';
+import { BacklogItem } from './interfaces/backlogItem.interface';
 
 @Injectable()
 export class BacklogsService {
@@ -41,7 +42,7 @@ export class BacklogsService {
     );
     if (exists) throw new ConflictException('Item already exists');
 
-    const newItem: BacklogItem = {
+    const newItem = {
       ...item,
       id: randomUUID(),
       addedAt: new Date(),
