@@ -409,3 +409,7 @@ count.txt
 .env
 .nitro
 .tanstack
+.wrangler
+.output
+.vinxi
+todos.json
