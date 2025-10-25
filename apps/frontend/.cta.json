@@ -1,0 +1,17 @@
+{
+  "projectName": "client",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "npm",
+  "addOnOptions": {},
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "biome",
+    "start",
+    "tanstack-query",
+    "storybook"
+  ]
+}
