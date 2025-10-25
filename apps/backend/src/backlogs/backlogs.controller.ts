@@ -19,6 +19,7 @@ export class BacklogsController {
 	@Get(":id")
 	getBacklog(@Param("id") id: string) {
 		const backlog = this.backlogsService.getBacklog(id);
+
 		if (!backlog) {
 			throw new BadRequestException("Backlog not found");
 		}
