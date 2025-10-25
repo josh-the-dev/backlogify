@@ -6,7 +6,7 @@ import type { GameSearchResult } from "./interfaces/games.interface";
 
 describe("GamesService", () => {
 	let service: GamesService;
-	let rawgService: RawgService;
+	let _rawgService: RawgService;
 
 	// Create a spy/mock for Logger methods
 	const loggerLogSpy = jest
@@ -32,7 +32,7 @@ describe("GamesService", () => {
 		}).compile();
 
 		service = module.get<GamesService>(GamesService);
-		rawgService = module.get<RawgService>(RawgService);
+		_rawgService = module.get<RawgService>(RawgService);
 
 		jest.clearAllMocks();
 	});

@@ -1,5 +1,5 @@
 import type { HttpService } from "@nestjs/axios";
-import { HttpException, HttpStatus, Logger } from "@nestjs/common";
+import { HttpStatus, Logger } from "@nestjs/common";
 import type { ConfigService } from "@nestjs/config";
 import { of, throwError } from "rxjs";
 import { RawgService } from "./rawg.service";

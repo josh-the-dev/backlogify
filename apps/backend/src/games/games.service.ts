@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import  { RawgService } from "../rawg/rawg.service";
+import { RawgService } from "../rawg/rawg.service";
 import type { GameSearchResult } from "./interfaces/games.interface";
 
 @Injectable()

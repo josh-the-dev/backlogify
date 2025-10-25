@@ -1,4 +1,3 @@
-import { NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { BacklogsService } from "./backlogs.service";
 
@@ -35,8 +34,8 @@ describe("BacklogsService", () => {
 
 		const backlog = service.getBacklog(backlogId);
 		expect(backlog).toBeDefined();
-		expect(backlog!.items.length).toBe(1);
-		expect(backlog!.items[0].externalServiceId).toBe(123);
+		expect(backlog?.items.length).toBe(1);
+		expect(backlog?.items[0].externalServiceId).toBe(123);
 	});
 
 	it("should return undefined if backlog does not exist", () => {

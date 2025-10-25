@@ -14,7 +14,7 @@ export class RawgService {
 		private readonly httpService: HttpService,
 		private readonly configService: ConfigService,
 	) {
-		this.apiKey = this.configService.get<string>("RAWG_API_KEY")!;
+		this.apiKey = this.configService.get<string>("RAWG_API_KEY") ?? "";
 
 		if (!this.apiKey) {
 			this.logger.error("RAWG_API_KEY is not configured");

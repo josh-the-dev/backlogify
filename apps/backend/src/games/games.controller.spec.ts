@@ -5,7 +5,7 @@ import { GamesService } from "./games.service";
 
 describe("GamesController", () => {
 	let controller: GamesController;
-	let service: GamesService;
+	let _service: GamesService;
 
 	const mockGamesService = {
 		search: jest.fn(),
@@ -23,7 +23,7 @@ describe("GamesController", () => {
 		}).compile();
 
 		controller = module.get<GamesController>(GamesController);
-		service = module.get<GamesService>(GamesService);
+		_service = module.get<GamesService>(GamesService);
 	});
 
 	afterEach(() => {
@@ -82,9 +82,9 @@ describe("GamesController", () => {
 		});
 
 		it("should throw BadRequestException for undefined query", async () => {
-			await expect(controller.search(undefined as any)).rejects.toThrow(
-				BadRequestException,
-			);
+			await expect(
+				controller.search(undefined as unknown as string),
+			).rejects.toThrow(BadRequestException);
 
 			expect(mockGamesService.search).not.toHaveBeenCalled();
 		});

@@ -30,12 +30,20 @@
 			"recommended": true,
 			"style": {
 				"useImportType": "off"
+			},
+			"nursery": {
+				"useSortedClasses": "error"
 			}
 		}
 	},
 	"javascript": {
 		"parser": {
 			"unsafeParameterDecoratorsEnabled": true
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
 		}
 	}
 }
