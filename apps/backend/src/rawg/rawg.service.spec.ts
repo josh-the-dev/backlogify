@@ -8,10 +8,12 @@ describe("RawgService", () => {
 	let service: RawgService;
 	let httpService: Partial<HttpService>;
 	let configService: Partial<ConfigService>;
+
 	beforeAll(() => {
 		jest.spyOn(Logger.prototype, "log").mockImplementation(() => {});
 		jest.spyOn(Logger.prototype, "error").mockImplementation(() => {});
 	});
+
 	beforeEach(() => {
 		httpService = {
 			get: jest.fn(),
@@ -28,13 +30,14 @@ describe("RawgService", () => {
 
 	it("should throw error if API key is missing", () => {
 		configService.get = jest.fn().mockReturnValue(undefined);
+
 		expect(
 			() =>
 				new RawgService(
 					httpService as HttpService,
 					configService as ConfigService,
 				),
-		).toThrow("RAWG_API_KEY is required");
+		).toThrow("RAWG_API_KEY is not configured");
 	});
 
 	it("should call httpService.get and return data on success", async () => {
@@ -44,13 +47,8 @@ describe("RawgService", () => {
 		const result = await service.searchGames("zelda");
 
 		expect(httpService.get).toHaveBeenCalledWith(
-			"https://api.rawg.io/api/games",
-			{
-				params: {
-					key: "test-api-key",
-					search: encodeURIComponent("zelda"),
-				},
-			},
+			"https://api.rawg.io/api/games?search=zelda",
+			{ params: { key: "test-api-key" } },
 		);
 		expect(result).toEqual(mockResponse.data);
 	});

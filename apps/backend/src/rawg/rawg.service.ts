@@ -1,8 +1,12 @@
 import { HttpService } from "@nestjs/axios";
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { AxiosError } from "axios";
 import { firstValueFrom } from "rxjs";
-import type { RawgSearchResponse } from "./interfaces/rawg.interface";
+import type {
+	RawgGameDetails,
+	RawgSearchResponse,
+} from "./interfaces/rawg.interface";
 
 @Injectable()
 export class RawgService {
@@ -17,50 +21,71 @@ export class RawgService {
 		this.apiKey = this.configService.get<string>("RAWG_API_KEY") ?? "";
 
 		if (!this.apiKey) {
-			this.logger.error("RAWG_API_KEY is not configured");
-			throw new Error("RAWG_API_KEY is required");
+			const message = "RAWG_API_KEY is not configured";
+			this.logger.error(message);
+			throw new Error(message);
 		}
 	}
 
-	async searchGames(query: string): Promise<RawgSearchResponse> {
+	/**
+	 * Performs a GET request to the RAWG API.
+	 * Handles consistent logging and error mapping.
+	 */
+	private async fetchFromRawg<T>(
+		endpoint: string,
+		context: string,
+	): Promise<T> {
 		try {
-			const url = `${this.baseUrl}/games`;
-			const params = {
-				key: this.apiKey,
-				search: encodeURIComponent(query),
-			};
-
-			this.logger.log(`Making RAWG API request for query: "${query}"`);
-
+			this.logger.log(`Making RAWG API request: ${context}`);
+			const url = `${this.baseUrl}${endpoint}`;
 			const response = await firstValueFrom(
-				this.httpService.get<RawgSearchResponse>(url, { params }),
+				this.httpService.get<T>(url, { params: { key: this.apiKey } }),
 			);
-
 			return response.data;
 		} catch (error) {
-			this.logger.error(
-				`RAWG API request failed: ${error.message}`,
-				error.stack,
-			);
+			this.handleError(error, context);
+		}
+	}
 
-			if (error.response?.status === 401) {
+	/**
+	 * Maps RAWG API errors to user-friendly HttpExceptions.
+	 */
+	private handleError(error: AxiosError, context: string): never {
+		const message = `RAWG API request failed (${context}): ${error.message}`;
+		this.logger.error(message, error.stack);
+
+		const status = error.response?.status;
+		switch (status) {
+			case 401:
 				throw new HttpException(
 					"Invalid RAWG API key",
 					HttpStatus.UNAUTHORIZED,
 				);
-			}
-
-			if (error.response?.status === 429) {
+			case 429:
 				throw new HttpException(
 					"RAWG API rate limit exceeded",
 					HttpStatus.TOO_MANY_REQUESTS,
 				);
-			}
-
-			throw new HttpException(
-				"Failed to fetch data from RAWG API",
-				HttpStatus.SERVICE_UNAVAILABLE,
-			);
+			default:
+				throw new HttpException(
+					"Failed to fetch data from RAWG API",
+					HttpStatus.SERVICE_UNAVAILABLE,
+				);
 		}
+	}
+
+	async searchGames(query: string): Promise<RawgSearchResponse> {
+		const encodedQuery = encodeURIComponent(query);
+		return this.fetchFromRawg<RawgSearchResponse>(
+			`/games?search=${encodedQuery}`,
+			`search for query "${query}"`,
+		);
+	}
+
+	async getGameDetails(id: string): Promise<RawgGameDetails> {
+		return this.fetchFromRawg<RawgGameDetails>(
+			`/games/${id}`,
+			`get game details for ID "${id}"`,
+		);
 	}
 }

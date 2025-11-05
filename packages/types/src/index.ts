@@ -6,4 +6,15 @@ export interface GameSearchResult {
 	coverUrl: string | null;
 }
 
+export interface GameDetails {
+  id: number;
+  name: string;
+  description: string;
+  releaseDate: string | null;
+  coverUrl: string | null;
+  genres: string[];
+  platforms: string[];
+}
+
+
 export type GameStatus = "backlog" | "playing" | "played";

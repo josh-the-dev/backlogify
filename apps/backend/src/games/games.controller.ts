@@ -1,4 +1,10 @@
-import { BadRequestException, Controller, Get, Query } from "@nestjs/common";
+import {
+	BadRequestException,
+	Controller,
+	Get,
+	Param,
+	Query,
+} from "@nestjs/common";
 import { GamesService } from "./games.service";
 
 @Controller("games")
@@ -12,5 +18,15 @@ export class GamesController {
 		}
 
 		return this.gamesService.search(query.trim());
+	}
+
+	@Get(":id")
+	async getGameDetails(@Param("id") id: string) {
+		console.log(id);
+		if (!id) {
+			throw new BadRequestException("Game ID is required");
+		}
+
+		return this.gamesService.getGameDetails(id);
 	}
 }

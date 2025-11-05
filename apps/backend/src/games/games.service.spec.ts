@@ -1,12 +1,11 @@
+import { GameSearchResult } from "@backlogify/types";
 import { Logger } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { RawgService } from "../rawg/rawg.service";
 import { GamesService } from "./games.service";
-import type { GameSearchResult } from "./interfaces/games.interface";
 
 describe("GamesService", () => {
 	let service: GamesService;
-	let _rawgService: RawgService;
 
 	// Create a spy/mock for Logger methods
 	const loggerLogSpy = jest
@@ -18,6 +17,7 @@ describe("GamesService", () => {
 
 	const mockRawgService = {
 		searchGames: jest.fn(),
+		getGameDetails: jest.fn(),
 	};
 
 	beforeEach(async () => {
@@ -32,7 +32,6 @@ describe("GamesService", () => {
 		}).compile();
 
 		service = module.get<GamesService>(GamesService);
-		_rawgService = module.get<RawgService>(RawgService);
 
 		jest.clearAllMocks();
 	});
@@ -122,6 +121,90 @@ describe("GamesService", () => {
 			);
 			expect(loggerErrorSpy).toHaveBeenCalledWith(
 				`Failed to search games: ${error.message}`,
+				error.stack,
+			);
+		});
+	});
+
+	describe("getGameDetails", () => {
+		it("should log and return mapped game details correctly", async () => {
+			const id = "123";
+			const rawgGame = {
+				id: 123,
+				name: "Elden Ring",
+				description: "<p>An epic open-world RPG</p>",
+				released: "2022-02-25",
+				background_image: "https://example.com/eldenring.jpg",
+				genres: [
+					{ id: 1, name: "RPG" },
+					{ id: 2, name: "Action" },
+				],
+				platforms: [
+					{ platform: { id: 1, name: "PC" } },
+					{ platform: { id: 2, name: "PlayStation 5" } },
+				],
+			};
+
+			mockRawgService.getGameDetails = jest.fn().mockResolvedValue(rawgGame);
+
+			const result = await service.getGameDetails(id);
+
+			expect(mockRawgService.getGameDetails).toHaveBeenCalledWith(id);
+
+			expect(result).toEqual({
+				id: 123,
+				name: "Elden Ring",
+				description: "<p>An epic open-world RPG</p>",
+				releaseDate: "2022-02-25",
+				coverUrl: "https://example.com/eldenring.jpg",
+				genres: ["RPG", "Action"],
+				platforms: ["PC", "PlayStation 5"],
+			});
+
+			expect(loggerLogSpy).toHaveBeenCalledWith(
+				`Fetching game details for ID: "${id}"`,
+			);
+		});
+		it("should handle missing fields gracefully", async () => {
+			const id = "456";
+			const rawgGame = {
+				id: 456,
+				name: "Mystery Game",
+				description: null,
+				released: null,
+				background_image: undefined,
+				genres: [],
+				platforms: [],
+			};
+
+			mockRawgService.getGameDetails = jest.fn().mockResolvedValue(rawgGame);
+
+			const result = await service.getGameDetails(id);
+
+			expect(result).toEqual({
+				id: 456,
+				name: "Mystery Game",
+				description: null,
+				releaseDate: null,
+				coverUrl: null,
+				genres: [],
+				platforms: [],
+			});
+		});
+
+		it("should log error and re-throw when RawgService fails", async () => {
+			const id = "999";
+			const error = new Error("RAWG details fetch failed");
+
+			mockRawgService.getGameDetails = jest.fn().mockRejectedValue(error);
+
+			await expect(service.getGameDetails(id)).rejects.toThrow(error);
+
+			expect(loggerLogSpy).toHaveBeenCalledWith(
+				`Fetching game details for ID: "${id}"`,
+			);
+			expect(loggerErrorSpy).toHaveBeenCalledWith(
+				`Failed to fetch game details: ${error.message}`,
 				error.stack,
 			);
 		});

@@ -1,24 +1,39 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
+import z from "zod";
 import { GameList } from "../components/GameSearch/GameList";
 import { GameSearchForm } from "../components/GameSearch/GameSearchForm";
 import { gamesQueryOptions } from "../queries/games";
 
-export const Route = createFileRoute("/test-games")({
-	component: TestGamesPage,
+const searchSchema = z.object({
+	query: z.string().optional(),
 });
 
+export const Route = createFileRoute("/test-games")({
+	component: TestGamesPage,
+	validateSearch: (search) => searchSchema.parse(search),
+});
 function TestGamesPage() {
-	const [query, setQuery] = useState("Zelda");
+	const { query: initialQuery = "Zelda" } = useSearch({ from: "/test-games" });
+	const [query, setQuery] = useState(initialQuery);
+
 	const gamesQuery = useQuery(gamesQueryOptions(query));
+
+	const handleSearchSubmit = (newQuery: string) => {
+		setQuery(newQuery);
+
+		const params = new URLSearchParams(window.location.search);
+		params.set("query", newQuery);
+		window.history.replaceState({}, "", `?${params.toString()}`);
+	};
 
 	return (
 		<div className="mx-auto max-w-6xl p-6">
 			<h1 className="mb-6 text-center font-bold text-3xl tracking-tight">
 				Game Search
 			</h1>
-			<GameSearchForm defaultValue={query} onSubmit={setQuery} />
+			<GameSearchForm defaultValue={query} onSubmit={handleSearchSubmit} />
 			<GameList query={gamesQuery} />
 		</div>
 	);

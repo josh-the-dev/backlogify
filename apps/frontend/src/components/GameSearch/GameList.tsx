@@ -1,5 +1,6 @@
 import type { GameSearchResult } from "@backlogify/types";
 import { UseQueryResult } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { GameCard } from "./GameCard";
 
 interface GameListProps {
@@ -26,7 +27,14 @@ export function GameList({ query }: GameListProps) {
 	return (
 		<ul className="mt-8 grid justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-3">
 			{query.data.map((game) => (
-				<GameCard key={game.id} game={game} />
+				<Link
+					key={game.id}
+					to="/games/$id"
+					params={{ id: game.id.toString() }}
+					className="block rounded-lg shadow transition hover:shadow-lg"
+				>
+					<GameCard game={game} />
+				</Link>
 			))}
 		</ul>
 	);

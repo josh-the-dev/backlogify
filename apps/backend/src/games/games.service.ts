@@ -1,4 +1,4 @@
-import type { GameSearchResult } from "@backlogify/types";
+import type { GameDetails, GameSearchResult } from "@backlogify/types";
 import { Injectable, Logger } from "@nestjs/common";
 import { RawgService } from "../rawg/rawg.service";
 
@@ -22,6 +22,33 @@ export class GamesService {
 		} catch (error) {
 			this.logger.error(
 				`Failed to search games: ${error.message}`,
+				error.stack,
+			);
+			throw error;
+		}
+	}
+
+	async getGameDetails(id: string): Promise<GameDetails> {
+		try {
+			this.logger.log(`Fetching game details for ID: "${id}"`);
+
+			const game = await this.rawgService.getGameDetails(id);
+			return {
+				id: game.id,
+				name: game.name,
+				description: game.description,
+				releaseDate: game.released,
+				coverUrl: game.background_image || null,
+				genres: game.genres?.map((g: { name: string }) => g.name) ?? [],
+				platforms:
+					game.platforms?.map(
+						(p: { platform?: { name: string }; name?: string }) =>
+							p.platform?.name ?? p.name ?? "Unknown",
+					) ?? [],
+			};
+		} catch (error) {
+			this.logger.error(
+				`Failed to fetch game details: ${error.message}`,
 				error.stack,
 			);
 			throw error;
