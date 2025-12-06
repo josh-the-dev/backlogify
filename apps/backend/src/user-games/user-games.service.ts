@@ -1,7 +1,6 @@
-import { GameStatus } from "@backlogify/types";
+import { GameStatus, UserGame } from "@backlogify/types";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { AddUserGameDto } from "./dtos/add-user-game.dto";
-import { UserGame } from "./interfaces/user-game.entity";
 
 @Injectable()
 export class UserGamesService {

@@ -1,11 +1,10 @@
 import { randomUUID } from "node:crypto";
+import type { Backlog, BacklogItem } from "@backlogify/types";
 import {
 	ConflictException,
 	Injectable,
 	NotFoundException,
 } from "@nestjs/common";
-import type { Backlog } from "./interfaces/backlog.interface";
-import type { BacklogItem } from "./interfaces/backlogItem.interface";
 
 @Injectable()
 export class BacklogsService {
