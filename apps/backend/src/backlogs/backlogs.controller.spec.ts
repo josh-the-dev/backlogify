@@ -5,7 +5,6 @@ import { BacklogsService } from "./backlogs.service";
 
 describe("BacklogsController", () => {
 	let controller: BacklogsController;
-	let _service: BacklogsService;
 
 	const mockBacklogsService = {
 		getBacklog: jest.fn(),
@@ -24,7 +23,6 @@ describe("BacklogsController", () => {
 		}).compile();
 
 		controller = module.get<BacklogsController>(BacklogsController);
-		_service = module.get<BacklogsService>(BacklogsService);
 	});
 
 	afterEach(() => {
