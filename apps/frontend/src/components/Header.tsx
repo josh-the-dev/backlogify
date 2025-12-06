@@ -3,9 +3,12 @@ import {
 	BookOpen,
 	ChevronDown,
 	ChevronRight,
+	Gamepad2,
 	Home,
+	Library,
 	Menu,
 	Network,
+	Search,
 	SquareFunction,
 	StickyNote,
 	X,
@@ -70,6 +73,35 @@ export default function Header() {
 						<Home size={20} />
 						<span className="font-medium">Home</span>
 					</Link>
+
+					{/* App Links */}
+					<Link
+						to="/test-games"
+						onClick={() => setIsOpen(false)}
+						className="mb-2 flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-gray-800"
+						activeProps={{
+							className:
+								"flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2",
+						}}
+					>
+						<Search size={20} />
+						<span className="font-medium">Search Games</span>
+					</Link>
+
+					<Link
+						to="/my-games"
+						onClick={() => setIsOpen(false)}
+						className="mb-2 flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-gray-800"
+						activeProps={{
+							className:
+								"flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2",
+						}}
+					>
+						<Library size={20} />
+						<span className="font-medium">My Games</span>
+					</Link>
+
+					<div className="my-4 border-gray-700 border-t" />
 
 					{/* Demo Links Start */}
 

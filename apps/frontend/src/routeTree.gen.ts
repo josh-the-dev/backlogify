@@ -10,14 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestGamesRouteImport } from './routes/test-games'
+import { Route as MyGamesRouteImport } from './routes/my-games'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GamesIdRouteImport } from './routes/games/$id'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoStorybookRouteImport } from './routes/demo/storybook'
+import { Route as ApiUserGamesRouteImport } from './routes/api/user-games'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
+import { Route as ApiUserGamesGameIdRouteImport } from './routes/api/user-games.$gameId'
 import { Route as ApiGamesSearchRouteImport } from './routes/api/games/search'
 import { Route as ApiGamesIdRouteImport } from './routes/api/games/$id'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
@@ -28,6 +31,11 @@ import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ss
 const TestGamesRoute = TestGamesRouteImport.update({
   id: '/test-games',
   path: '/test-games',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyGamesRoute = MyGamesRouteImport.update({
+  id: '/my-games',
+  path: '/my-games',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -50,6 +58,11 @@ const DemoStorybookRoute = DemoStorybookRouteImport.update({
   path: '/demo/storybook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUserGamesRoute = ApiUserGamesRouteImport.update({
+  id: '/api/user-games',
+  path: '/api/user-games',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
   id: '/demo/start/server-funcs',
   path: '/demo/start/server-funcs',
@@ -69,6 +82,11 @@ const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
   id: '/demo/api/names',
   path: '/demo/api/names',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUserGamesGameIdRoute = ApiUserGamesGameIdRouteImport.update({
+  id: '/$gameId',
+  path: '/$gameId',
+  getParentRoute: () => ApiUserGamesRoute,
 } as any)
 const ApiGamesSearchRoute = ApiGamesSearchRouteImport.update({
   id: '/api/games/search',
@@ -103,12 +121,15 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/my-games': typeof MyGamesRoute
   '/test-games': typeof TestGamesRoute
+  '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/demo/storybook': typeof DemoStorybookRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/games/$id': typeof GamesIdRoute
   '/api/games/$id': typeof ApiGamesIdRoute
   '/api/games/search': typeof ApiGamesSearchRoute
+  '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -120,12 +141,15 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/my-games': typeof MyGamesRoute
   '/test-games': typeof TestGamesRoute
+  '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/demo/storybook': typeof DemoStorybookRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/games/$id': typeof GamesIdRoute
   '/api/games/$id': typeof ApiGamesIdRoute
   '/api/games/search': typeof ApiGamesSearchRoute
+  '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -138,12 +162,15 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/my-games': typeof MyGamesRoute
   '/test-games': typeof TestGamesRoute
+  '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/demo/storybook': typeof DemoStorybookRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/games/$id': typeof GamesIdRoute
   '/api/games/$id': typeof ApiGamesIdRoute
   '/api/games/search': typeof ApiGamesSearchRoute
+  '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -157,12 +184,15 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/my-games'
     | '/test-games'
+    | '/api/user-games'
     | '/demo/storybook'
     | '/demo/tanstack-query'
     | '/games/$id'
     | '/api/games/$id'
     | '/api/games/search'
+    | '/api/user-games/$gameId'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
@@ -174,12 +204,15 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/my-games'
     | '/test-games'
+    | '/api/user-games'
     | '/demo/storybook'
     | '/demo/tanstack-query'
     | '/games/$id'
     | '/api/games/$id'
     | '/api/games/search'
+    | '/api/user-games/$gameId'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
@@ -191,12 +224,15 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/my-games'
     | '/test-games'
+    | '/api/user-games'
     | '/demo/storybook'
     | '/demo/tanstack-query'
     | '/games/$id'
     | '/api/games/$id'
     | '/api/games/search'
+    | '/api/user-games/$gameId'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
@@ -209,7 +245,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MyGamesRoute: typeof MyGamesRoute
   TestGamesRoute: typeof TestGamesRoute
+  ApiUserGamesRoute: typeof ApiUserGamesRouteWithChildren
   DemoStorybookRoute: typeof DemoStorybookRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   GamesIdRoute: typeof GamesIdRoute
@@ -232,6 +270,13 @@ declare module '@tanstack/react-router' {
       path: '/test-games'
       fullPath: '/test-games'
       preLoaderRoute: typeof TestGamesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-games': {
+      id: '/my-games'
+      path: '/my-games'
+      fullPath: '/my-games'
+      preLoaderRoute: typeof MyGamesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -262,6 +307,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoStorybookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/user-games': {
+      id: '/api/user-games'
+      path: '/api/user-games'
+      fullPath: '/api/user-games'
+      preLoaderRoute: typeof ApiUserGamesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/start/server-funcs': {
       id: '/demo/start/server-funcs'
       path: '/demo/start/server-funcs'
@@ -289,6 +341,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/demo/api/names'
       preLoaderRoute: typeof DemoApiNamesRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/user-games/$gameId': {
+      id: '/api/user-games/$gameId'
+      path: '/$gameId'
+      fullPath: '/api/user-games/$gameId'
+      preLoaderRoute: typeof ApiUserGamesGameIdRouteImport
+      parentRoute: typeof ApiUserGamesRoute
     }
     '/api/games/search': {
       id: '/api/games/search'
@@ -335,9 +394,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ApiUserGamesRouteChildren {
+  ApiUserGamesGameIdRoute: typeof ApiUserGamesGameIdRoute
+}
+
+const ApiUserGamesRouteChildren: ApiUserGamesRouteChildren = {
+  ApiUserGamesGameIdRoute: ApiUserGamesGameIdRoute,
+}
+
+const ApiUserGamesRouteWithChildren = ApiUserGamesRoute._addFileChildren(
+  ApiUserGamesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MyGamesRoute: MyGamesRoute,
   TestGamesRoute: TestGamesRoute,
+  ApiUserGamesRoute: ApiUserGamesRouteWithChildren,
   DemoStorybookRoute: DemoStorybookRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   GamesIdRoute: GamesIdRoute,

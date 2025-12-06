@@ -1,4 +1,5 @@
 import type { GameSearchResult } from "@backlogify/types";
+import { AddToBacklogButton } from "../AddToBacklogButton";
 import { GameCover } from "./GameCover";
 
 export function GameCard({ game }: { game: GameSearchResult }) {
@@ -8,6 +9,14 @@ export function GameCard({ game }: { game: GameSearchResult }) {
 				{game.name}
 			</strong>
 			<GameCover name={game.name} coverUrl={game.coverUrl} />
+			<div className="mt-3">
+				<AddToBacklogButton
+					externalServiceId={game.id.toString()}
+					name={game.name}
+					coverUrl={game.coverUrl}
+					size="sm"
+				/>
+			</div>
 		</li>
 	);
 }

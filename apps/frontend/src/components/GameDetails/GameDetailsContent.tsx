@@ -1,5 +1,6 @@
 import type { GameDetails as GameDetailsType } from "@backlogify/types";
 import { format } from "date-fns";
+import { AddToBacklogButton } from "../AddToBacklogButton";
 
 export function GameDetailsContent({ game }: { game: GameDetailsType }) {
 	const formattedDate = game.releaseDate
@@ -8,7 +9,14 @@ export function GameDetailsContent({ game }: { game: GameDetailsType }) {
 
 	return (
 		<>
-			<h1 className="font-bold text-3xl">{game.name}</h1>
+			<div className="mb-4 flex items-center justify-between">
+				<h1 className="font-bold text-3xl">{game.name}</h1>
+				<AddToBacklogButton
+					externalServiceId={game.id.toString()}
+					name={game.name}
+					coverUrl={game.coverUrl}
+				/>
+			</div>
 
 			{game.coverUrl && (
 				<img
