@@ -13,7 +13,8 @@
       "Bash(npm ls:*)",
       "WebFetch(domain:github.com)",
       "Bash(findstr:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm run db:generate:*)"
     ],
     "deny": [],
     "ask": []
