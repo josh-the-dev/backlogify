@@ -9,6 +9,12 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
+@layer base {
+	button {
+		@apply cursor-pointer;
+	}
+}
+
 code {
 	font-family:
 		source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
