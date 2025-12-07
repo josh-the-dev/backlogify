@@ -5,9 +5,10 @@ WORKDIR /app
 # Copy entire repo first
 COPY . .
 
-# Delete package-lock and do fresh install for Linux platform
+# Fresh install for Linux platform
 RUN rm -f package-lock.json
 RUN npm install
+RUN npm install lightningcss-linux-x64-gnu@1.30.2 --save-optional
 
 # Build: pass any build args you need (Clerk key, etc)
 ARG VITE_CLERK_PUBLISHABLE_KEY
