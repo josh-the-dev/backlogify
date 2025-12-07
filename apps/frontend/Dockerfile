@@ -14,10 +14,11 @@ RUN npm install lightningcss-linux-x64-gnu@1.30.2 --save-optional
 ARG VITE_CLERK_PUBLISHABLE_KEY
 ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
 
-# Debug: check what's actually there
-RUN echo "DEBUG: vite config content:" && cat /app/apps/frontend/vite.config.ts
-
+# Build
 RUN npm run build --workspace=frontend
+
+# Debug: see what was actually built
+RUN echo "DEBUG: listing build output:" && ls -la /app/apps/frontend/ && ls -la /app/apps/frontend/dist || true && ls -la /app/apps/frontend/.output || true
 
 # ---- runner ----
 FROM node:20-slim AS runner
