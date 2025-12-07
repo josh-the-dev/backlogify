@@ -2,19 +2,14 @@
 FROM node:20-slim AS builder
 WORKDIR /app
 
-# Copy package manifests first for better caching
-COPY package*.json ./
-# If you have a lockfile:
-COPY package-lock.json ./
-
-# Copy workspace packages' package.json files (optional optimization)
-# COPY apps/frontend/package*.json apps/frontend/
-
-# Install full dependencies (do NOT set NODE_ENV=production here)
-RUN npm ci
-
-# Copy entire repo (needed for monorepo builds/workspaces)
+# Copy entire repo first
 COPY . .
+
+# Remove any local node_modules (may have wrong platform binaries)
+RUN rm -rf node_modules apps/*/node_modules packages/*/node_modules
+
+# Install fresh dependencies for Linux
+RUN npm ci
 
 # Build: pass any build args you need (Clerk key, etc)
 ARG VITE_CLERK_PUBLISHABLE_KEY
