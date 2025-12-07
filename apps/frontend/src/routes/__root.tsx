@@ -46,8 +46,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootComponent() {
 	return (
 		<>
-			<Header />
-			<Outlet />
+			<div className="flex flex-1 flex-col">
+				<Header />
+				<Outlet />
+			</div>
+
 			<Footer />
 		</>
 	);
@@ -60,7 +63,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<head>
 					<HeadContent />
 				</head>
-				<body>
+				<body className="flex min-h-screen flex-col">
 					{children}
 					{import.meta.env.MODE !== "production" && (
 						<TanStackDevtools
