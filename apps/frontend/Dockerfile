@@ -26,8 +26,9 @@ ENV HOST=0.0.0.0
 
 RUN useradd --system --uid 1001 appuser
 
-# Copy built output
+# Copy built output and node_modules for runtime deps
 COPY --from=builder /app/apps/frontend/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
 
 USER appuser
 EXPOSE 3000
