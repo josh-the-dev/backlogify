@@ -22,6 +22,9 @@ const config = defineConfig({
 			cookie: "cookie-es",
 		},
 	},
+	css: {
+		transformer: "postcss",
+	},
 	server: {
 		port: 3000,
 	},
