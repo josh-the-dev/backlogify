@@ -51,7 +51,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 				{/* Main App Links */}
 				<NavLink to="/" icon={Home} label="Home" onClick={onClose} />
 				<NavLink
-					to="/test-games"
+					to="/games"
 					icon={Search}
 					label="Search Games"
 					onClick={onClose}

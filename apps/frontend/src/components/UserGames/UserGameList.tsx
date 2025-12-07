@@ -32,7 +32,7 @@ export function UserGameList({ query, statusFilter }: UserGameListProps) {
 			<div className="mt-8 text-center">
 				<p className="text-gray-500">Your library is empty.</p>
 				<Link
-					to="/test-games"
+					to="/games"
 					className="mt-2 inline-block text-blue-600 hover:underline"
 				>
 					Search for games to add

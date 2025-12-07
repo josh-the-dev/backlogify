@@ -9,9 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestGamesRouteImport } from './routes/test-games'
 import { Route as MyGamesRouteImport } from './routes/my-games'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GamesIndexRouteImport } from './routes/games/index'
 import { Route as GamesIdRouteImport } from './routes/games/$id'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoStorybookRouteImport } from './routes/demo/storybook'
@@ -28,11 +28,6 @@ import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 
-const TestGamesRoute = TestGamesRouteImport.update({
-  id: '/test-games',
-  path: '/test-games',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MyGamesRoute = MyGamesRouteImport.update({
   id: '/my-games',
   path: '/my-games',
@@ -41,6 +36,11 @@ const MyGamesRoute = MyGamesRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesIndexRoute = GamesIndexRouteImport.update({
+  id: '/games/',
+  path: '/games/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GamesIdRoute = GamesIdRouteImport.update({
@@ -122,11 +122,11 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/my-games': typeof MyGamesRoute
-  '/test-games': typeof TestGamesRoute
   '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/demo/storybook': typeof DemoStorybookRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/games/$id': typeof GamesIdRoute
+  '/games': typeof GamesIndexRoute
   '/api/games/$id': typeof ApiGamesIdRoute
   '/api/games/search': typeof ApiGamesSearchRoute
   '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
@@ -142,11 +142,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/my-games': typeof MyGamesRoute
-  '/test-games': typeof TestGamesRoute
   '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/demo/storybook': typeof DemoStorybookRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/games/$id': typeof GamesIdRoute
+  '/games': typeof GamesIndexRoute
   '/api/games/$id': typeof ApiGamesIdRoute
   '/api/games/search': typeof ApiGamesSearchRoute
   '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
@@ -163,11 +163,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/my-games': typeof MyGamesRoute
-  '/test-games': typeof TestGamesRoute
   '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/demo/storybook': typeof DemoStorybookRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/games/$id': typeof GamesIdRoute
+  '/games/': typeof GamesIndexRoute
   '/api/games/$id': typeof ApiGamesIdRoute
   '/api/games/search': typeof ApiGamesSearchRoute
   '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
@@ -185,11 +185,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/my-games'
-    | '/test-games'
     | '/api/user-games'
     | '/demo/storybook'
     | '/demo/tanstack-query'
     | '/games/$id'
+    | '/games'
     | '/api/games/$id'
     | '/api/games/search'
     | '/api/user-games/$gameId'
@@ -205,11 +205,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/my-games'
-    | '/test-games'
     | '/api/user-games'
     | '/demo/storybook'
     | '/demo/tanstack-query'
     | '/games/$id'
+    | '/games'
     | '/api/games/$id'
     | '/api/games/search'
     | '/api/user-games/$gameId'
@@ -225,11 +225,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/my-games'
-    | '/test-games'
     | '/api/user-games'
     | '/demo/storybook'
     | '/demo/tanstack-query'
     | '/games/$id'
+    | '/games/'
     | '/api/games/$id'
     | '/api/games/search'
     | '/api/user-games/$gameId'
@@ -246,11 +246,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MyGamesRoute: typeof MyGamesRoute
-  TestGamesRoute: typeof TestGamesRoute
   ApiUserGamesRoute: typeof ApiUserGamesRouteWithChildren
   DemoStorybookRoute: typeof DemoStorybookRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   GamesIdRoute: typeof GamesIdRoute
+  GamesIndexRoute: typeof GamesIndexRoute
   ApiGamesIdRoute: typeof ApiGamesIdRoute
   ApiGamesSearchRoute: typeof ApiGamesSearchRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
@@ -265,13 +265,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/test-games': {
-      id: '/test-games'
-      path: '/test-games'
-      fullPath: '/test-games'
-      preLoaderRoute: typeof TestGamesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/my-games': {
       id: '/my-games'
       path: '/my-games'
@@ -284,6 +277,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/': {
+      id: '/games/'
+      path: '/games'
+      fullPath: '/games'
+      preLoaderRoute: typeof GamesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/games/$id': {
@@ -409,11 +409,11 @@ const ApiUserGamesRouteWithChildren = ApiUserGamesRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MyGamesRoute: MyGamesRoute,
-  TestGamesRoute: TestGamesRoute,
   ApiUserGamesRoute: ApiUserGamesRouteWithChildren,
   DemoStorybookRoute: DemoStorybookRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   GamesIdRoute: GamesIdRoute,
+  GamesIndexRoute: GamesIndexRoute,
   ApiGamesIdRoute: ApiGamesIdRoute,
   ApiGamesSearchRoute: ApiGamesSearchRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,

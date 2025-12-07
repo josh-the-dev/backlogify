@@ -2,20 +2,21 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import z from "zod";
-import { GameList } from "../components/GameSearch/GameList";
-import { GameSearchForm } from "../components/GameSearch/GameSearchForm";
-import { gamesQueryOptions } from "../queries/games";
+import { GameList } from "../../components/GameSearch/GameList";
+import { GameSearchForm } from "../../components/GameSearch/GameSearchForm";
+import { gamesQueryOptions } from "../../queries/games";
 
 const searchSchema = z.object({
 	query: z.string().optional(),
 });
 
-export const Route = createFileRoute("/test-games")({
-	component: TestGamesPage,
+export const Route = createFileRoute("/games/")({
+	component: GamesPage,
 	validateSearch: (search) => searchSchema.parse(search),
 });
-function TestGamesPage() {
-	const { query: initialQuery = "Zelda" } = useSearch({ from: "/test-games" });
+
+function GamesPage() {
+	const { query: initialQuery = "Zelda" } = useSearch({ from: "/games/" });
 	const [query, setQuery] = useState(initialQuery);
 
 	const gamesQuery = useQuery(gamesQueryOptions(query));
