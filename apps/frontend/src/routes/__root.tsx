@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer/Footer";
 import { ClerkProvider } from "@clerk/tanstack-react-start";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
@@ -47,6 +48,7 @@ function RootComponent() {
 		<>
 			<Header />
 			<Outlet />
+			<Footer />
 		</>
 	);
 }
