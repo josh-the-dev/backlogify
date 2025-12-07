@@ -1,12 +1,12 @@
 import type { GameSearchResult } from "@backlogify/types";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
+import { config } from "../../../config";
 
 export const Route = createFileRoute("/api/games/search")({
 	server: {
 		handlers: {
 			GET: async ({ request }) => {
-				console.log("in api route");
 				const url = new URL(request.url);
 				const query = url.searchParams.get("query");
 
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/api/games/search")({
 				}
 
 				const response = await fetch(
-					`http://localhost:3001/games/search?query=${encodeURIComponent(query)}`,
+					`${config.backendUrl}/games/search?query=${encodeURIComponent(query)}`,
 				);
 
 				if (!response.ok) {

@@ -1,0 +1,9 @@
+node_modules
+.output
+.env
+.env.local
+*.log
+.git
+.gitignore
+.turbo
+storybook-static

@@ -2,6 +2,7 @@ import type { UserGame } from "@backlogify/types";
 import { auth } from "@clerk/tanstack-react-start/server";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
+import { config } from "../../config";
 
 export const Route = createFileRoute("/api/user-games")({
 	server: {
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/api/user-games")({
 
 				const token = await getToken();
 
-				const response = await fetch("http://localhost:3001/user-games", {
+				const response = await fetch(`${config.backendUrl}/user-games`, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
@@ -41,7 +42,7 @@ export const Route = createFileRoute("/api/user-games")({
 				const token = await getToken();
 				const body = await request.json();
 
-				const response = await fetch("http://localhost:3001/user-games", {
+				const response = await fetch(`${config.backendUrl}/user-games`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",

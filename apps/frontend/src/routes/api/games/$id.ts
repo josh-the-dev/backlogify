@@ -1,6 +1,7 @@
 import type { GameDetails } from "@backlogify/types";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
+import { config } from "../../../config";
 
 export const Route = createFileRoute("/api/games/$id")({
 	server: {
@@ -12,7 +13,7 @@ export const Route = createFileRoute("/api/games/$id")({
 					return json({ error: "Missing game ID" }, { status: 400 });
 				}
 
-				const response = await fetch(`http://localhost:3001/games/${id}`);
+				const response = await fetch(`${config.backendUrl}/games/${id}`);
 
 				if (!response.ok) {
 					return json(

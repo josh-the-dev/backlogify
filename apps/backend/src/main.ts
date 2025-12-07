@@ -16,9 +16,8 @@ async function bootstrap() {
 		}),
 	);
 
-	// TODO: Environment variable for FE URL
 	app.enableCors({
-		origin: "http://localhost:3000",
+		origin: process.env.FRONTEND_URL || "http://localhost:3000",
 	});
 
 	await app.listen(process.env.PORT ?? 3001);

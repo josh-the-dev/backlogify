@@ -2,6 +2,7 @@ import type { UserGame } from "@backlogify/types";
 import { auth } from "@clerk/tanstack-react-start/server";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
+import { config } from "../../config";
 
 export const Route = createFileRoute("/api/user-games/$gameId")({
 	server: {
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/api/user-games/$gameId")({
 				const body = await request.json();
 
 				const response = await fetch(
-					`http://localhost:3001/user-games/${gameId}/status`,
+					`${config.backendUrl}/user-games/${gameId}/status`,
 					{
 						method: "PATCH",
 						headers: {
@@ -51,7 +52,7 @@ export const Route = createFileRoute("/api/user-games/$gameId")({
 				const { gameId } = params;
 
 				const response = await fetch(
-					`http://localhost:3001/user-games/${gameId}`,
+					`${config.backendUrl}/user-games/${gameId}`,
 					{
 						method: "DELETE",
 						headers: {
