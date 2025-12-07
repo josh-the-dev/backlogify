@@ -14,7 +14,9 @@ RUN npm install lightningcss-linux-x64-gnu@1.30.2 --save-optional
 ARG VITE_CLERK_PUBLISHABLE_KEY
 ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
 
-# Make sure your vite config disables lightningcss (see checklist below)
+# Debug: check what's actually there
+RUN echo "DEBUG: vite config content:" && cat /app/apps/frontend/vite.config.ts
+
 RUN npm run build --workspace=frontend
 
 # ---- runner ----
