@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Gamepad2, Library, ListChecks, Search } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: App });
@@ -43,7 +43,7 @@ function App() {
 					</p>
 					<p className="mx-auto mb-8 max-w-2xl text-gray-400 text-lg">
 						Stop losing track of games you want to play. Search, save, and
-						organize your gaming backlog in one place.
+						organise your gaming backlog in one place.
 					</p>
 					<div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
 						<Link
