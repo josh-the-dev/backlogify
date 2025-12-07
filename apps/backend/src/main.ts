@@ -20,6 +20,8 @@ async function bootstrap() {
 		origin: process.env.FRONTEND_URL || "http://localhost:3000",
 	});
 
-	await app.listen(process.env.PORT ?? 3001, "0.0.0.0");
+	const port = process.env.PORT ?? 3001;
+	await app.listen(port, "0.0.0.0");
+	console.log(`Server listening on port ${port}`);
 }
 bootstrap();
