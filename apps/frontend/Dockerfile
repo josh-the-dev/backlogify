@@ -5,11 +5,9 @@ WORKDIR /app
 # Copy entire repo first
 COPY . .
 
-# Remove any local node_modules (may have wrong platform binaries)
-RUN rm -rf node_modules apps/*/node_modules packages/*/node_modules
-
-# Install fresh dependencies for Linux
-RUN npm ci
+# Delete package-lock and do fresh install for Linux platform
+RUN rm -f package-lock.json
+RUN npm install
 
 # Build: pass any build args you need (Clerk key, etc)
 ARG VITE_CLERK_PUBLISHABLE_KEY
