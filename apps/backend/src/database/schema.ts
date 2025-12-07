@@ -1,0 +1,24 @@
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  timestamp,
+  pgEnum,
+} from 'drizzle-orm/pg-core';
+
+export const gameStatusEnum = pgEnum('game_status', [
+  'backlog',
+  'playing',
+  'played',
+]);
+
+export const userGames = pgTable('user_games', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: varchar('user_id', { length: 255 }).notNull(),
+  externalServiceId: varchar('external_service_id', { length: 255 }).notNull(),
+  name: varchar('name', { length: 500 }).notNull(),
+  coverUrl: text('cover_url'),
+  status: gameStatusEnum('status').notNull().default('backlog'),
+  addedAt: timestamp('added_at').notNull().defaultNow(),
+});

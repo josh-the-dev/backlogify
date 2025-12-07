@@ -1,52 +1,91 @@
 import { GameStatus, UserGame } from "@backlogify/types";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { eq, and } from "drizzle-orm";
+import { DRIZZLE, userGames } from "../database";
+import * as schema from "../database/schema";
 import { AddUserGameDto } from "./dtos/add-user-game.dto";
 
 @Injectable()
 export class UserGamesService {
-	private userGames: UserGame[] = [];
+	constructor(
+		@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+	) {}
 
-	getAll(userId: string): UserGame[] {
-		return this.userGames.filter((g) => g.userId === userId);
+	async getAll(userId: string): Promise<UserGame[]> {
+		const results = await this.db
+			.select()
+			.from(userGames)
+			.where(eq(userGames.userId, userId));
+
+		return results.map((row) => ({
+			id: row.id,
+			userId: row.userId,
+			externalServiceId: row.externalServiceId,
+			name: row.name,
+			coverUrl: row.coverUrl,
+			status: row.status,
+			addedAt: row.addedAt,
+		}));
 	}
 
-	add(userId: string, dto: AddUserGameDto) {
-		const newGame: UserGame = {
-			id: crypto.randomUUID(),
-			userId,
-			externalServiceId: dto.externalServiceId,
-			name: dto.name,
-			coverUrl: dto.coverUrl || null,
-			status: dto.status,
-			addedAt: new Date(),
+	async add(userId: string, dto: AddUserGameDto): Promise<UserGame> {
+		const [inserted] = await this.db
+			.insert(userGames)
+			.values({
+				userId,
+				externalServiceId: dto.externalServiceId,
+				name: dto.name,
+				coverUrl: dto.coverUrl || null,
+				status: dto.status,
+			})
+			.returning();
+
+		return {
+			id: inserted.id,
+			userId: inserted.userId,
+			externalServiceId: inserted.externalServiceId,
+			name: inserted.name,
+			coverUrl: inserted.coverUrl,
+			status: inserted.status,
+			addedAt: inserted.addedAt,
 		};
-
-		this.userGames.push(newGame);
-		return newGame;
 	}
 
-	updateStatus(userId: string, gameId: string, status: GameStatus) {
-		const game = this.userGames.find(
-			(g) => g.userId === userId && g.id === gameId,
-		);
+	async updateStatus(
+		userId: string,
+		gameId: string,
+		status: GameStatus,
+	): Promise<UserGame> {
+		const [updated] = await this.db
+			.update(userGames)
+			.set({ status })
+			.where(and(eq(userGames.userId, userId), eq(userGames.id, gameId)))
+			.returning();
 
-		if (!game) {
+		if (!updated) {
 			throw new NotFoundException("Game not found for this user");
 		}
 
-		game.status = status;
-		return game;
+		return {
+			id: updated.id,
+			userId: updated.userId,
+			externalServiceId: updated.externalServiceId,
+			name: updated.name,
+			coverUrl: updated.coverUrl,
+			status: updated.status,
+			addedAt: updated.addedAt,
+		};
 	}
 
-	remove(userId: string, gameId: string) {
-		const index = this.userGames.findIndex(
-			(g) => g.userId === userId && g.id === gameId,
-		);
+	async remove(userId: string, gameId: string): Promise<void> {
+		const result = await this.db
+			.delete(userGames)
+			.where(and(eq(userGames.userId, userId), eq(userGames.id, gameId)))
+			.returning({ id: userGames.id });
 
-		if (index === -1) {
+		if (result.length === 0) {
 			throw new NotFoundException("Game not found for this user");
 		}
-
-		this.userGames.splice(index, 1);
 	}
 }
