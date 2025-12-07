@@ -17,27 +17,19 @@ ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
 # Build
 RUN npm run build --workspace=frontend
 
-# Debug: see what was actually built
-RUN echo "DEBUG: listing build output:" && ls -la /app/apps/frontend/ && ls -la /app/apps/frontend/dist || true && ls -la /app/apps/frontend/.output || true
-
 # ---- runner ----
 FROM node:20-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV HOST=0.0.0.0
 
-# Create non-root user (optional, but good practice)
-RUN useradd --system --uid 1001 nextjs
+RUN useradd --system --uid 1001 appuser
 
-# Copy only the built frontend output (and any runtime deps)
-COPY --from=builder /app/apps/frontend/.output ./.output
-# If your server needs other files (static, .env.production), copy them here
-# COPY --from=builder /app/apps/frontend/package.json ./package.json
+# Copy built output
+COPY --from=builder /app/apps/frontend/dist ./dist
 
-# If the server needs node modules for production runtime, copy from builder:
-# (optional) COPY --from=builder /app/node_modules ./node_modules
-
-USER nextjs
+USER appuser
 EXPOSE 3000
 
-CMD ["node", ".output/server/index.mjs"]
+CMD ["node", "dist/server/server.js"]
