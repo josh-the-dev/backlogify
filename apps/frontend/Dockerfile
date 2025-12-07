@@ -1,33 +1,46 @@
-FROM node:20-alpine AS base
-
-FROM base AS deps
+# ---- builder ----
+FROM node:20-slim AS builder
 WORKDIR /app
+
+# Copy package manifests first for better caching
 COPY package*.json ./
+# If you have a lockfile:
+COPY package-lock.json ./
+
+# Copy workspace packages' package.json files (optional optimization)
+# COPY apps/frontend/package*.json apps/frontend/
+
+# Install full dependencies (do NOT set NODE_ENV=production here)
 RUN npm ci
 
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Copy entire repo (needed for monorepo builds/workspaces)
 COPY . .
 
+# Build: pass any build args you need (Clerk key, etc)
 ARG VITE_CLERK_PUBLISHABLE_KEY
 ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
 
-RUN npm run build
+# Make sure your vite config disables lightningcss (see checklist below)
+RUN npm run build --workspace=frontend
 
-FROM base AS runner
+# ---- runner ----
+FROM node:20-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=3000
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Create non-root user (optional, but good practice)
+RUN useradd --system --uid 1001 nextjs
 
-COPY --from=builder /app/.output ./.output
-COPY --from=builder /app/package.json ./package.json
+# Copy only the built frontend output (and any runtime deps)
+COPY --from=builder /app/apps/frontend/.output ./.output
+# If your server needs other files (static, .env.production), copy them here
+# COPY --from=builder /app/apps/frontend/package.json ./package.json
+
+# If the server needs node modules for production runtime, copy from builder:
+# (optional) COPY --from=builder /app/node_modules ./node_modules
 
 USER nextjs
-
 EXPOSE 3000
-ENV PORT=3000
 
 CMD ["node", ".output/server/index.mjs"]
