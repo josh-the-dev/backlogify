@@ -24,6 +24,9 @@ const config = defineConfig({
 	},
 	css: {
 		transformer: "postcss",
+		lightningcss: {
+			exclude: /.*/, // 🔥 LightningCSS will never run
+		},
 	},
 	server: {
 		port: 3000,
