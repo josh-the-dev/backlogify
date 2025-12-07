@@ -6,6 +6,7 @@ export const Route = createFileRoute("/api/games/search")({
 	server: {
 		handlers: {
 			GET: async ({ request }) => {
+				console.log("in api route");
 				const url = new URL(request.url);
 				const query = url.searchParams.get("query");
 

@@ -5,9 +5,11 @@ export const gamesQueryOptions = (searchTerm: string) =>
 	queryOptions({
 		queryKey: ["games", searchTerm],
 		queryFn: async (): Promise<GameSearchResult[]> => {
+			console.log("eh");
 			const res = await fetch(
 				`/api/games/search?query=${encodeURIComponent(searchTerm)}`,
 			);
+			console.log(res);
 			if (!res.ok) throw new Error(`Request failed: ${res.status}`);
 			return res.json();
 		},

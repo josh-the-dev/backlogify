@@ -6,7 +6,14 @@
       "Bash(find:*)",
       "Bash(npx nest:*)",
       "Bash(npm run build:*)",
-      "Bash(npm run storybook:*)"
+      "Bash(npm run storybook:*)",
+      "WebSearch",
+      "Bash(npm update:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm ls:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(findstr:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

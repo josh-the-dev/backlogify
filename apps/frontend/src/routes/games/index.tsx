@@ -20,10 +20,9 @@ function GamesPage() {
 	const [query, setQuery] = useState(initialQuery);
 
 	const gamesQuery = useQuery(gamesQueryOptions(query));
-
 	const handleSearchSubmit = (newQuery: string) => {
 		setQuery(newQuery);
-
+		console.log(newQuery);
 		const params = new URLSearchParams(window.location.search);
 		params.set("query", newQuery);
 		window.history.replaceState({}, "", `?${params.toString()}`);

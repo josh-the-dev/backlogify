@@ -16,5 +16,11 @@
   "devDependencies": {
     "@biomejs/biome": "^2.3.0",
     "turbo": "^2.0.0"
+  },
+  "overrides": {
+    "srvx": "0.8.15"
+  },
+  "dependencies": {
+    "srvx": "0.8.15"
   }
 }

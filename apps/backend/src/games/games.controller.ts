@@ -13,6 +13,7 @@ export class GamesController {
 
 	@Get("search")
 	async search(@Query("query") query: string) {
+		console.log("in here");
 		if (!query || query.trim().length === 0) {
 			throw new BadRequestException("Search query is required");
 		}
@@ -22,7 +23,6 @@ export class GamesController {
 
 	@Get(":id")
 	async getGameDetails(@Param("id") id: string) {
-		console.log(id);
 		if (!id) {
 			throw new BadRequestException("Game ID is required");
 		}

@@ -14,6 +14,14 @@ const config = defineConfig({
 		tanstackStart(),
 		viteReact(),
 	],
+	optimizeDeps: {
+		include: ["@clerk/tanstack-react-start", "cookie-es"],
+	},
+	resolve: {
+		alias: {
+			cookie: "cookie-es",
+		},
+	},
 	server: {
 		port: 3000,
 	},

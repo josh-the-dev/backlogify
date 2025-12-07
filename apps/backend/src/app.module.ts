@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { AuthModule } from "./auth";
 import { GamesModule } from "./games/games.module";
 import { UserGamesModule } from "./user-games/user-games.module";
 import { DatabaseModule } from "./database";
@@ -12,6 +13,7 @@ import { DatabaseModule } from "./database";
 	imports: [
 		ConfigModule.forRoot(),
 		DatabaseModule,
+		AuthModule,
 		GamesModule,
 		UserGamesModule,
 	],

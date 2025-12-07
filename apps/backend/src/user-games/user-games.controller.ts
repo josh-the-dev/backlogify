@@ -6,24 +6,27 @@ import {
 	Param,
 	Patch,
 	Post,
+	UseGuards,
 	ValidationPipe,
 } from "@nestjs/common";
+import { ClerkAuthGuard, UserId } from "../auth";
 import { AddUserGameDto } from "./dtos/add-user-game.dto";
 import { UpdateUserGameStatusDto } from "./dtos/update-user-game-status.dto";
 import { UserGamesService } from "./user-games.service";
 
-@Controller("users/:userId/games")
+@Controller("user-games")
+@UseGuards(ClerkAuthGuard)
 export class UserGamesController {
 	constructor(private readonly userGamesService: UserGamesService) {}
 
 	@Get()
-	getAll(@Param("userId") userId: string) {
+	getAll(@UserId() userId: string) {
 		return this.userGamesService.getAll(userId);
 	}
 
 	@Post()
 	addGame(
-		@Param("userId") userId: string,
+		@UserId() userId: string,
 		@Body(ValidationPipe) body: AddUserGameDto,
 	) {
 		return this.userGamesService.add(userId, body);
@@ -31,7 +34,7 @@ export class UserGamesController {
 
 	@Patch(":gameId/status")
 	updateStatus(
-		@Param("userId") userId: string,
+		@UserId() userId: string,
 		@Param("gameId") gameId: string,
 		@Body(ValidationPipe) body: UpdateUserGameStatusDto,
 	) {
@@ -39,7 +42,7 @@ export class UserGamesController {
 	}
 
 	@Delete(":gameId")
-	remove(@Param("userId") userId: string, @Param("gameId") gameId: string) {
+	remove(@UserId() userId: string, @Param("gameId") gameId: string) {
 		return this.userGamesService.remove(userId, gameId);
 	}
 }

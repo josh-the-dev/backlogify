@@ -1,16 +1,25 @@
 import type { UserGame } from "@backlogify/types";
+import { auth } from "@clerk/tanstack-react-start/server";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
-
-const DEMO_USER_ID = "demo-user";
 
 export const Route = createFileRoute("/api/user-games")({
 	server: {
 		handlers: {
 			GET: async () => {
-				const response = await fetch(
-					`http://localhost:3001/users/${DEMO_USER_ID}/games`,
-				);
+				const { userId, getToken } = await auth();
+
+				if (!userId) {
+					return json({ error: "Unauthorized" }, { status: 401 });
+				}
+
+				const token = await getToken();
+
+				const response = await fetch("http://localhost:3001/user-games", {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
 
 				if (!response.ok) {
 					return json(
@@ -23,16 +32,23 @@ export const Route = createFileRoute("/api/user-games")({
 				return json(data);
 			},
 			POST: async ({ request }) => {
+				const { userId, getToken } = await auth();
+
+				if (!userId) {
+					return json({ error: "Unauthorized" }, { status: 401 });
+				}
+
+				const token = await getToken();
 				const body = await request.json();
 
-				const response = await fetch(
-					`http://localhost:3001/users/${DEMO_USER_ID}/games`,
-					{
-						method: "POST",
-						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify(body),
+				const response = await fetch("http://localhost:3001/user-games", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
 					},
-				);
+					body: JSON.stringify(body),
+				});
 
 				if (!response.ok) {
 					const error = await response.json().catch(() => ({}));
