@@ -2,16 +2,17 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { nitro } from "nitro/vite";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
 const config = defineConfig({
 	plugins: [
-		// this is the plugin that enables path aliases
 		viteTsConfigPaths({
 			projects: ["./tsconfig.json"],
 		}),
 		tailwindcss(),
 		tanstackStart(),
+		nitro(),
 		viteReact(),
 	],
 	optimizeDeps: {
@@ -24,9 +25,6 @@ const config = defineConfig({
 	},
 	css: {
 		transformer: "postcss",
-		lightningcss: {
-			exclude: /.*/, // 🔥 LightningCSS will never run
-		},
 	},
 	server: {
 		port: 3000,

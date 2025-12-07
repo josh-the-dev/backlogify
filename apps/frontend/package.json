@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
+    "start": "node .output/server/index.mjs",
     "serve": "vite preview",
     "test": "vitest run",
     "format": "biome format",
@@ -27,6 +28,7 @@
     "@tanstack/router-plugin": "^1.134.4",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.544.0",
+    "nitro": "^3.0.1-alpha.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "storybook": "^9.1.9",
