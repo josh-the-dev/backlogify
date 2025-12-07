@@ -16,7 +16,7 @@ export const Route = createFileRoute("/games/")({
 });
 
 function GamesPage() {
-	const { query: initialQuery = "Zelda" } = useSearch({ from: "/games/" });
+	const { query: initialQuery = "Elden Ring" } = useSearch({ from: "/games/" });
 	const [query, setQuery] = useState(initialQuery);
 
 	const gamesQuery = useQuery(gamesQueryOptions(query));
