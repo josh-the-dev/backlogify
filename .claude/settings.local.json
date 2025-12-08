@@ -14,7 +14,8 @@
       "WebFetch(domain:github.com)",
       "Bash(findstr:*)",
       "Bash(npm install:*)",
-      "Bash(npm run db:generate:*)"
+      "Bash(npm run db:generate:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []
