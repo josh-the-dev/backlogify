@@ -38,7 +38,36 @@ export function useAddUserGame() {
 			}
 			return res.json();
 		},
-		onSuccess: () => {
+		onMutate: async (newGame) => {
+			await queryClient.cancelQueries({ queryKey: ["user-games"] });
+			const previousGames = queryClient.getQueryData<UserGame[]>([
+				"user-games",
+			]);
+
+			if (previousGames) {
+				const optimisticGame: UserGame = {
+					id: `temp-${Date.now()}`,
+					userId: "", // Placeholder - will be replaced on refetch
+					externalServiceId: newGame.externalServiceId,
+					name: newGame.name,
+					coverUrl: newGame.coverUrl,
+					status: newGame.status,
+					addedAt: new Date(),
+				};
+				queryClient.setQueryData<UserGame[]>(
+					["user-games"],
+					[...previousGames, optimisticGame],
+				);
+			}
+
+			return { previousGames };
+		},
+		onError: (_err, _newGame, context) => {
+			if (context?.previousGames) {
+				queryClient.setQueryData(["user-games"], context.previousGames);
+			}
+		},
+		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: ["user-games"] });
 		},
 	});

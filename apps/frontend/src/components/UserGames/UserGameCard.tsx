@@ -45,7 +45,7 @@ export function UserGameCard({ game }: { game: UserGame }) {
 			<CardFooter className="flex-col gap-2">
 				<Select
 					value={game.status}
-					onValueChange={(value) => handleStatusChange(value as GameStatus)}
+					onValueChange={(value: string) => handleStatusChange(value as GameStatus)}
 					disabled={isUpdating}
 				>
 					<SelectTrigger className="w-full">

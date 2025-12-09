@@ -7,6 +7,7 @@ import {
 	createRouter,
 } from "@tanstack/react-router";
 import { render, type RenderOptions, waitFor } from "@testing-library/react";
+import { expect } from "vitest";
 import type { ReactElement, ReactNode } from "react";
 
 function createTestRouter(component: ReactNode, initialPath = "/") {
@@ -55,7 +56,9 @@ function createWrapper(initialPath = "/") {
 
 	return function Wrapper({ children }: WrapperProps) {
 		// Override the root route component to render children
-		router.options.routeTree.options.component = () => <>{children}</>;
+		if (router.options.routeTree) {
+			router.options.routeTree.options.component = () => <>{children}</>;
+		}
 
 		return (
 			<QueryClientProvider client={queryClient}>

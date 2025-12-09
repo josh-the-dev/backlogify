@@ -15,10 +15,10 @@ export function NavLink({ to, icon: Icon, label, onClick, search }: NavLinkProps
 			to={to}
 			search={search}
 			onClick={onClick}
-			className="mb-2 flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-gray-800"
+			className="mb-2 flex items-center gap-3 rounded-lg p-3 text-foreground transition-colors hover:bg-accent"
 			activeProps={{
 				className:
-					"flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2",
+					"flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors mb-2",
 			}}
 		>
 			<Icon size={20} />

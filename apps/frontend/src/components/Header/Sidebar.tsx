@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { SignedIn, SignedOut } from "@clerk/tanstack-react-start";
 import { Home, Library, LogIn, Search, X } from "lucide-react";
 import { NavLink } from "./NavLink";
@@ -7,23 +8,26 @@ interface SidebarProps {
 	onClose: () => void;
 }
 
+/**
+ * @deprecated Use MobileNav instead
+ */
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
 	return (
 		<aside
-			className={`fixed top-0 left-0 z-50 flex h-full w-80 transform flex-col bg-gray-900 text-white shadow-2xl transition-transform duration-300 ease-in-out ${
+			className={`fixed top-0 left-0 z-50 flex h-full w-80 transform flex-col bg-background border-r border-border shadow-2xl transition-transform duration-300 ease-in-out ${
 				isOpen ? "translate-x-0" : "-translate-x-full"
 			}`}
 		>
-			<div className="flex items-center justify-between border-gray-700 border-b p-4">
+			<div className="flex items-center justify-between border-b border-border p-4">
 				<h2 className="font-bold text-xl">Backlogify</h2>
-				<button
-					type="button"
+				<Button
+					variant="ghost"
+					size="icon"
 					onClick={onClose}
-					className="rounded-lg p-2 transition-colors hover:bg-gray-800"
 					aria-label="Close menu"
 				>
 					<X size={24} />
-				</button>
+				</Button>
 			</div>
 
 			<nav className="flex-1 overflow-y-auto p-4">

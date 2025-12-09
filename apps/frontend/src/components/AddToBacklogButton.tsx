@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { UserGame } from "@backlogify/types";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Plus } from "lucide-react";
 import { useAddUserGame, userGamesQueryOptions } from "../queries/user-games";
@@ -41,7 +42,7 @@ export function AddToBacklogButton({
 		return (
 			<Badge
 				variant="secondary"
-				className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+				className="bg-status-played/20 text-status-played"
 			>
 				<Check className="size-3" />
 				In Library
@@ -49,15 +50,28 @@ export function AddToBacklogButton({
 		);
 	}
 
-	// TODO: show a different state if not signed in / use signinbutton from clerk
+	const buttonSize = size === "sm" ? "sm" : "default";
+
 	return (
-		<Button
-			size={size === "sm" ? "sm" : "default"}
-			onClick={handleAdd}
-			disabled={addGame.isPending}
-		>
-			<Plus className="size-4" />
-			{addGame.isPending ? "Adding..." : "Add to Backlog"}
-		</Button>
+		<>
+			<SignedIn>
+				<Button
+					size={buttonSize}
+					onClick={handleAdd}
+					disabled={addGame.isPending}
+				>
+					<Plus className="size-4" />
+					{addGame.isPending ? "Adding..." : "Add to Backlog"}
+				</Button>
+			</SignedIn>
+			<SignedOut>
+				<SignInButton mode="modal">
+					<Button size={buttonSize}>
+						<Plus className="size-4" />
+						Add to Backlog
+					</Button>
+				</SignInButton>
+			</SignedOut>
+		</>
 	);
 }

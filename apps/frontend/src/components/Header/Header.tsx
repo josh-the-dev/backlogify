@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
 	SignedIn,
 	SignedOut,
@@ -5,48 +6,73 @@ import {
 	UserButton,
 } from "@clerk/tanstack-react-start";
 import { Link } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
+import { Gamepad2, Library, Menu, Search } from "lucide-react";
 import { useState } from "react";
-import { Sidebar } from "./Sidebar";
+import { MobileNav } from "./MobileNav";
 
 export default function Header() {
-	const [isOpen, setIsOpen] = useState(false);
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
 	return (
 		<>
-			<header className="flex items-center justify-between bg-gray-800 p-4 text-white shadow-lg">
-				<div className="flex items-center">
-					<button
-						type="button"
-						onClick={() => setIsOpen(true)}
-						className="rounded-lg p-2 transition-colors hover:bg-gray-700"
-						aria-label="Open menu"
-					>
-						<Menu size={24} />
-					</button>
-					<h1 className="ml-4 font-semibold text-xl">
-						<Link to="/">Backlogify</Link>
-					</h1>
-				</div>
+			<header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+				<div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+					{/* Logo */}
+					<Link to="/" className="flex items-center gap-2">
+						<Gamepad2 className="size-6 text-primary" />
+						<span className="font-bold text-lg">Backlogify</span>
+					</Link>
 
-				<div className="flex items-center">
-					<SignedOut>
-						<SignInButton mode="modal">
-							<button
-								type="button"
-								className="rounded-lg bg-blue-600 px-4 py-2 font-medium transition-colors hover:bg-blue-700"
-							>
-								Sign In
-							</button>
-						</SignInButton>
-					</SignedOut>
-					<SignedIn>
-						<UserButton />
-					</SignedIn>
+					{/* Right side - Navigation + Auth */}
+					<div className="flex items-center gap-4">
+						{/* Desktop Navigation */}
+						<nav className="hidden items-center md:flex">
+							<Button variant="ghost" asChild>
+								<Link to="/games">
+									<Search className="size-4" />
+									Search
+								</Link>
+							</Button>
+							<SignedIn>
+								<Button variant="ghost" asChild>
+									<Link to="/my-games">
+										<Library className="size-4" />
+										My Games
+									</Link>
+								</Button>
+							</SignedIn>
+						</nav>
+
+						{/* Auth */}
+						<SignedOut>
+							<SignInButton mode="modal">
+								<Button size="sm" className="hidden md:flex">
+									Sign In
+								</Button>
+							</SignInButton>
+						</SignedOut>
+						<SignedIn>
+							<UserButton />
+						</SignedIn>
+
+						{/* Mobile menu button */}
+						<Button
+							variant="ghost"
+							size="icon"
+							className="md:hidden"
+							onClick={() => setMobileMenuOpen(true)}
+							aria-label="Open menu"
+						>
+							<Menu className="size-5" />
+						</Button>
+					</div>
 				</div>
 			</header>
 
-			<Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} />
+			<MobileNav
+				isOpen={mobileMenuOpen}
+				onClose={() => setMobileMenuOpen(false)}
+			/>
 		</>
 	);
 }
