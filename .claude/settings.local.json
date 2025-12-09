@@ -19,7 +19,8 @@
       "Bash(npm run typecheck:*)",
       "Bash(npx turbo:*)",
       "Bash(npx tsc --noEmit)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

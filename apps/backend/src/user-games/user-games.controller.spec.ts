@@ -1,5 +1,6 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import { ClerkAuthGuard } from "../auth";
 import { UserGamesController } from "./user-games.controller";
 import { UserGamesService } from "./user-games.service";
 
@@ -13,6 +14,10 @@ describe("UserGamesController", () => {
 		remove: jest.fn(),
 	};
 
+	const mockClerkAuthGuard = {
+		canActivate: jest.fn().mockReturnValue(true),
+	};
+
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
 			controllers: [UserGamesController],
@@ -22,7 +27,10 @@ describe("UserGamesController", () => {
 					useValue: mockUserGamesService,
 				},
 			],
-		}).compile();
+		})
+			.overrideGuard(ClerkAuthGuard)
+			.useValue(mockClerkAuthGuard)
+			.compile();
 
 		controller = module.get<UserGamesController>(UserGamesController);
 
