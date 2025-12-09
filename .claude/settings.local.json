@@ -15,7 +15,10 @@
       "Bash(findstr:*)",
       "Bash(npm install:*)",
       "Bash(npm run db:generate:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npx turbo:*)",
+      "Bash(npx tsc --noEmit)"
     ],
     "deny": [],
     "ask": []

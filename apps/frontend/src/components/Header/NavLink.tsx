@@ -6,12 +6,14 @@ export interface NavLinkProps {
 	icon: LucideIcon;
 	label: string;
 	onClick?: () => void;
+	search?: Record<string, string>;
 }
 
-export function NavLink({ to, icon: Icon, label, onClick }: NavLinkProps) {
+export function NavLink({ to, icon: Icon, label, onClick, search }: NavLinkProps) {
 	return (
 		<Link
 			to={to}
+			search={search}
 			onClick={onClick}
 			className="mb-2 flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-gray-800"
 			activeProps={{

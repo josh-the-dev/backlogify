@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as MyGamesRouteImport } from './routes/my-games'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GamesIndexRouteImport } from './routes/games/index'
@@ -18,6 +20,16 @@ import { Route as ApiUserGamesGameIdRouteImport } from './routes/api/user-games.
 import { Route as ApiGamesSearchRouteImport } from './routes/api/games/search'
 import { Route as ApiGamesIdRouteImport } from './routes/api/games/$id'
 
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MyGamesRoute = MyGamesRouteImport.update({
   id: '/my-games',
   path: '/my-games',
@@ -62,6 +74,8 @@ const ApiGamesIdRoute = ApiGamesIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/my-games': typeof MyGamesRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/games/$id': typeof GamesIdRoute
   '/games': typeof GamesIndexRoute
@@ -72,6 +86,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/my-games': typeof MyGamesRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/games/$id': typeof GamesIdRoute
   '/games': typeof GamesIndexRoute
@@ -83,6 +99,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/my-games': typeof MyGamesRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/games/$id': typeof GamesIdRoute
   '/games/': typeof GamesIndexRoute
@@ -95,6 +113,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/my-games'
+    | '/sign-in'
+    | '/sign-up'
     | '/api/user-games'
     | '/games/$id'
     | '/games'
@@ -105,6 +125,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/my-games'
+    | '/sign-in'
+    | '/sign-up'
     | '/api/user-games'
     | '/games/$id'
     | '/games'
@@ -115,6 +137,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/my-games'
+    | '/sign-in'
+    | '/sign-up'
     | '/api/user-games'
     | '/games/$id'
     | '/games/'
@@ -126,6 +150,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MyGamesRoute: typeof MyGamesRoute
+  SignInRoute: typeof SignInRoute
+  SignUpRoute: typeof SignUpRoute
   ApiUserGamesRoute: typeof ApiUserGamesRouteWithChildren
   GamesIdRoute: typeof GamesIdRoute
   GamesIndexRoute: typeof GamesIndexRoute
@@ -135,6 +161,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-games': {
       id: '/my-games'
       path: '/my-games'
@@ -209,6 +249,8 @@ const ApiUserGamesRouteWithChildren = ApiUserGamesRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MyGamesRoute: MyGamesRoute,
+  SignInRoute: SignInRoute,
+  SignUpRoute: SignUpRoute,
   ApiUserGamesRoute: ApiUserGamesRouteWithChildren,
   GamesIdRoute: GamesIdRoute,
   GamesIndexRoute: GamesIndexRoute,

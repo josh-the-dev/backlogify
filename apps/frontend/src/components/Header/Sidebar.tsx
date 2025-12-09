@@ -1,4 +1,5 @@
-import { Home, Library, Search, X } from "lucide-react";
+import { SignedIn, SignedOut } from "@clerk/tanstack-react-start";
+import { Home, Library, LogIn, Search, X } from "lucide-react";
 import { NavLink } from "./NavLink";
 
 interface SidebarProps {
@@ -33,12 +34,23 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 					label="Search Games"
 					onClick={onClose}
 				/>
-				<NavLink
-					to="/my-games"
-					icon={Library}
-					label="My Games"
-					onClick={onClose}
-				/>
+				<SignedIn>
+					<NavLink
+						to="/my-games"
+						icon={Library}
+						label="My Games"
+						onClick={onClose}
+					/>
+				</SignedIn>
+				<SignedOut>
+					<NavLink
+						to="/sign-in"
+						search={{ redirect: "/my-games" }}
+						icon={LogIn}
+						label="Sign In"
+						onClick={onClose}
+					/>
+				</SignedOut>
 			</nav>
 		</aside>
 	);

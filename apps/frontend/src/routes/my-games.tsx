@@ -1,6 +1,7 @@
 import type { GameStatus } from "@backlogify/types";
+import { auth } from "@clerk/tanstack-react-start/server";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { StatusFilter } from "../components/UserGames/StatusFilter";
 import { UserGameList } from "../components/UserGames/UserGameList";
@@ -10,6 +11,18 @@ type FilterOption = GameStatus | "all";
 
 export const Route = createFileRoute("/my-games")({
 	component: MyGamesPage,
+	beforeLoad: async () => {
+		const { userId } = await auth();
+
+		if (!userId) {
+			throw redirect({
+				to: "/sign-in",
+				search: {
+					redirect: "/my-games",
+				},
+			});
+		}
+	},
 });
 
 function MyGamesPage() {

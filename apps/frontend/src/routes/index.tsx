@@ -1,3 +1,4 @@
+import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-react-start";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Gamepad2, Library, ListChecks, Search } from "lucide-react";
 
@@ -52,12 +53,24 @@ function App() {
 						>
 							Search Games
 						</Link>
-						<Link
-							to="/my-games"
-							className="rounded-lg border border-slate-600 bg-slate-800 px-8 py-3 font-semibold text-white transition-colors hover:border-slate-500 hover:bg-slate-700"
-						>
-							My Backlog
-						</Link>
+						<SignedIn>
+							<Link
+								to="/my-games"
+								className="rounded-lg border border-slate-600 bg-slate-800 px-8 py-3 font-semibold text-white transition-colors hover:border-slate-500 hover:bg-slate-700"
+							>
+								My Backlog
+							</Link>
+						</SignedIn>
+						<SignedOut>
+							<SignInButton mode="modal" forceRedirectUrl="/my-games">
+								<button
+									type="button"
+									className="rounded-lg border border-slate-600 bg-slate-800 px-8 py-3 font-semibold text-white transition-colors hover:border-slate-500 hover:bg-slate-700"
+								>
+									My Backlog
+								</button>
+							</SignInButton>
+						</SignedOut>
 					</div>
 				</div>
 			</section>
