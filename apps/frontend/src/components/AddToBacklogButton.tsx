@@ -1,8 +1,8 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { UserGame } from "@backlogify/types";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Plus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useAddUserGame, userGamesQueryOptions } from "../queries/user-games";
 
 interface AddToBacklogButtonProps {
@@ -39,13 +39,17 @@ export function AddToBacklogButton({
 
 	if (isInLibrary) {
 		return (
-			<Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+			<Badge
+				variant="secondary"
+				className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+			>
 				<Check className="size-3" />
 				In Library
 			</Badge>
 		);
 	}
 
+	// TODO: show a different state if not signed in / use signinbutton from clerk
 	return (
 		<Button
 			size={size === "sm" ? "sm" : "default"}

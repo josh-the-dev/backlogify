@@ -1,8 +1,14 @@
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-react-start";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Gamepad2, Library, ListChecks, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const Route = createFileRoute("/")({ component: App });
 
@@ -49,7 +55,7 @@ function App() {
 						organise your gaming backlog in one place.
 					</p>
 					<div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-						<Button size="lg" className="bg-cyan-500 hover:bg-cyan-600 shadow-lg shadow-cyan-500/50" asChild>
+						<Button size="lg" asChild>
 							<Link to="/games">
 								<Search className="size-4" />
 								Search Games

@@ -1,8 +1,14 @@
+import { Badge } from "@/components/ui/badge";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import type { GameDetails as GameDetailsType } from "@backlogify/types";
 import { format } from "date-fns";
 import { Calendar, Gamepad, Tag } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AddToBacklogButton } from "../AddToBacklogButton";
 
 export function GameDetailsContent({ game }: { game: GameDetailsType }) {

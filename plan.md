@@ -254,22 +254,21 @@
 4. Initialize shadcn/ui
 5. Add core components (button, input, dialog, select, card, badge, form)
 6. Migrate existing components to use shadcn
-7. Add dark mode support
 
 ### Phase 3: Testing Foundation
 
-8. Add frontend component tests (expand from 1 to full suite)
-9. Install and configure Playwright
-10. Add critical path E2E tests
+7. Add frontend component tests (expand from 1 to full suite)
+8. Install and configure Playwright
+9. Add critical path E2E tests
 
 ### Phase 4: CI/CD
 
-11. Set up GitHub Actions workflow
-12. Add lint/typecheck/test to PR workflow
+10. Set up GitHub Actions workflow
+11. Add lint/typecheck/test to PR workflow
 
 ### Phase 5: Cleanup
 
-13. Remove old/unused components
+12. Remove old/unused components
 
 ---
 

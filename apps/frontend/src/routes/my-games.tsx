@@ -2,6 +2,7 @@ import type { GameStatus } from "@backlogify/types";
 import { auth } from "@clerk/tanstack-react-start/server";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { StatusFilter } from "../components/UserGames/StatusFilter";
 import { UserGameList } from "../components/UserGames/UserGameList";
@@ -9,19 +10,27 @@ import { userGamesQueryOptions } from "../queries/user-games";
 
 type FilterOption = GameStatus | "all";
 
+const authStateFn = createServerFn({ method: "GET" }).handler(async () => {
+	const { isAuthenticated, userId } = await auth();
+
+	if (!isAuthenticated) {
+		// This will error because you're redirecting to a path that doesn't exist yet
+		// You can create a sign-in route to handle this
+		// See https://clerk.com/docs/tanstack-react-start/guides/development/custom-sign-in-or-up-page
+		throw redirect({
+			to: "/sign-in",
+			search: { redirect: "/my-games" },
+		});
+	}
+
+	return { userId };
+});
+
 export const Route = createFileRoute("/my-games")({
 	component: MyGamesPage,
-	beforeLoad: async () => {
-		const { userId } = await auth();
-
-		if (!userId) {
-			throw redirect({
-				to: "/sign-in",
-				search: {
-					redirect: "/my-games",
-				},
-			});
-		}
+	beforeLoad: async () => await authStateFn(),
+	loader: async ({ context }) => {
+		return { userId: context.userId };
 	},
 });
 
