@@ -15,19 +15,19 @@ export const Route = createFileRoute("/")({ component: App });
 function App() {
 	const features = [
 		{
-			icon: <Search className="size-12 text-cyan-400" />,
+			icon: <Search className="size-12 text-primary" />,
 			title: "Search Games",
 			description:
 				"Browse thousands of games from the RAWG database. Find your next adventure with ease.",
 		},
 		{
-			icon: <Library className="size-12 text-cyan-400" />,
+			icon: <Library className="size-12 text-primary" />,
 			title: "Build Your Backlog",
 			description:
 				"Add games to your personal backlog. Never forget about that game you wanted to play.",
 		},
 		{
-			icon: <ListChecks className="size-12 text-cyan-400" />,
+			icon: <ListChecks className="size-12 text-primary" />,
 			title: "Track Progress",
 			description:
 				"Mark games as backlog, playing, or played. See your gaming journey at a glance.",
@@ -35,22 +35,22 @@ function App() {
 	];
 
 	return (
-		<div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+		<div className="min-h-screen">
 			<section className="relative overflow-hidden px-6 py-20 text-center">
-				<div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10" />
+				<div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10" />
 				<div className="relative mx-auto max-w-5xl">
 					<div className="mb-6 flex items-center justify-center gap-4">
-						<Gamepad2 className="size-16 text-cyan-400 md:size-20" />
-						<h1 className="font-black text-5xl text-white md:text-7xl">
-							<span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+						<Gamepad2 className="size-16 text-primary md:size-20" />
+						<h1 className="font-black text-5xl md:text-7xl">
+							<span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
 								Backlogify
 							</span>
 						</h1>
 					</div>
-					<p className="mb-4 font-light text-2xl text-gray-300 md:text-3xl">
+					<p className="mb-4 font-light text-2xl text-muted-foreground md:text-3xl">
 						Your personal game backlog tracker
 					</p>
-					<p className="mx-auto mb-8 max-w-2xl text-gray-400 text-lg">
+					<p className="mx-auto mb-8 max-w-2xl text-muted-foreground text-lg">
 						Stop losing track of games you want to play. Search, save, and
 						organise your gaming backlog in one place.
 					</p>
@@ -86,14 +86,14 @@ function App() {
 					{features.map((feature) => (
 						<Card
 							key={feature.title}
-							className="border-slate-700 bg-slate-800/50 backdrop-blur-sm transition-all duration-300 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10"
+							className="transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
 						>
 							<CardHeader>
 								<div className="mb-2">{feature.icon}</div>
-								<CardTitle className="text-white">{feature.title}</CardTitle>
+								<CardTitle>{feature.title}</CardTitle>
 							</CardHeader>
 							<CardContent>
-								<CardDescription className="text-gray-400 leading-relaxed">
+								<CardDescription className="leading-relaxed">
 									{feature.description}
 								</CardDescription>
 							</CardContent>
