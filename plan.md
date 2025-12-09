@@ -2,28 +2,30 @@
 
 ## Current Stack Overview
 
-| Layer | Technology | Version |
-|-------|------------|---------|
-| Monorepo | Turborepo | 2.0.0 |
-| Frontend | TanStack React Start + Vite | 1.134.4 / 7.1.7 |
-| Backend | NestJS | 11.0.1 |
-| Database | PostgreSQL + Drizzle ORM | 16 / 0.38.2 |
-| Auth | Clerk | 0.26.5 (FE) / 1.24.0 (BE) |
-| Styling | Tailwind CSS | 4.0.6 |
-| Linting | Biome | 2.3.0 |
-| Storybook | Storybook | 9.1.9 |
+| Layer     | Technology                  | Version                   |
+| --------- | --------------------------- | ------------------------- |
+| Monorepo  | Turborepo                   | 2.0.0                     |
+| Frontend  | TanStack React Start + Vite | 1.134.4 / 7.1.7           |
+| Backend   | NestJS                      | 11.0.1                    |
+| Database  | PostgreSQL + Drizzle ORM    | 16 / 0.38.2               |
+| Auth      | Clerk                       | 0.26.5 (FE) / 1.24.0 (BE) |
+| Styling   | Tailwind CSS                | 4.0.6                     |
+| Linting   | Biome                       | 2.3.0                     |
+| Storybook | Storybook                   | 9.1.9                     |
 
 ---
 
 ## Auth
 
 ### Switch Clerk from Dev → Production instance
+
 - [ ] Create Clerk production instance
 - [ ] Update environment variables for production
 - [ ] Configure production OAuth providers
 - [ ] Update CORS settings for production domains
 
 ### Secure routes (users can't access backlog, profile, review pages unless signed in)
+
 - [x] Create auth middleware/wrapper for protected routes
 - [x] Protect `/my-games` route
 - [ ] Protect any profile/settings routes (when implemented)
@@ -37,6 +39,7 @@
 ## Backend (NestJS)
 
 ### API key for BE (private, server-only)
+
 - [x] RAWG API key stored in config service
 - [x] Create API key guard for server-to-server routes
 - [x] API key guard applied globally to all backend routes
@@ -45,6 +48,7 @@
 **Current State:** Complete. All backend routes require `x-api-key` header. Frontend server-side API routes pass the key. Browser never sees the API key (BFF pattern).
 
 ### Rate limiting for NestJS
+
 - [ ] Install `@nestjs/throttler`
 - [ ] Configure rate limits per endpoint
 - [ ] Add rate limiting to RAWG API calls to prevent quota exhaustion
@@ -61,9 +65,11 @@
 **Current State:** Migrating custom components to shadcn/ui
 
 **Existing custom components** (`/apps/frontend/src/components/storybook/`):
+
 - Button, Input, Dialog, RadioGroup, Slider (to be replaced)
 
 **shadcn/ui prerequisites (already have):**
+
 - [x] Tailwind CSS v4 + @tailwindcss/vite
 - [x] class-variance-authority (CVA)
 - [x] clsx + tailwind-merge
@@ -71,7 +77,8 @@
 - [x] zod (for form validation)
 
 **Migration steps:**
-- [ ] Run `npx shadcn@latest init` (use `--force` for React 19 peer deps)
+
+- [x] Run `npx shadcn@latest init` (use `--force` for React 19 peer deps)
 - [ ] Configure `components.json` with path aliases (`@/components/ui`)
 - [ ] Add core components:
   ```bash
@@ -82,6 +89,7 @@
 - [ ] Add dark mode support via theme provider
 
 **Design tokens (handled by shadcn):**
+
 - [x] Colors via CSS variables (generated in globals.css)
 - [x] Border radius tokens
 - [x] Shadows
@@ -99,6 +107,7 @@
 - [x] TanStack Router decorator in preview
 
 **Stories exist for:**
+
 - [x] Button (default, disabled, loading, variants)
 - [x] Input
 - [x] Dialog
@@ -107,6 +116,7 @@
 - [x] NavLink
 
 **After shadcn migration:**
+
 - [ ] Update stories to use shadcn components
 - [ ] Add stories for new components (Select, Badge, Card, etc.)
 - [ ] Add dark mode toggle in Storybook toolbar
@@ -126,6 +136,7 @@
 - [ ] Only 1 test file exists (`NavLink.test.tsx`)
 
 **Need to add tests for:**
+
 - [ ] Component tests (Button, Input, Dialog, etc.)
 - [ ] Hook tests (custom hooks)
 - [ ] Utility function tests
@@ -156,6 +167,7 @@
 - [ ] Create test fixtures for auth state
 
 **Test flows to implement:**
+
 - [ ] Login via Clerk
 - [ ] Search for a game
 - [ ] Add game to backlog
@@ -211,6 +223,7 @@
 - [x] Zod installed (ready for validation schemas)
 
 **Need to add:**
+
 - [ ] Form validation schemas with Zod
 - [ ] Request/response DTO types
 - [ ] API error response types
@@ -230,31 +243,40 @@
 ## Priority Order (Suggested)
 
 ### Phase 1: Security & Stability
+
 1. ~~Secure frontend routes (auth middleware)~~ ✅
 2. ~~Add API key guard for backend~~ ✅
 3. Add rate limiting to backend
 4. Switch Clerk to production (before launch)
 
 ### Phase 2: Component Library (shadcn/ui)
+
 4. Initialize shadcn/ui
 5. Add core components (button, input, dialog, select, card, badge, form)
 6. Migrate existing components to use shadcn
 7. Add dark mode support
 
 ### Phase 3: Testing Foundation
+
 8. Add frontend component tests (expand from 1 to full suite)
 9. Install and configure Playwright
 10. Add critical path E2E tests
 
 ### Phase 4: CI/CD
+
 11. Set up GitHub Actions workflow
 12. Add lint/typecheck/test to PR workflow
+
+### Phase 5: Cleanup
+
+13. Remove old/unused components
 
 ---
 
 ## Quick Reference
 
 ### Commands
+
 ```bash
 # Development
 npm run dev          # Start all apps
@@ -280,6 +302,7 @@ npx shadcn@latest add [component-name]
 ```
 
 ### Key Files
+
 - `/turbo.json` - Turborepo config
 - `/biome.json` - Linting/formatting config
 - `/apps/frontend/.storybook/` - Storybook config

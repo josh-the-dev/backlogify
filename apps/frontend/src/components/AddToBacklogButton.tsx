@@ -1,5 +1,8 @@
 import type { UserGame } from "@backlogify/types";
 import { useQuery } from "@tanstack/react-query";
+import { Check, Plus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useAddUserGame, userGamesQueryOptions } from "../queries/user-games";
 
 interface AddToBacklogButtonProps {
@@ -36,26 +39,21 @@ export function AddToBacklogButton({
 
 	if (isInLibrary) {
 		return (
-			<span
-				className={`inline-flex items-center rounded-lg bg-green-100 font-medium text-green-700 ${
-					size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm"
-				}`}
-			>
+			<Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+				<Check className="size-3" />
 				In Library
-			</span>
+			</Badge>
 		);
 	}
 
 	return (
-		<button
-			type="button"
+		<Button
+			size={size === "sm" ? "sm" : "default"}
 			onClick={handleAdd}
 			disabled={addGame.isPending}
-			className={`inline-flex items-center rounded-lg bg-blue-600 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 ${
-				size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm"
-			}`}
 		>
-			{addGame.isPending ? "Adding..." : "+ Add to Backlog"}
-		</button>
+			<Plus className="size-4" />
+			{addGame.isPending ? "Adding..." : "Add to Backlog"}
+		</Button>
 	);
 }

@@ -1,4 +1,5 @@
 import type { GameStatus } from "@backlogify/types";
+import { Button } from "@/components/ui/button";
 
 type FilterOption = GameStatus | "all";
 
@@ -19,18 +20,15 @@ export function StatusFilter({ value, onChange, counts }: StatusFilterProps) {
 	return (
 		<div className="flex flex-wrap justify-center gap-2">
 			{OPTIONS.map((option) => (
-				<button
+				<Button
 					key={option.value}
-					type="button"
+					variant={value === option.value ? "default" : "outline"}
+					size="sm"
 					onClick={() => onChange(option.value)}
-					className={`rounded-full px-4 py-2 font-medium text-sm transition ${
-						value === option.value
-							? "bg-blue-600 text-white"
-							: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-					}`}
+					className="rounded-full"
 				>
 					{option.label} ({counts[option.value]})
-				</button>
+				</Button>
 			))}
 		</div>
 	);
