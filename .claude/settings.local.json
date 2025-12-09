@@ -18,7 +18,8 @@
       "Bash(grep:*)",
       "Bash(npm run typecheck:*)",
       "Bash(npx turbo:*)",
-      "Bash(npx tsc --noEmit)"
+      "Bash(npx tsc --noEmit)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

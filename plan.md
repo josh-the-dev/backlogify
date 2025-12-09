@@ -24,12 +24,13 @@
 - [ ] Update CORS settings for production domains
 
 ### Secure routes (users can't access backlog, profile, review pages unless signed in)
-- [ ] Create auth middleware/wrapper for protected routes
-- [ ] Protect `/my-games` route
-- [ ] Protect any profile/settings routes
-- [ ] Show Clerk modal or redirect to `/sign-in?redirect=...` for unauthenticated users
+- [x] Create auth middleware/wrapper for protected routes
+- [x] Protect `/my-games` route
+- [ ] Protect any profile/settings routes (when implemented)
+- [x] Show Clerk modal or redirect to `/sign-in?redirect=...` for unauthenticated users
+- [x] Created dedicated `/sign-in` and `/sign-up` routes
 
-**Current State:** Backend has `ClerkAuthGuard` (`apps/backend/src/auth/auth.guard.ts`) but frontend routes are not protected.
+**Current State:** Complete. Frontend routes are protected with `beforeLoad` auth checks. Unauthenticated users are redirected to `/sign-in?redirect=...`. Sidebar and homepage buttons are auth-aware.
 
 ---
 
@@ -37,8 +38,11 @@
 
 ### API key for BE (private, server-only)
 - [x] RAWG API key stored in config service
-- [ ] Create API key guard for server-to-server routes (if needed)
-- [ ] Document which routes require API key vs user auth
+- [x] Create API key guard for server-to-server routes
+- [x] API key guard applied globally to all backend routes
+- [x] Frontend API routes include `x-api-key` header
+
+**Current State:** Complete. All backend routes require `x-api-key` header. Frontend server-side API routes pass the key. Browser never sees the API key (BFF pattern).
 
 ### Rate limiting for NestJS
 - [ ] Install `@nestjs/throttler`
@@ -226,9 +230,10 @@
 ## Priority Order (Suggested)
 
 ### Phase 1: Security & Stability
-1. Secure frontend routes (auth middleware)
-2. Add rate limiting to backend
-3. Switch Clerk to production (before launch)
+1. ~~Secure frontend routes (auth middleware)~~ ✅
+2. ~~Add API key guard for backend~~ ✅
+3. Add rate limiting to backend
+4. Switch Clerk to production (before launch)
 
 ### Phase 2: Component Library (shadcn/ui)
 4. Initialize shadcn/ui
@@ -280,5 +285,8 @@ npx shadcn@latest add [component-name]
 - `/apps/frontend/.storybook/` - Storybook config
 - `/apps/frontend/vitest.config.ts` - Vitest config
 - `/apps/frontend/components.json` - shadcn/ui config (after init)
+- `/apps/frontend/src/routes/sign-in.tsx` - Sign-in page
+- `/apps/frontend/src/routes/sign-up.tsx` - Sign-up page
 - `/apps/backend/src/auth/auth.guard.ts` - Clerk auth guard
+- `/apps/backend/src/auth/api-key.guard.ts` - API key guard (global)
 - `/packages/types/src/index.ts` - Shared types

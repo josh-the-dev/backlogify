@@ -2,7 +2,8 @@ import type { UserGame } from "@backlogify/types";
 import { auth } from "@clerk/tanstack-react-start/server";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
-import { config } from "../../config";
+import { HTTPError } from "ky";
+import { backendApi } from "../../config";
 
 export const Route = createFileRoute("/api/user-games/$gameId")({
 	server: {
@@ -18,28 +19,24 @@ export const Route = createFileRoute("/api/user-games/$gameId")({
 				const { gameId } = params;
 				const body = await request.json();
 
-				const response = await fetch(
-					`${config.backendUrl}/user-games/${gameId}/status`,
-					{
-						method: "PATCH",
-						headers: {
-							"Content-Type": "application/json",
-							Authorization: `Bearer ${token}`,
-						},
-						body: JSON.stringify(body),
-					},
-				);
-
-				if (!response.ok) {
-					const error = await response.json().catch(() => ({}));
-					return json(
-						{ error: error.message || `Upstream error: ${response.status}` },
-						{ status: response.status },
-					);
+				try {
+					const data = await backendApi
+						.patch(`user-games/${gameId}/status`, {
+							headers: { Authorization: `Bearer ${token}` },
+							json: body,
+						})
+						.json<UserGame>();
+					return json(data);
+				} catch (e) {
+					if (e instanceof HTTPError) {
+						const error = await e.response.json().catch(() => ({}));
+						return json(
+							{ error: error.message || `Upstream error: ${e.response.status}` },
+							{ status: e.response.status },
+						);
+					}
+					throw e;
 				}
-
-				const data = (await response.json()) as UserGame;
-				return json(data);
 			},
 			DELETE: async ({ params }) => {
 				const { userId, getToken } = await auth();
@@ -51,25 +48,21 @@ export const Route = createFileRoute("/api/user-games/$gameId")({
 				const token = await getToken();
 				const { gameId } = params;
 
-				const response = await fetch(
-					`${config.backendUrl}/user-games/${gameId}`,
-					{
-						method: "DELETE",
-						headers: {
-							Authorization: `Bearer ${token}`,
-						},
-					},
-				);
-
-				if (!response.ok) {
-					const error = await response.json().catch(() => ({}));
-					return json(
-						{ error: error.message || `Upstream error: ${response.status}` },
-						{ status: response.status },
-					);
+				try {
+					await backendApi.delete(`user-games/${gameId}`, {
+						headers: { Authorization: `Bearer ${token}` },
+					});
+					return json({ success: true });
+				} catch (e) {
+					if (e instanceof HTTPError) {
+						const error = await e.response.json().catch(() => ({}));
+						return json(
+							{ error: error.message || `Upstream error: ${e.response.status}` },
+							{ status: e.response.status },
+						);
+					}
+					throw e;
 				}
-
-				return json({ success: true });
 			},
 		},
 	},

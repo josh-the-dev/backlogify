@@ -1,7 +1,8 @@
 import type { GameSearchResult } from "@backlogify/types";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
-import { config } from "../../../config";
+import { HTTPError } from "ky";
+import { backendApi } from "../../../config";
 
 export const Route = createFileRoute("/api/games/search")({
 	server: {
@@ -14,19 +15,20 @@ export const Route = createFileRoute("/api/games/search")({
 					return json({ error: "Missing query parameter" }, { status: 400 });
 				}
 
-				const response = await fetch(
-					`${config.backendUrl}/games/search?query=${encodeURIComponent(query)}`,
-				);
-
-				if (!response.ok) {
-					return json(
-						{ error: `Upstream error: ${response.status}` },
-						{ status: 500 },
-					);
+				try {
+					const data = await backendApi
+						.get("games/search", { searchParams: { query } })
+						.json<GameSearchResult[]>();
+					return json(data);
+				} catch (e) {
+					if (e instanceof HTTPError) {
+						return json(
+							{ error: `Upstream error: ${e.response.status}` },
+							{ status: 500 },
+						);
+					}
+					throw e;
 				}
-
-				const data = (await response.json()) as GameSearchResult[];
-				return json(data);
 			},
 		},
 	},

@@ -2,7 +2,8 @@ import type { UserGame } from "@backlogify/types";
 import { auth } from "@clerk/tanstack-react-start/server";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
-import { config } from "../../config";
+import { HTTPError } from "ky";
+import { backendApi } from "../../config";
 
 export const Route = createFileRoute("/api/user-games")({
 	server: {
@@ -16,21 +17,22 @@ export const Route = createFileRoute("/api/user-games")({
 
 				const token = await getToken();
 
-				const response = await fetch(`${config.backendUrl}/user-games`, {
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				});
-
-				if (!response.ok) {
-					return json(
-						{ error: `Upstream error: ${response.status}` },
-						{ status: response.status },
-					);
+				try {
+					const data = await backendApi
+						.get("user-games", {
+							headers: { Authorization: `Bearer ${token}` },
+						})
+						.json<UserGame[]>();
+					return json(data);
+				} catch (e) {
+					if (e instanceof HTTPError) {
+						return json(
+							{ error: `Upstream error: ${e.response.status}` },
+							{ status: e.response.status },
+						);
+					}
+					throw e;
 				}
-
-				const data = (await response.json()) as UserGame[];
-				return json(data);
 			},
 			POST: async ({ request }) => {
 				const { userId, getToken } = await auth();
@@ -42,25 +44,24 @@ export const Route = createFileRoute("/api/user-games")({
 				const token = await getToken();
 				const body = await request.json();
 
-				const response = await fetch(`${config.backendUrl}/user-games`, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${token}`,
-					},
-					body: JSON.stringify(body),
-				});
-
-				if (!response.ok) {
-					const error = await response.json().catch(() => ({}));
-					return json(
-						{ error: error.message || `Upstream error: ${response.status}` },
-						{ status: response.status },
-					);
+				try {
+					const data = await backendApi
+						.post("user-games", {
+							headers: { Authorization: `Bearer ${token}` },
+							json: body,
+						})
+						.json<UserGame>();
+					return json(data, { status: 201 });
+				} catch (e) {
+					if (e instanceof HTTPError) {
+						const error = await e.response.json().catch(() => ({}));
+						return json(
+							{ error: error.message || `Upstream error: ${e.response.status}` },
+							{ status: e.response.status },
+						);
+					}
+					throw e;
 				}
-
-				const data = (await response.json()) as UserGame;
-				return json(data, { status: 201 });
 			},
 		},
 	},
