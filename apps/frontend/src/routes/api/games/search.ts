@@ -2,7 +2,7 @@ import type { GameSearchResult } from "@backlogify/types";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
 import { HTTPError } from "ky";
-import { backendApi } from "../../../config";
+import { backendApi } from "../../../backend-api";
 
 export const Route = createFileRoute("/api/games/search")({
 	server: {
