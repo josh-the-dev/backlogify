@@ -270,6 +270,11 @@
 
 12. Remove old/unused components
 
+## Features to work on
+
+- Skeleton loaders
+- Hover over images to add to backlog (TBD) to maintain same card size
+
 ---
 
 ## Quick Reference
