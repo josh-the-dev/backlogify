@@ -48,9 +48,7 @@ function MyGamesPage() {
 
 	return (
 		<div className="mx-auto max-w-6xl p-6">
-			<h1 className="mb-6 text-center font-bold text-3xl tracking-tight">
-				My Games
-			</h1>
+			<h1 className="mb-6 text-center font-bold text-3xl tracking-tight">My Games</h1>
 			<StatusFilter
 				value={statusFilter}
 				onChange={setStatusFilter}

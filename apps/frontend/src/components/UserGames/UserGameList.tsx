@@ -50,7 +50,7 @@ export function UserGameList({ query, statusFilter }: UserGameListProps) {
 	}
 
 	return (
-		<ul className="mt-8 grid justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-3">
+		<ul className="mt-8 grid justify-items-center gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
 			{filteredGames.map((game) => (
 				<UserGameCard key={game.id} game={game} />
 			))}

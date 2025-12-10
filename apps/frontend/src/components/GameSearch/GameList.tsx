@@ -25,7 +25,7 @@ export function GameList({ query }: GameListProps) {
 	}
 
 	return (
-		<ul className="mt-8 grid justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-3">
+		<ul className="mt-8 grid justify-items-center gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
 			{query.data.map((game) => (
 				<Link
 					key={game.id}

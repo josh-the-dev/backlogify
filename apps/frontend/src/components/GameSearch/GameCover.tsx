@@ -1,12 +1,15 @@
+import { cn } from "@/lib/utils";
+
 interface GameCoverProps {
 	name: string;
 	coverUrl: string | null;
+	className?: string;
 }
 
-export function GameCover({ name, coverUrl }: GameCoverProps) {
+export function GameCover({ name, coverUrl, className }: GameCoverProps) {
 	if (!coverUrl) {
 		return (
-			<div className="mt-3 flex h-40 w-full items-center justify-center rounded-md bg-gray-100 text-gray-400">
+			<div className={cn("flex items-center justify-center bg-gray-200 text-gray-400", className)}>
 				No image
 			</div>
 		);
@@ -17,7 +20,7 @@ export function GameCover({ name, coverUrl }: GameCoverProps) {
 			src={coverUrl}
 			alt={name}
 			loading="lazy"
-			className="mt-3 h-40 w-full rounded-md object-cover"
+			className={cn("object-cover", className)}
 		/>
 	);
 }
