@@ -95,7 +95,29 @@ export function useUpdateUserGameStatus() {
 			}
 			return res.json();
 		},
-		onSuccess: () => {
+		onMutate: async ({ gameId, status }) => {
+			await queryClient.cancelQueries({ queryKey: ["user-games"] });
+			const previousGames = queryClient.getQueryData<UserGame[]>([
+				"user-games",
+			]);
+
+			if (previousGames) {
+				queryClient.setQueryData<UserGame[]>(
+					["user-games"],
+					previousGames.map((game) =>
+						game.id === gameId ? { ...game, status } : game,
+					),
+				);
+			}
+
+			return { previousGames };
+		},
+		onError: (_err, _variables, context) => {
+			if (context?.previousGames) {
+				queryClient.setQueryData(["user-games"], context.previousGames);
+			}
+		},
+		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: ["user-games"] });
 		},
 	});

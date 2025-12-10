@@ -43,7 +43,7 @@ export function UserGameCard({ game }: { game: UserGame }) {
 					onValueChange={(value: string) => handleStatusChange(value as GameStatus)}
 					disabled={isUpdating}
 				>
-					<SelectTrigger className="w-full">
+					<SelectTrigger className="w-full border-primary/50 bg-primary/10">
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
