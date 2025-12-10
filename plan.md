@@ -272,6 +272,7 @@
 
 ## Features to work on
 
+- Fix re-ordering on my games area
 - Skeleton loaders
 - Hover over images to add to backlog (TBD) to maintain same card size
 
