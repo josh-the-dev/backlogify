@@ -1,7 +1,12 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import type { GameStatus, UserGame } from "@backlogify/types";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { UserGameCard } from "./UserGameCard";
+
+function UserGameCardSkeleton() {
+	return <Skeleton className="h-52 w-40 rounded-lg" />;
+}
 
 interface UserGameListProps {
 	query: UseQueryResult<UserGame[], Error>;
@@ -11,7 +16,11 @@ interface UserGameListProps {
 export function UserGameList({ query, statusFilter }: UserGameListProps) {
 	if (query.isLoading) {
 		return (
-			<p className="mt-8 text-center text-gray-600">Loading your games...</p>
+			<ul className="mt-8 grid justify-items-center gap-6 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4">
+				{Array.from({ length: 8 }).map((_, i) => (
+					<UserGameCardSkeleton key={`skeleton-${i}`} />
+				))}
+			</ul>
 		);
 	}
 
