@@ -1,10 +1,21 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { UserGame } from "@backlogify/types";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { STATUS_OPTIONS } from "@/constants/game-status";
+import type { GameStatus, UserGame } from "@backlogify/types";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-react-start";
 import { useQuery } from "@tanstack/react-query";
-import { Check, Plus } from "lucide-react";
-import { useAddUserGame, userGamesQueryOptions } from "../queries/user-games";
+import { Plus } from "lucide-react";
+import {
+	useAddUserGame,
+	useUpdateUserGameStatus,
+	userGamesQueryOptions,
+} from "../queries/user-games";
 
 interface AddToBacklogButtonProps {
 	externalServiceId: string;
@@ -20,9 +31,10 @@ export function AddToBacklogButton({
 	size = "md",
 }: AddToBacklogButtonProps) {
 	const addGame = useAddUserGame();
+	const updateStatus = useUpdateUserGameStatus();
 	const userGamesQuery = useQuery(userGamesQueryOptions());
 
-	const isInLibrary = userGamesQuery.data?.some(
+	const gameInLibrary = userGamesQuery.data?.find(
 		(g: UserGame) => g.externalServiceId === externalServiceId,
 	);
 
@@ -38,19 +50,44 @@ export function AddToBacklogButton({
 		});
 	};
 
-	if (isInLibrary) {
-		return (
-			<Badge
-				variant="secondary"
-				className="bg-status-played/20 text-status-played"
-			>
-				<Check className="size-3" />
-				In Library
-			</Badge>
-		);
+	const handleStatusChange = (newStatus: GameStatus) => {
+		if (gameInLibrary) {
+			updateStatus.mutate({ gameId: gameInLibrary.id, status: newStatus });
+		}
+	};
+
+	const isUpdating = updateStatus.isPending;
+	const buttonSize = size === "sm" ? "sm" : "default";
+	const selectSize = size === "sm" ? "h-8 text-xs" : "h-9";
+
+	// Show nothing while loading to prevent flash
+	if (userGamesQuery.isLoading) {
+		return null;
 	}
 
-	const buttonSize = size === "sm" ? "sm" : "default";
+	if (gameInLibrary) {
+		return (
+			<Select
+				value={gameInLibrary.status}
+				onValueChange={handleStatusChange}
+				disabled={isUpdating}
+			>
+				<SelectTrigger
+					className={`w-[130px] border-primary/50 bg-primary/10 ${selectSize}`}
+					onClick={(e) => e.stopPropagation()}
+				>
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent>
+					{STATUS_OPTIONS.map((option) => (
+						<SelectItem key={option.value} value={option.value}>
+							{option.label}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+		);
+	}
 
 	return (
 		<>

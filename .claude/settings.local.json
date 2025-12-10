@@ -22,7 +22,8 @@
       "Bash(npx tsc:*)",
       "Bash(npm uninstall:*)",
       "Bash(npx shadcn@latest init:*)",
-      "Bash(npx shadcn@latest add:*)"
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(npm run:*)"
     ],
     "deny": [],
     "ask": []

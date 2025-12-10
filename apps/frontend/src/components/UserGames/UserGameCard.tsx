@@ -1,5 +1,3 @@
-import type { GameStatus, UserGame } from "@backlogify/types";
-import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -9,14 +7,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { STATUS_OPTIONS } from "@/constants/game-status";
+import type { GameStatus, UserGame } from "@backlogify/types";
+import { Trash2 } from "lucide-react";
 import { useRemoveUserGame, useUpdateUserGameStatus } from "../../queries/user-games";
 import { GameCover } from "../GameSearch/GameCover";
-
-const STATUS_OPTIONS: { value: GameStatus; label: string }[] = [
-	{ value: "backlog", label: "📋 Backlog" },
-	{ value: "playing", label: "🎮 Playing" },
-	{ value: "played", label: "✅ Played" },
-];
 
 export function UserGameCard({ game }: { game: UserGame }) {
 	const updateStatus = useUpdateUserGameStatus();
