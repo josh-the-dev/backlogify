@@ -10,7 +10,9 @@ interface UserGameListProps {
 
 export function UserGameList({ query, statusFilter }: UserGameListProps) {
 	if (query.isLoading) {
-		return <p className="mt-8 text-center text-gray-600">Loading your games...</p>;
+		return (
+			<p className="mt-8 text-center text-gray-600">Loading your games...</p>
+		);
 	}
 
 	if (query.isError) {
@@ -50,7 +52,7 @@ export function UserGameList({ query, statusFilter }: UserGameListProps) {
 	}
 
 	return (
-		<ul className="mt-8 grid justify-items-center gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+		<ul className="mt-8 grid justify-items-center gap-6 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4">
 			{filteredGames.map((game) => (
 				<UserGameCard key={game.id} game={game} />
 			))}

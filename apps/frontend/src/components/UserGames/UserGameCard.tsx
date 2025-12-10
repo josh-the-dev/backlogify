@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import {
 	Select,
 	SelectContent,
@@ -10,7 +16,10 @@ import {
 import { STATUS_OPTIONS } from "@/constants/game-status";
 import type { GameStatus, UserGame } from "@backlogify/types";
 import { Trash2 } from "lucide-react";
-import { useRemoveUserGame, useUpdateUserGameStatus } from "../../queries/user-games";
+import {
+	useRemoveUserGame,
+	useUpdateUserGameStatus,
+} from "../../queries/user-games";
 import { GameCover } from "../GameSearch/GameCover";
 
 export function UserGameCard({ game }: { game: UserGame }) {
@@ -30,9 +39,9 @@ export function UserGameCard({ game }: { game: UserGame }) {
 	const isUpdating = updateStatus.isPending || removeGame.isPending;
 
 	return (
-		<Card className="w-64">
+		<Card className="w-full max-w-64">
 			<CardHeader className="pb-2">
-				<CardTitle className="text-center text-lg">{game.name}</CardTitle>
+				<CardTitle className="line-clamp-2 h-14 text-center text-lg">{game.name}</CardTitle>
 			</CardHeader>
 			<CardContent className="flex justify-center">
 				<GameCover name={game.name} coverUrl={game.coverUrl ?? null} />
@@ -40,7 +49,9 @@ export function UserGameCard({ game }: { game: UserGame }) {
 			<CardFooter className="flex-col gap-2">
 				<Select
 					value={game.status}
-					onValueChange={(value: string) => handleStatusChange(value as GameStatus)}
+					onValueChange={(value: string) =>
+						handleStatusChange(value as GameStatus)
+					}
 					disabled={isUpdating}
 				>
 					<SelectTrigger className="w-full border-primary/50 bg-primary/10">
