@@ -4,8 +4,14 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { UserGameCard } from "./UserGameCard";
 
+const STATUS_ORDER: Record<GameStatus, number> = {
+	backlog: 0,
+	playing: 1,
+	played: 2,
+};
+
 function UserGameCardSkeleton() {
-	return <Skeleton className="h-52 w-40 rounded-lg" />;
+	return <Skeleton className="h-14 w-full rounded-lg" />;
 }
 
 interface UserGameListProps {
@@ -16,7 +22,7 @@ interface UserGameListProps {
 export function UserGameList({ query, statusFilter }: UserGameListProps) {
 	if (query.isLoading) {
 		return (
-			<ul className="mt-8 grid justify-items-center gap-6 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4">
+			<ul className="mt-8 flex flex-col gap-3">
 				{Array.from({ length: 8 }).map((_, i) => (
 					<UserGameCardSkeleton key={`skeleton-${i}`} />
 				))}
@@ -35,7 +41,9 @@ export function UserGameList({ query, statusFilter }: UserGameListProps) {
 	const games = query.data ?? [];
 	const filteredGames =
 		statusFilter === "all"
-			? games
+			? [...games].sort(
+					(a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status],
+				)
 			: games.filter((g) => g.status === statusFilter);
 
 	if (games.length === 0) {
@@ -61,7 +69,7 @@ export function UserGameList({ query, statusFilter }: UserGameListProps) {
 	}
 
 	return (
-		<ul className="mt-8 grid justify-items-center gap-6 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4">
+		<ul className="mt-8 flex flex-col gap-3">
 			{filteredGames.map((game) => (
 				<UserGameCard key={game.id} game={game} />
 			))}
