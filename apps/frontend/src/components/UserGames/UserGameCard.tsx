@@ -41,10 +41,16 @@ export function UserGameCard({ game }: { game: UserGame }) {
 	return (
 		<Card className="w-full max-w-64">
 			<CardHeader className="pb-2">
-				<CardTitle className="line-clamp-2 h-14 text-center text-lg">{game.name}</CardTitle>
+				<CardTitle className="line-clamp-2 h-14 text-center text-lg">
+					{game.name}
+				</CardTitle>
 			</CardHeader>
 			<CardContent className="flex justify-center">
-				<GameCover name={game.name} coverUrl={game.coverUrl ?? null} />
+				<GameCover
+					name={game.name}
+					coverUrl={game.coverUrl ?? null}
+					className="aspect-3/4 w-full"
+				/>
 			</CardContent>
 			<CardFooter className="flex-col gap-2">
 				<Select
