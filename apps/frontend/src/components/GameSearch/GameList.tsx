@@ -5,7 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { GameCard } from "./GameCard";
 
 function GameCardSkeleton() {
-	return <Skeleton className="h-52 w-40 rounded-lg" />;
+	return <Skeleton className="h-64 w-40 rounded-lg" />;
 }
 
 interface GameListProps {
