@@ -23,7 +23,7 @@ export const Route = createFileRoute("/api/games/$id")({
 						id: rawData.id,
 						name: rawData.name,
 						description: rawData.description ?? "",
-						releaseDate: rawData.releaseDate ?? "Unknown",
+						releaseDate: rawData.releaseDate,
 						coverUrl: rawData.coverUrl ?? null,
 						genres: rawData.genres ?? [],
 						platforms: rawData.platforms ?? [],
