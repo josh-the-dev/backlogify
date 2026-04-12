@@ -31,7 +31,7 @@ A modern web application for managing your video game backlog. Search millions o
 ### Infrastructure
 
 - [Turborepo](https://turbo.build/) - Monorepo build system
-- [Biome](https://biomejs.dev/) - Linter & formatter
+- [ESLint](https://eslint.org/) + [Prettier](https://prettier.io/) - Linting & formatting
 - [Docker Compose](https://docs.docker.com/compose/) - Local development environment
 
 ## Project Structure
@@ -106,8 +106,8 @@ npm run dev              # Start all apps in dev mode
 npm run build            # Build all apps
 
 # Linting & Formatting
-npm run lint             # Run Biome linter
-npm run format           # Format code with Biome
+npm run lint             # Run ESLint across all workspaces
+npm run format           # Format code with Prettier
 
 # Database (from apps/backend)
 npm run db:generate      # Generate migrations

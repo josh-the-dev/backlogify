@@ -63,7 +63,7 @@ export function UserGameList({ query, statusFilter }: UserGameListProps) {
 	if (filteredGames.length === 0) {
 		return (
 			<p className="mt-8 text-center text-gray-500">
-				No games with status "{statusFilter}".
+				No games with status &quot;{statusFilter}&quot;.
 			</p>
 		);
 	}

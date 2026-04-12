@@ -9,12 +9,13 @@
   "scripts": {
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
-    "lint": "biome check .",
-    "format": "biome check --write .",
+    "lint": "turbo run lint",
+    "format": "prettier --write .",
     "test": "turbo run test"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.0",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.12",
     "turbo": "^2.0.0"
   },
   "overrides": {
