@@ -2,7 +2,7 @@ FROM node:20-slim AS builder
 WORKDIR /app
 
 COPY . .
-RUN rm -f package-lock.json && npm install
+RUN npm ci
 
 ARG VITE_CLERK_PUBLISHABLE_KEY
 ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
