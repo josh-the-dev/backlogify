@@ -16,6 +16,9 @@ import { UserGamesModule } from "./user-games/user-games.module";
 		UserGamesModule,
 	],
 	providers: [
+		// ApiKeyGuard runs globally on every route, validating the x-api-key header.
+		// User-games routes additionally require a valid Clerk JWT via ClerkAuthGuard,
+		// which is applied at the controller level using @UseGuards(ClerkAuthGuard).
 		{
 			provide: APP_GUARD,
 			useClass: ApiKeyGuard,

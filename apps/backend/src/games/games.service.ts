@@ -21,8 +21,8 @@ export class GamesService {
 			}));
 		} catch (error) {
 			this.logger.error(
-				`Failed to search games: ${error.message}`,
-				error.stack,
+				"Failed to search games",
+				error instanceof Error ? error.stack : String(error),
 			);
 			throw error;
 		}
@@ -48,8 +48,8 @@ export class GamesService {
 			};
 		} catch (error) {
 			this.logger.error(
-				`Failed to fetch game details: ${error.message}`,
-				error.stack,
+				"Failed to fetch game details",
+				error instanceof Error ? error.stack : String(error),
 			);
 			throw error;
 		}
