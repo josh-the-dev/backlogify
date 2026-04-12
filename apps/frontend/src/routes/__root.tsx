@@ -1,5 +1,7 @@
 import Footer from "@/components/Footer/Footer";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ClerkProvider } from "@clerk/tanstack-react-start";
+import { Toaster } from "sonner";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import {
@@ -53,7 +55,9 @@ function RootComponent() {
 		<>
 			<div className="flex flex-1 flex-col">
 				<Header />
-				<Outlet />
+				<ErrorBoundary>
+					<Outlet />
+				</ErrorBoundary>
 			</div>
 
 			<Footer />
@@ -84,6 +88,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							]}
 						/>
 					)}
+					<Toaster richColors position="bottom-right" />
 					<Scripts />
 				</body>
 			</html>

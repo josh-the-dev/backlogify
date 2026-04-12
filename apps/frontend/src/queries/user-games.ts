@@ -1,9 +1,11 @@
 import type { GameStatus, UserGame } from "@backlogify/types";
+import { useAuth } from "@clerk/tanstack-react-start";
 import {
 	queryOptions,
 	useMutation,
 	useQueryClient,
 } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export const userGamesQueryOptions = () =>
 	queryOptions({
@@ -24,6 +26,7 @@ interface AddUserGameParams {
 
 export function useAddUserGame() {
 	const queryClient = useQueryClient();
+	const { userId } = useAuth();
 
 	return useMutation({
 		mutationFn: async (params: AddUserGameParams): Promise<UserGame> => {
@@ -47,7 +50,7 @@ export function useAddUserGame() {
 			if (previousGames) {
 				const optimisticGame: UserGame = {
 					id: `temp-${Date.now()}`,
-					userId: "", // Placeholder - will be replaced on refetch
+					userId: userId ?? "",
 					externalServiceId: newGame.externalServiceId,
 					name: newGame.name,
 					coverUrl: newGame.coverUrl,
@@ -66,6 +69,7 @@ export function useAddUserGame() {
 			if (context?.previousGames) {
 				queryClient.setQueryData(["user-games"], context.previousGames);
 			}
+			toast.error("Failed to add game to library");
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: ["user-games"] });
@@ -116,6 +120,7 @@ export function useUpdateUserGameStatus() {
 			if (context?.previousGames) {
 				queryClient.setQueryData(["user-games"], context.previousGames);
 			}
+			toast.error("Failed to update game status");
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: ["user-games"] });
@@ -135,6 +140,9 @@ export function useRemoveUserGame() {
 				const error = await res.json().catch(() => ({}));
 				throw new Error(error.error || `Request failed: ${res.status}`);
 			}
+		},
+		onError: () => {
+			toast.error("Failed to remove game from library");
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["user-games"] });

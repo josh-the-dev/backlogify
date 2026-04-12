@@ -74,7 +74,7 @@ export function AddToBacklogButton({
 			>
 				<SelectTrigger
 					className={`w-[130px] border-primary/50 bg-primary/10 ${selectSize}`}
-					onClick={(e) => e.stopPropagation()}
+					onClick={(e: React.MouseEvent) => e.stopPropagation()}
 				>
 					<SelectValue />
 				</SelectTrigger>

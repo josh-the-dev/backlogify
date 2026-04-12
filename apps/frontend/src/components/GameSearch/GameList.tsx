@@ -1,5 +1,7 @@
 import type { GameSearchResult } from "@backlogify/types";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle } from "lucide-react";
 import { UseQueryResult } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { GameCard } from "./GameCard";
@@ -25,9 +27,10 @@ export function GameList({ query }: GameListProps) {
 
 	if (query.isError) {
 		return (
-			<p className="mt-8 text-center text-red-600">
-				Error: {query.error.message}
-			</p>
+			<Alert variant="destructive" className="mt-8">
+				<AlertCircle className="h-4 w-4" />
+				<AlertDescription>{query.error.message}</AlertDescription>
+			</Alert>
 		);
 	}
 

@@ -1,5 +1,14 @@
 import { Button } from "@/components/ui/button";
 import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
+import {
 	Select,
 	SelectContent,
 	SelectItem,
@@ -9,6 +18,7 @@ import {
 import { STATUS_OPTIONS } from "@/constants/game-status";
 import type { GameStatus, UserGame } from "@backlogify/types";
 import { Trash2 } from "lucide-react";
+import { useState } from "react";
 import {
 	useRemoveUserGame,
 	useUpdateUserGameStatus,
@@ -18,15 +28,14 @@ import { GameCover } from "../GameSearch/GameCover";
 export function UserGameCard({ game }: { game: UserGame }) {
 	const updateStatus = useUpdateUserGameStatus();
 	const removeGame = useRemoveUserGame();
+	const [open, setOpen] = useState(false);
 
 	const handleStatusChange = (newStatus: GameStatus) => {
 		updateStatus.mutate({ gameId: game.id, status: newStatus });
 	};
 
 	const handleRemove = () => {
-		if (confirm(`Remove "${game.name}" from your library?`)) {
-			removeGame.mutate(game.id);
-		}
+		removeGame.mutate(game.id, { onSuccess: () => setOpen(false) });
 	};
 
 	const isUpdating = updateStatus.isPending || removeGame.isPending;
@@ -61,15 +70,39 @@ export function UserGameCard({ game }: { game: UserGame }) {
 					</SelectContent>
 				</Select>
 
-				<Button
-					variant="destructive"
-					size="icon"
-					onClick={handleRemove}
-					disabled={isUpdating}
-					className="shrink-0"
-				>
-					<Trash2 className="size-4" />
-				</Button>
+				<Dialog open={open} onOpenChange={setOpen}>
+					<DialogTrigger asChild>
+						<Button
+							variant="destructive"
+							size="icon"
+							disabled={isUpdating}
+							className="shrink-0"
+						>
+							<Trash2 className="size-4" />
+						</Button>
+					</DialogTrigger>
+					<DialogContent>
+						<DialogHeader>
+							<DialogTitle>Remove from library</DialogTitle>
+							<DialogDescription>
+								Remove &quot;{game.name}&quot; from your library? This can&apos;t be
+								undone.
+							</DialogDescription>
+						</DialogHeader>
+						<DialogFooter>
+							<Button variant="outline" onClick={() => setOpen(false)}>
+								Cancel
+							</Button>
+							<Button
+								variant="destructive"
+								onClick={handleRemove}
+								disabled={removeGame.isPending}
+							>
+								{removeGame.isPending ? "Removing…" : "Remove"}
+							</Button>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
 			</div>
 		</div>
 	);

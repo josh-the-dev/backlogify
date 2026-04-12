@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useSearch } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import z from "zod";
 import { GameList } from "../../components/GameSearch/GameList";
 import { GameSearchForm } from "../../components/GameSearch/GameSearchForm";
@@ -16,15 +15,13 @@ export const Route = createFileRoute("/games/")({
 });
 
 function GamesPage() {
-	const { query: initialQuery = "Elden Ring" } = useSearch({ from: "/games/" });
-	const [query, setQuery] = useState(initialQuery);
+	const { query = "Elden Ring" } = useSearch({ from: "/games/" });
+	const navigate = useNavigate({ from: "/games/" });
 
 	const gamesQuery = useQuery(gamesQueryOptions(query));
+
 	const handleSearchSubmit = (newQuery: string) => {
-		setQuery(newQuery);
-		const params = new URLSearchParams(window.location.search);
-		params.set("query", newQuery);
-		window.history.replaceState({}, "", `?${params.toString()}`);
+		navigate({ search: { query: newQuery } });
 	};
 
 	return (
