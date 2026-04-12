@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import type { GameDetails as GameDetailsType } from "@backlogify/types";
 import { format } from "date-fns";
+import DOMPurify from "dompurify";
 import { Calendar, Gamepad, Tag } from "lucide-react";
 import { AddToBacklogButton } from "../AddToBacklogButton";
 
@@ -68,8 +69,9 @@ export function GameDetailsContent({ game }: { game: GameDetailsType }) {
 
 				<div
 					className="prose prose-neutral dark:prose-invert max-w-none"
-					// biome-ignore lint/security/noDangerouslySetInnerHtml: trusted RAWG API
-					dangerouslySetInnerHTML={{ __html: game.description }}
+					dangerouslySetInnerHTML={{
+						__html: DOMPurify.sanitize(game.description),
+					}}
 				/>
 			</CardContent>
 		</Card>

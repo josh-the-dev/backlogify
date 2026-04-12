@@ -52,7 +52,7 @@ backlogify/
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 22+
 - npm
 - Docker & Docker Compose (for local database)
 
@@ -88,7 +88,7 @@ npm install
 docker-compose up -d
 
 # Run database migrations
-npm run db:migrate --workspace=apps/backend
+npm run db:migrate --workspace=backend
 
 # Start the development servers
 npm run dev
@@ -113,6 +113,9 @@ npm run format           # Format code with Prettier
 npm run db:generate      # Generate migrations
 npm run db:migrate       # Apply migrations
 npm run db:studio        # Open Drizzle Studio
+
+# E2E Tests
+npm run test:e2e         # Run Playwright tests (starts frontend automatically)
 
 # Storybook (from apps/frontend)
 npm run storybook        # Start Storybook on :6006

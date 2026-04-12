@@ -1,0 +1,1 @@
+CREATE INDEX "user_games_user_id_idx" ON "user_games" USING btree ("user_id");
