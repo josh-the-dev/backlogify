@@ -1,5 +1,7 @@
 # Backlogify
 
+[![Tests](https://github.com/josh-the-dev/backlogify/actions/workflows/test.yml/badge.svg)](https://github.com/josh-the-dev/backlogify/actions/workflows/test.yml)
+
 A modern web application for managing your video game backlog. Search millions of games, track what you're playing, and never lose sight of what's next.
 
 ## Features

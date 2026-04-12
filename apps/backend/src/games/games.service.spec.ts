@@ -120,7 +120,7 @@ describe("GamesService", () => {
 				`Searching games for query: "${query}"`,
 			);
 			expect(loggerErrorSpy).toHaveBeenCalledWith(
-				`Failed to search games: ${error.message}`,
+				"Failed to search games",
 				error.stack,
 			);
 		});
@@ -204,7 +204,7 @@ describe("GamesService", () => {
 				`Fetching game details for ID: "${id}"`,
 			);
 			expect(loggerErrorSpy).toHaveBeenCalledWith(
-				`Failed to fetch game details: ${error.message}`,
+				"Failed to fetch game details",
 				error.stack,
 			);
 		});
