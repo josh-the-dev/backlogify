@@ -20,9 +20,9 @@ npm run test       # Run tests across monorepo
 ### Backend (`apps/backend`)
 ```bash
 npm run dev                  # NestJS watch mode
-npm run test                 # Jest unit tests (34 specs)
+npm run test                 # Jest unit tests (45 specs)
 npm run test:e2e             # Jest e2e tests (requires DATABASE_URL)
-npm run test -- --testPathPattern=user-games  # Single test file
+npm run test -- --testPathPattern=common  # Single test file/pattern
 npm run db:generate          # Generate Drizzle migration files
 npm run db:migrate           # Apply pending migrations
 npm run db:studio            # Open Drizzle Studio UI
@@ -54,23 +54,36 @@ packages/
 - **UI**: Tailwind CSS 4 + shadcn/ui components in `src/components/ui/`.
 
 ### Backend (NestJS + Drizzle ORM)
-- **Modules**: `games` (RAWG search/details), `user-games` (backlog CRUD), `auth` (guards/decorators), `database` (Drizzle setup), `rawg` (RAWG API service).
-- **Common**: `src/common/` contains `LoggingInterceptor` (logs `METHOD /url status - Xms` via RxJS `tap`) and `AllExceptionsFilter` (masks 500 messages, formats all error responses).
+- **Modules**: `games` (RAWG search/details), `user-games` (backlog CRUD), `auth` (guards/decorators), `database` (Drizzle setup), `rawg` (RAWG API service), `health` (terminus health check).
+- **Common** (`src/common/`):
+  - `CorrelationIdMiddleware` - reads `X-Request-ID` from incoming headers or generates a UUID; attaches to request and echoes on response. Applied globally via `AppModule.configure()`.
+  - `LoggingInterceptor` - logs `[correlationId] METHOD /url status - Xms` via RxJS `tap` after each response.
+  - `AllExceptionsFilter` - masks 500 messages (includes `correlationId` in body for traceability), formats all error responses consistently.
 - **Auth guards**:
-  - `ApiKeyGuard` - validates `x-api-key` header for server-to-server calls (all routes use this)
-  - `ClerkAuthGuard` - validates Clerk JWT for user-specific operations (user-games endpoints)
-- **Rate limiting**: `ThrottlerModule` configured globally at 100 req/min. `ThrottlerGuard` is registered as an `APP_GUARD` before `ApiKeyGuard` in `app.module.ts`.
+  - `ApiKeyGuard` - validates `x-api-key` header for server-to-server calls (all routes). Respects `@Public()` decorator to skip validation.
+  - `ClerkAuthGuard` - validates Clerk JWT for user-specific operations (user-games endpoints).
+  - `@Public()` decorator - `SetMetadata('isPublic', true)` checked by `ApiKeyGuard` via `Reflector`. Used on the health endpoint.
+- **Security**: Helmet applied globally in `main.ts` (sets 11 security headers). Rate limiting via `ThrottlerModule` at 100 req/min. `ThrottlerGuard` registered as `APP_GUARD` before `ApiKeyGuard`.
+- **Env validation**: `ConfigModule.forRoot({ validate })` uses Zod schema in `app.module.ts`. Runs at module import time - env vars must be set before the module is imported (critical for e2e tests).
+- **Response DTOs**: All endpoints return typed DTOs (`UserGameResponseDto`, `GameSearchResultResponseDto`, `GameDetailsResponseDto`) decorated with `@Expose()`/`@Exclude()`. `ClassSerializerInterceptor` with `excludeExtraneousValues: true` is registered globally in `main.ts`. `plainToInstance(Dto, data, { excludeExtraneousValues: true })` is called in each service method.
 - **Pagination**: `src/user-games/dtos/pagination.dto.ts` - `limit` (default 50, max 100) and `offset` (default 0) with class-validator decorators. Applied to `GET /user-games`.
+- **Validation**: `ParseUUIDPipe` on all `gameId` route params - returns 400 for non-UUID strings before hitting the DB.
+- **Health check**: `GET /health` via `@nestjs/terminus`. Custom `DatabaseHealthIndicator` runs `SELECT 1` to confirm PostgreSQL connectivity. Public endpoint (no API key required).
+- **API docs**: Swagger UI served at `/api` via `@nestjs/swagger`. All controllers have `@ApiTags`, `@ApiOperation`, `@ApiResponse` with typed DTOs. Security schemes: `api-key` (header) and `clerk-jwt` (bearer).
 - **Database**: Drizzle ORM with PostgreSQL. Schema in `src/database/schema.ts`. `user_games` table stores userId (from Clerk) + externalServiceId (RAWG game ID) + status enum. Migrations in `drizzle/`.
 
 ### Request Flow
 ```
 Browser
   → TanStack Start SSR route (/api/...)    [adds API_KEY + Clerk JWT]
-  → NestJS Controller                      [validates API_KEY + JWT]
-  → Drizzle ORM → PostgreSQL
+  → CorrelationIdMiddleware                [attaches X-Request-ID]
+  → ThrottlerGuard → ApiKeyGuard → ClerkAuthGuard (user-games only)
+  → LoggingInterceptor (pre) → ClassSerializerInterceptor
+  → ValidationPipe → Controller → Service → Drizzle ORM → PostgreSQL
+  → LoggingInterceptor (post, logs timing)
+  ← AllExceptionsFilter (on error)
 
-Game search additionally calls RAWG external API from backend.
+Game search additionally calls RAWG external API from the backend service.
 ```
 
 ### Shared Types
@@ -108,5 +121,5 @@ docker-compose up -d   # or use docker-compose.yml for full stack
 - **Formatter**: Prettier at repo root (`.prettierrc`). Uses tabs. Includes `prettier-plugin-tailwindcss` for Tailwind class sorting. Run `npm run format` from root.
 - **Build orchestration**: Turbo caches `build` and `test`; `dev` runs uncached in persistent mode.
 - **Database migrations**: Always run `db:generate` then `db:migrate` after schema changes in `src/database/schema.ts`. `drizzle-kit` version must stay in sync with `drizzle-orm` - currently both on the 0.31.x / 0.45.x compatible pair.
-- **CI pipeline**: `.github/workflows/ci.yml` runs on every push and PR to `main`. Jobs: `quality` (lint + tsc --noEmit), `backend-unit`, `backend-e2e` (PostgreSQL service container), `frontend-build`, `security` (npm audit). Branch protection on `main` requires all jobs to pass before merge.
-- **E2E tests**: `test/jest-e2e.json` config. Tests mock `RawgService` via `overrideProvider` and bypass `ClerkAuthGuard` via `overrideGuard`. Dummy env vars (`RAWG_API_KEY`, `CLERK_SECRET_KEY`) are set in `beforeAll` so the NestJS module bootstraps without real secrets.
+- **CI pipeline**: `.github/workflows/ci.yml` runs on every push and PR to `main`. Jobs: `quality` (lint + tsc --noEmit), `backend-unit`, `backend-e2e` (PostgreSQL service container), `frontend-build`, `security` (npm audit --audit-level=critical). Branch protection on `main` requires all jobs to pass before merge.
+- **E2E tests**: `test/jest-e2e.json` config. Tests mock `RawgService` via `overrideProvider` and bypass `ClerkAuthGuard` via `overrideGuard`. Env vars are set in `test/e2e-env-setup.ts` via Jest `setupFiles` - this runs before any module imports, which is required because `ConfigModule.forRoot({ validate })` executes at import time. The `API_KEY` in `e2e-env-setup.ts` must match `TEST_API_KEY` in the spec files (`'e2e-test-key'`).
