@@ -9,6 +9,7 @@ dist
 build
 .output
 .nitro
+coverage
 
 # Logs
 *.log
