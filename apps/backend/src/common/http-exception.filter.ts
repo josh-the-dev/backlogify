@@ -15,7 +15,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 	catch(exception: unknown, host: ArgumentsHost) {
 		const ctx = host.switchToHttp();
 		const response = ctx.getResponse<Response>();
-		const request = ctx.getRequest<Request>();
+		const request = ctx.getRequest<Request & { correlationId?: string }>();
+		const correlationId = request.correlationId;
 
 		const status =
 			exception instanceof HttpException
@@ -29,10 +30,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
 		if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
 			this.logger.error(
-				`Unhandled exception on ${request.method} ${request.url}`,
+				`[${correlationId ?? "-"}] Unhandled exception on ${request.method} ${request.url}`,
 				exception instanceof Error ? exception.stack : String(exception),
 			);
-			response.status(status).json({ statusCode: status, message: "Internal server error" });
+			response.status(status).json({ statusCode: status, message: "Internal server error", correlationId });
 			return;
 		}
 
