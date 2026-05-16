@@ -1,8 +1,9 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { z } from "zod";
+import { CorrelationIdMiddleware } from "./common/correlation-id.middleware";
 
 import { ApiKeyGuard, AuthModule } from "./auth";
 import { DatabaseModule } from "./database";
@@ -47,4 +48,8 @@ const envSchema = z.object({
 		{ provide: APP_GUARD, useClass: ApiKeyGuard },
 	],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+	configure(consumer: MiddlewareConsumer) {
+		consumer.apply(CorrelationIdMiddleware).forRoutes("*");
+	}
+}

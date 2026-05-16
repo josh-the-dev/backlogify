@@ -1,13 +1,17 @@
 import { ArgumentsHost, HttpException, HttpStatus, Logger } from "@nestjs/common";
 import { AllExceptionsFilter } from "./http-exception.filter";
 
-function makeHost(method = "GET", url = "/test"): { host: ArgumentsHost; json: jest.Mock; status: jest.Mock } {
+function makeHost(
+	method = "GET",
+	url = "/test",
+	correlationId?: string,
+): { host: ArgumentsHost; json: jest.Mock; status: jest.Mock } {
 	const json = jest.fn();
 	const status = jest.fn().mockReturnValue({ json });
 	const host = {
 		switchToHttp: () => ({
 			getResponse: () => ({ status }),
-			getRequest: () => ({ method, url }),
+			getRequest: () => ({ method, url, correlationId }),
 		}),
 	} as unknown as ArgumentsHost;
 	return { host, json, status };
@@ -57,7 +61,18 @@ describe("AllExceptionsFilter", () => {
 			filter.catch(new Error("DB connection refused"), host);
 
 			expect(status).toHaveBeenCalledWith(500);
-			expect(json).toHaveBeenCalledWith({ statusCode: 500, message: "Internal server error" });
+			expect(json).toHaveBeenCalledWith(
+				expect.objectContaining({ statusCode: 500, message: "Internal server error" }),
+			);
+		});
+
+		it("includes the correlationId in the 500 response body", () => {
+			const { host, json } = makeHost("POST", "/user-games", "req-abc-123");
+			filter.catch(new Error("DB connection refused"), host);
+
+			expect(json).toHaveBeenCalledWith(
+				expect.objectContaining({ correlationId: "req-abc-123" }),
+			);
 		});
 
 		it("masks non-Error throws (e.g. thrown strings) the same way", () => {
@@ -65,15 +80,18 @@ describe("AllExceptionsFilter", () => {
 			filter.catch("something went wrong", host);
 
 			expect(status).toHaveBeenCalledWith(500);
-			expect(json).toHaveBeenCalledWith({ statusCode: 500, message: "Internal server error" });
+			expect(json).toHaveBeenCalledWith(
+				expect.objectContaining({ statusCode: 500, message: "Internal server error" }),
+			);
 		});
 
-		it("logs the unhandled exception for 500 errors", () => {
+		it("logs the unhandled exception with correlationId and route", () => {
 			const errorSpy = jest.spyOn(Logger.prototype, "error").mockImplementation(() => undefined);
-			const { host } = makeHost("GET", "/games");
+			const { host } = makeHost("GET", "/games", "trace-xyz");
 			filter.catch(new Error("unexpected"), host);
 
 			expect(errorSpy).toHaveBeenCalledTimes(1);
+			expect(errorSpy.mock.calls[0][0]).toContain("[trace-xyz]");
 			expect(errorSpy.mock.calls[0][0]).toContain("GET /games");
 		});
 	});

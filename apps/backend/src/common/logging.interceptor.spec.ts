@@ -2,10 +2,10 @@ import { CallHandler, ExecutionContext, Logger } from "@nestjs/common";
 import { of } from "rxjs";
 import { LoggingInterceptor } from "./logging.interceptor";
 
-function makeContext(method: string, url: string, statusCode: number): ExecutionContext {
+function makeContext(method: string, url: string, statusCode: number, correlationId?: string): ExecutionContext {
 	return {
 		switchToHttp: () => ({
-			getRequest: () => ({ method, url }),
+			getRequest: () => ({ method, url, correlationId }),
 			getResponse: () => ({ statusCode }),
 		}),
 	} as unknown as ExecutionContext;
@@ -38,15 +38,28 @@ describe("LoggingInterceptor", () => {
 		});
 	});
 
-	it("logs METHOD URL STATUS - Xms after the handler completes", (done) => {
-		const ctx = makeContext("POST", "/user-games", 201);
+	it("logs [correlationId] METHOD URL STATUS - Xms after the handler completes", (done) => {
+		const ctx = makeContext("POST", "/user-games", 201, "abc-123");
 		const handler = makeCallHandler();
 
 		interceptor.intercept(ctx, handler).subscribe({
 			complete: () => {
 				expect(logSpy).toHaveBeenCalledTimes(1);
 				const message: string = logSpy.mock.calls[0][0];
-				expect(message).toMatch(/^POST \/user-games 201 - \d+ms$/);
+				expect(message).toMatch(/^\[abc-123\] POST \/user-games 201 - \d+ms$/);
+				done();
+			},
+		});
+	});
+
+	it("uses - as the correlation ID placeholder when not set", (done) => {
+		const ctx = makeContext("GET", "/health", 200);
+		const handler = makeCallHandler();
+
+		interceptor.intercept(ctx, handler).subscribe({
+			complete: () => {
+				const message: string = logSpy.mock.calls[0][0];
+				expect(message).toMatch(/^\[-\]/);
 				done();
 			},
 		});
