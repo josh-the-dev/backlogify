@@ -20,7 +20,8 @@
     "class-validator": "^0.14.2",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.12",
-    "turbo": "^2.0.0"
+    "turbo": "^2.0.0",
+    "vitest": "^4.1.6"
   },
   "overrides": {
     "srvx": "0.8.15",
