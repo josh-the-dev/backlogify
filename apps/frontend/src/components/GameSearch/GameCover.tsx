@@ -9,7 +9,7 @@ interface GameCoverProps {
 export function GameCover({ name, coverUrl, className }: GameCoverProps) {
 	if (!coverUrl) {
 		return (
-			<div className={cn("flex items-center justify-center bg-gray-200 text-gray-400", className)}>
+			<div className={cn("flex items-center justify-center bg-muted text-muted-foreground text-xs", className)}>
 				No image
 			</div>
 		);

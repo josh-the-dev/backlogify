@@ -1,26 +1,21 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "@fontsource-variable/geist";
+@import "@fontsource-variable/figtree";
 
 body {
 	@apply m-0;
-	font-family: "Geist Variable", sans-serif;
+	font-family: "Figtree Variable", sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
 
-@layer base {
-	button {
-		@apply cursor-pointer;
-	}
-}
-
 code {
-	font-family:
-		source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+	font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 @theme inline {
+	--font-sans: "Figtree Variable", sans-serif;
+
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -52,69 +47,57 @@ code {
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
 
-	/* Status colors for game tracking */
 	--color-status-backlog: var(--status-backlog);
 	--color-status-playing: var(--status-playing);
 	--color-status-played: var(--status-played);
 }
 
-/*
- * Dark Gaming Theme - Cyan/Slate
- * A sleek dark theme optimized for gaming apps
- */
 :root {
-	--radius: 0.625rem;
+	--radius: 0.5rem;
 
-	/* Base colors - deep slate background */
-	--background: oklch(0.13 0.01 250);
-	--foreground: oklch(0.95 0.01 250);
+	/* Deep violet-tinted dark background */
+	--background: oklch(0.10 0.025 280);
+	--foreground: oklch(0.96 0.01 280);
 
-	/* Cards - slightly lighter slate */
-	--card: oklch(0.18 0.01 250);
-	--card-foreground: oklch(0.95 0.01 250);
+	/* Cards — slightly lifted from background */
+	--card: oklch(0.15 0.02 280);
+	--card-foreground: oklch(0.96 0.01 280);
 
-	/* Popovers/dropdowns */
-	--popover: oklch(0.20 0.01 250);
-	--popover-foreground: oklch(0.95 0.01 250);
+	--popover: oklch(0.17 0.02 280);
+	--popover-foreground: oklch(0.96 0.01 280);
 
-	/* Primary - vibrant cyan */
-	--primary: oklch(0.75 0.15 195);
-	--primary-foreground: oklch(0.13 0.01 250);
+	/* Primary — vibrant violet */
+	--primary: oklch(0.68 0.28 280);
+	--primary-foreground: oklch(0.10 0.025 280);
 
-	/* Secondary - muted slate */
-	--secondary: oklch(0.25 0.01 250);
-	--secondary-foreground: oklch(0.90 0.01 250);
+	--secondary: oklch(0.20 0.03 280);
+	--secondary-foreground: oklch(0.90 0.01 280);
 
-	/* Muted elements */
-	--muted: oklch(0.22 0.01 250);
-	--muted-foreground: oklch(0.65 0.01 250);
+	--muted: oklch(0.18 0.02 280);
+	--muted-foreground: oklch(0.60 0.02 280);
 
-	/* Accent - slightly brighter cyan for hover states */
-	--accent: oklch(0.28 0.02 250);
-	--accent-foreground: oklch(0.95 0.01 250);
+	--accent: oklch(0.22 0.04 280);
+	--accent-foreground: oklch(0.96 0.01 280);
 
-	/* Destructive - red for delete/remove actions */
-	--destructive: oklch(0.60 0.20 25);
+	--destructive: oklch(0.60 0.22 25);
 
-	/* Borders and inputs */
-	--border: oklch(0.30 0.02 250);
-	--input: oklch(0.22 0.01 250);
-	--ring: oklch(0.75 0.15 195);
+	--border: oklch(0.24 0.03 280);
+	--input: oklch(0.18 0.02 280);
+	--ring: oklch(0.68 0.28 280);
 
-	/* Sidebar */
-	--sidebar: oklch(0.15 0.01 250);
-	--sidebar-foreground: oklch(0.95 0.01 250);
-	--sidebar-primary: oklch(0.75 0.15 195);
-	--sidebar-primary-foreground: oklch(0.13 0.01 250);
-	--sidebar-accent: oklch(0.25 0.02 250);
-	--sidebar-accent-foreground: oklch(0.95 0.01 250);
-	--sidebar-border: oklch(0.28 0.02 250);
-	--sidebar-ring: oklch(0.75 0.15 195);
+	--sidebar: oklch(0.12 0.025 280);
+	--sidebar-foreground: oklch(0.96 0.01 280);
+	--sidebar-primary: oklch(0.68 0.28 280);
+	--sidebar-primary-foreground: oklch(0.10 0.025 280);
+	--sidebar-accent: oklch(0.20 0.03 280);
+	--sidebar-accent-foreground: oklch(0.96 0.01 280);
+	--sidebar-border: oklch(0.22 0.03 280);
+	--sidebar-ring: oklch(0.68 0.28 280);
 
-	/* Game status colors - meaningful and distinct */
-	--status-backlog: oklch(0.75 0.15 85);   /* Amber - waiting/queued */
-	--status-playing: oklch(0.75 0.15 195);  /* Cyan - active */
-	--status-played: oklch(0.70 0.17 145);   /* Green - complete */
+	/* Status colors */
+	--status-backlog: oklch(0.78 0.16 85);    /* Amber */
+	--status-playing: oklch(0.68 0.28 280);   /* Violet — matches primary */
+	--status-played: oklch(0.72 0.18 145);    /* Green */
 }
 
 @layer base {
