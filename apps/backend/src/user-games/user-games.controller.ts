@@ -5,6 +5,7 @@ import {
 	Get,
 	HttpCode,
 	Param,
+	ParseUUIDPipe,
 	Patch,
 	Post,
 	Query,
@@ -65,7 +66,7 @@ export class UserGamesController {
 	@ApiResponse({ status: 404, description: "Game not found for this user" })
 	updateStatus(
 		@UserId() userId: string,
-		@Param("gameId") gameId: string,
+		@Param("gameId", ParseUUIDPipe) gameId: string,
 		@Body(ValidationPipe) body: UpdateUserGameStatusDto,
 	): Promise<UserGameResponseDto> {
 		return this.userGamesService.updateStatus(userId, gameId, body.status);
@@ -77,7 +78,7 @@ export class UserGamesController {
 	@ApiResponse({ status: 204, description: "Game removed" })
 	@ApiResponse({ status: 401, description: "Invalid or missing API key / JWT" })
 	@ApiResponse({ status: 404, description: "Game not found for this user" })
-	remove(@UserId() userId: string, @Param("gameId") gameId: string): Promise<void> {
+	remove(@UserId() userId: string, @Param("gameId", ParseUUIDPipe) gameId: string): Promise<void> {
 		return this.userGamesService.remove(userId, gameId);
 	}
 }

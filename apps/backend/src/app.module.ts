@@ -7,6 +7,7 @@ import { z } from "zod";
 import { ApiKeyGuard, AuthModule } from "./auth";
 import { DatabaseModule } from "./database";
 import { GamesModule } from "./games/games.module";
+import { HealthModule } from "./health/health.module";
 import { UserGamesModule } from "./user-games/user-games.module";
 
 const envSchema = z.object({
@@ -35,6 +36,7 @@ const envSchema = z.object({
 		DatabaseModule,
 		AuthModule,
 		GamesModule,
+		HealthModule,
 		UserGamesModule,
 	],
 	providers: [
