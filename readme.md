@@ -1,78 +1,99 @@
 # Backlogify
 
-[![Tests](https://github.com/josh-the-dev/backlogify/actions/workflows/test.yml/badge.svg)](https://github.com/josh-the-dev/backlogify/actions/workflows/test.yml)
+[![CI](https://github.com/josh-the-dev/backlogify/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-the-dev/backlogify/actions/workflows/ci.yml)
 
-A modern web application for managing your video game backlog. Search millions of games, track what you're playing, and never lose sight of what's next.
+A full-stack video game backlog tracker. Search 500k+ games via the RAWG API, add them to your personal library, and track progress across **Backlog → Playing → Played**.
 
 ## Features
 
-- **Search Games** - Browse and search over 500,000 games powered by the [RAWG Video Games Database](https://rawg.io/apidocs)
-- **Track Your Backlog** - Add games to your personal library and organize them by status
-- **Status Management** - Mark games as `Backlog`, `Playing`, or `Played`
-- **Game Details** - View comprehensive game information including descriptions, genres, platforms, and release dates
-- **Responsive Design** - Fully responsive UI that works on desktop and mobile
+- **Game Search** - Full-text search across 500,000+ games powered by the [RAWG API](https://rawg.io/apidocs)
+- **Backlog Management** - Add, update, and remove games from your personal library
+- **Status Tracking** - Organise games as `Backlog`, `Playing`, or `Played`
+- **Game Details** - Descriptions, genres, platforms, and release dates
+- **Authenticated** - Per-user data isolation via Clerk JWT; all routes protected by an internal API key
+- **Paginated API** - Configurable `limit`/`offset` pagination with input validation on every endpoint
+- **Rate Limited** - 100 requests per minute per client via `@nestjs/throttler`
+- **Request Logging** - Structured HTTP logs (`METHOD /path status - Xms`) via a global NestJS interceptor
+- **Responsive UI** - Tailwind CSS + shadcn/ui, works on desktop and mobile
 
 ## Tech Stack
 
 ### Frontend
 
-- [TanStack Start](https://tanstack.com/start) - Full-stack React framework with SSR
-- [React](https://react.dev/) - UI library
-- [TanStack Router](https://tanstack.com/router) - Type-safe file-based routing
-- [TanStack Query](https://tanstack.com/query) - Data fetching & caching
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first styling
-- [shadcn/ui](https://ui.shadcn.com/) - Component library built on Radix UI
-- [Clerk](https://clerk.com/) - Authentication & user management
+| | |
+|---|---|
+| [TanStack Start](https://tanstack.com/start) | Full-stack React SSR framework |
+| [TanStack Router](https://tanstack.com/router) | Type-safe file-based routing |
+| [TanStack Query](https://tanstack.com/query) | Server state, caching, optimistic updates |
+| [Clerk](https://clerk.com/) | Authentication & user management |
+| [Tailwind CSS v4](https://tailwindcss.com/) | Utility-first styling |
+| [shadcn/ui](https://ui.shadcn.com/) | Radix UI component library |
 
 ### Backend
 
-- [NestJS](https://nestjs.com/) - Node.js framework
-- [Drizzle ORM](https://orm.drizzle.team/) - Type-safe ORM
-- [PostgreSQL](https://www.postgresql.org/) - Database
+| | |
+|---|---|
+| [NestJS](https://nestjs.com/) | Node.js framework with DI, guards, pipes, interceptors |
+| [Drizzle ORM](https://orm.drizzle.team/) | Type-safe SQL query builder |
+| [PostgreSQL](https://www.postgresql.org/) | Relational database |
+| [@nestjs/throttler](https://github.com/nestjs/throttler) | Rate limiting |
 
 ### Infrastructure
 
-- [Turborepo](https://turbo.build/) - Monorepo build system
-- [ESLint](https://eslint.org/) + [Prettier](https://prettier.io/) - Linting & formatting
-- [Docker Compose](https://docs.docker.com/compose/) - Local development environment
+| | |
+|---|---|
+| [Turborepo](https://turbo.build/) | Monorepo build orchestration with caching |
+| [GitHub Actions](https://github.com/features/actions) | CI pipeline (lint, typecheck, unit tests, e2e, security audit) |
+| [Railway](https://railway.app/) | Backend hosting with automatic deployments |
+| [Docker Compose](https://docs.docker.com/compose/) | Local PostgreSQL |
 
 ## Project Structure
 
 ```
 backlogify/
 ├── apps/
-│   ├── backend/          # NestJS API
-│   └── frontend/         # TanStack Start app
+│   ├── backend/          # NestJS API (port 3001)
+│   └── frontend/         # TanStack Start SSR app (port 3000)
 ├── packages/
-│   └── types/            # Shared TypeScript types
+│   └── types/            # Shared TypeScript interfaces (@backlogify/types)
+├── .github/workflows/
+│   └── ci.yml            # CI pipeline
 ├── docker-compose.yml
-├── turbo.json
-└── package.json
+└── turbo.json
 ```
+
+## Architecture
+
+```
+Browser
+  → TanStack Start SSR route (/api/...)   [injects API_KEY + Clerk JWT]
+  → NestJS API                            [validates API_KEY → Clerk JWT → handler]
+  → Drizzle ORM → PostgreSQL
+```
+
+**Auth layers:**
+- `ApiKeyGuard` - validates `x-api-key` on every route (server-to-server secret)
+- `ClerkAuthGuard` - validates Clerk JWT on user-specific routes, extracts `userId`
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 22+
-- npm
 - Docker & Docker Compose (for local database)
 
 ### Environment Variables
 
-Create `.env` files in both `apps/backend` and `apps/frontend`:
-
-**apps/backend/.env**
-
+**`apps/backend/.env`**
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/backlogify
 RAWG_API_KEY=your_rawg_api_key
 API_KEY=your_internal_api_key
 CLERK_SECRET_KEY=your_clerk_secret_key
+CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 ```
 
-**apps/frontend/.env**
-
+**`apps/frontend/.env`**
 ```env
 VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 CLERK_SECRET_KEY=your_clerk_secret_key
@@ -83,62 +104,64 @@ BACKEND_URL=http://localhost:3001
 ### Installation
 
 ```bash
-# Install dependencies
 npm install
-
-# Start the database
 docker-compose up -d
-
-# Run database migrations
-npm run db:migrate --workspace=backend
-
-# Start the development servers
+npm run db:migrate -w apps/backend
 npm run dev
 ```
 
-The frontend will be available at `http://localhost:3000` and the backend at `http://localhost:3001`.
+Frontend: `http://localhost:3000` | Backend: `http://localhost:3001`
 
-### Available Scripts
+## API Reference
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/games/search?query=&limit=&offset=` | API Key | Search games |
+| `GET` | `/games/:id` | API Key | Get game details |
+| `GET` | `/user-games?limit=&offset=` | JWT + API Key | Get user's backlog |
+| `POST` | `/user-games` | JWT + API Key | Add game to backlog |
+| `PATCH` | `/user-games/:id/status` | JWT + API Key | Update game status |
+| `DELETE` | `/user-games/:id` | JWT + API Key | Remove from backlog |
+
+All endpoints are rate-limited to **100 req/min**. Pagination defaults: `limit=50`, `offset=0`, max `limit=100`.
+
+## Testing
 
 ```bash
-# Development
-npm run dev              # Start all apps in dev mode
+# Unit tests (Jest, 34 specs, fully mocked)
+npm test -w apps/backend
 
-# Build
-npm run build            # Build all apps
+# E2E tests (Jest + Supertest, real PostgreSQL, mocked Clerk/RAWG)
+npm run test:e2e -w apps/backend
 
-# Linting & Formatting
-npm run lint             # Run ESLint across all workspaces
-npm run format           # Format code with Prettier
-
-# Database (from apps/backend)
-npm run db:generate      # Generate migrations
-npm run db:migrate       # Apply migrations
-npm run db:studio        # Open Drizzle Studio
-
-# E2E Tests
-npm run test:e2e         # Run Playwright tests (starts frontend automatically)
-
-# Storybook (from apps/frontend)
-npm run storybook        # Start Storybook on :6006
+# Frontend component tests (Vitest + Testing Library)
+npm test -w apps/frontend
 ```
 
-## API Endpoints
+The CI pipeline runs all of the above on every pull request, plus lint, typecheck, and `npm audit --audit-level=critical`.
 
-| Method | Endpoint                     | Auth          | Description         |
-| ------ | ---------------------------- | ------------- | ------------------- |
-| GET    | `/games/search?query=`       | API Key       | Search games        |
-| GET    | `/games/:id`                 | API Key       | Get game details    |
-| GET    | `/user-games`                | JWT + API Key | Get user's backlog  |
-| POST   | `/user-games`                | JWT + API Key | Add game to backlog |
-| PATCH  | `/user-games/:gameId/status` | JWT + API Key | Update game status  |
-| DELETE | `/user-games/:gameId`        | JWT + API Key | Remove from backlog |
+## Scripts
+
+```bash
+npm run dev          # Start all apps in parallel (Turbo)
+npm run build        # Build all apps
+npm run lint         # ESLint across all workspaces
+npm run format       # Prettier
+
+# Database (run from repo root or apps/backend)
+npm run db:generate -w apps/backend   # Generate migration files
+npm run db:migrate -w apps/backend    # Apply migrations
+npm run db:studio -w apps/backend     # Drizzle Studio UI
+
+# Storybook
+npm run storybook -w apps/frontend    # Component explorer on :6006
+```
 
 ## Acknowledgements
 
-- Game data provided by [RAWG Video Games Database API](https://rawg.io/apidocs)
-- Authentication powered by [Clerk](https://clerk.com/)
-- UI components from [shadcn/ui](https://ui.shadcn.com/)
+- Game data - [RAWG Video Games Database](https://rawg.io/apidocs)
+- Auth - [Clerk](https://clerk.com/)
+- UI components - [shadcn/ui](https://ui.shadcn.com/)
 
 ## License
 
