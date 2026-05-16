@@ -1,4 +1,4 @@
-import { GameStatus, UserGame } from "@backlogify/types";
+import { GameStatus } from "@backlogify/types";
 import {
 	Inject,
 	Injectable,
@@ -6,12 +6,14 @@ import {
 	Logger,
 	NotFoundException,
 } from "@nestjs/common";
+import { plainToInstance } from "class-transformer";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { eq, and } from "drizzle-orm";
 import { DRIZZLE, userGames } from "../database";
 import * as schema from "../database/schema";
 import { AddUserGameDto } from "./dtos/add-user-game.dto";
 import { PaginationDto } from "./dtos/pagination.dto";
+import { UserGameResponseDto } from "./dtos/user-game.response.dto";
 
 @Injectable()
 export class UserGamesService {
@@ -21,7 +23,7 @@ export class UserGamesService {
 		@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
 	) {}
 
-	async getAll(userId: string, { limit = 50, offset = 0 }: PaginationDto = {}): Promise<UserGame[]> {
+	async getAll(userId: string, { limit = 50, offset = 0 }: PaginationDto = {}): Promise<UserGameResponseDto[]> {
 		try {
 			const results = await this.db
 				.select()
@@ -30,15 +32,9 @@ export class UserGamesService {
 				.limit(limit)
 				.offset(offset);
 
-			return results.map((row) => ({
-				id: row.id,
-				userId: row.userId,
-				externalServiceId: row.externalServiceId,
-				name: row.name,
-				coverUrl: row.coverUrl,
-				status: row.status,
-				addedAt: row.addedAt,
-			}));
+			return plainToInstance(UserGameResponseDto, results, {
+				excludeExtraneousValues: true,
+			});
 		} catch (error) {
 			if (error instanceof NotFoundException) throw error;
 			this.logger.error(
@@ -49,7 +45,7 @@ export class UserGamesService {
 		}
 	}
 
-	async add(userId: string, dto: AddUserGameDto): Promise<UserGame> {
+	async add(userId: string, dto: AddUserGameDto): Promise<UserGameResponseDto> {
 		try {
 			const [inserted] = await this.db
 				.insert(userGames)
@@ -62,15 +58,9 @@ export class UserGamesService {
 				})
 				.returning();
 
-			return {
-				id: inserted.id,
-				userId: inserted.userId,
-				externalServiceId: inserted.externalServiceId,
-				name: inserted.name,
-				coverUrl: inserted.coverUrl,
-				status: inserted.status,
-				addedAt: inserted.addedAt,
-			};
+			return plainToInstance(UserGameResponseDto, inserted, {
+				excludeExtraneousValues: true,
+			});
 		} catch (error) {
 			this.logger.error(
 				"Failed to add user game",
@@ -84,7 +74,7 @@ export class UserGamesService {
 		userId: string,
 		gameId: string,
 		status: GameStatus,
-	): Promise<UserGame> {
+	): Promise<UserGameResponseDto> {
 		try {
 			const [updated] = await this.db
 				.update(userGames)
@@ -96,15 +86,9 @@ export class UserGamesService {
 				throw new NotFoundException("Game not found for this user");
 			}
 
-			return {
-				id: updated.id,
-				userId: updated.userId,
-				externalServiceId: updated.externalServiceId,
-				name: updated.name,
-				coverUrl: updated.coverUrl,
-				status: updated.status,
-				addedAt: updated.addedAt,
-			};
+			return plainToInstance(UserGameResponseDto, updated, {
+				excludeExtraneousValues: true,
+			});
 		} catch (error) {
 			if (error instanceof NotFoundException) throw error;
 			this.logger.error(

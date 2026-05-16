@@ -55,7 +55,8 @@ describe('UserGamesController (e2e)', () => {
       .get('/user-games')
       .set('x-api-key', TEST_API_KEY)
       .then(async (res) => {
-        for (const game of res.body ?? []) {
+        const games = Array.isArray(res.body) ? res.body : [];
+        for (const game of games) {
           await request(app.getHttpServer())
             .delete(`/user-games/${game.id}`)
             .set('x-api-key', TEST_API_KEY);

@@ -5,4 +5,4 @@ process.env.RAWG_API_KEY ??= 'e2e-dummy-rawg-key';
 process.env.CLERK_SECRET_KEY ??= 'e2e-dummy-clerk-key';
 process.env.CLERK_PUBLISHABLE_KEY ??= 'e2e-dummy-clerk-publishable-key';
 process.env.DATABASE_URL ??= 'postgresql://postgres:postgres@localhost:5432/backlogify_test';
-process.env.API_KEY ??= 'e2e-dummy-api-key';
+process.env.API_KEY ??= 'e2e-test-key';
