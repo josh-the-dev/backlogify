@@ -35,6 +35,8 @@ describe('GamesController (e2e)', () => {
     process.env.API_KEY = TEST_API_KEY;
     process.env.RAWG_API_KEY ??= 'e2e-dummy-rawg-key';
     process.env.CLERK_SECRET_KEY ??= 'e2e-dummy-clerk-key';
+    process.env.CLERK_PUBLISHABLE_KEY ??= 'e2e-dummy-clerk-publishable-key';
+    process.env.DATABASE_URL ??= 'postgresql://postgres:postgres@localhost:5432/backlogify_test';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
