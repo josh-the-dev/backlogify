@@ -46,7 +46,7 @@ function App() {
 			<section className="relative overflow-hidden px-6 py-28 text-center">
 
 				{/* Game cover mosaic — the visual anchor */}
-				<div className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-1.5 p-1.5 opacity-20">
+				<div className="mosaic-drift pointer-events-none absolute inset-0 flex flex-wrap content-start gap-1.5 p-1.5 opacity-20">
 					{coverGradients.map((gradient, i) => (
 						<div
 							key={i}
@@ -113,7 +113,7 @@ function App() {
 					{steps.map((step) => (
 						<div
 							key={step.number}
-							className="group bg-card/50 p-8 transition-colors duration-200 hover:bg-card"
+							className="step-scroll group bg-card/50 p-8 transition-colors duration-200 hover:bg-card"
 						>
 							<span className="mb-4 block font-mono text-primary text-xs tracking-[0.2em] uppercase">
 								{step.number}

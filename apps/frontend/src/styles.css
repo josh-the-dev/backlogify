@@ -108,3 +108,44 @@ code {
 		@apply bg-background text-foreground;
 	}
 }
+
+/* ─── View transitions ─────────────────────────────────── */
+@keyframes vt-fade-in {
+	from { opacity: 0; }
+}
+@keyframes vt-fade-out {
+	to { opacity: 0; }
+}
+@keyframes vt-slide-in {
+	from { opacity: 0; transform: translateY(8px); }
+}
+
+::view-transition-old(root) {
+	animation: 150ms ease-out both vt-fade-out;
+}
+::view-transition-new(root) {
+	animation: 220ms ease-out both vt-slide-in;
+}
+
+/* ─── Homepage cover mosaic drift ──────────────────────── */
+@keyframes mosaic-drift {
+	0%   { transform: translateY(0px); }
+	50%  { transform: translateY(-12px); }
+	100% { transform: translateY(0px); }
+}
+
+.mosaic-drift {
+	animation: mosaic-drift 20s ease-in-out infinite;
+}
+
+/* ─── Scroll-driven step entrance ──────────────────────── */
+@keyframes step-in {
+	from { opacity: 0; transform: translateY(24px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+.step-scroll {
+	animation: step-in linear both;
+	animation-timeline: view();
+	animation-range: entry 0% entry 35%;
+}
