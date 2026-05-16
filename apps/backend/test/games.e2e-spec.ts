@@ -29,7 +29,12 @@ describe('GamesController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
+    // Set fallback env vars so module bootstraps without real secrets in CI.
+    // RawgService is overridden below so RAWG_API_KEY is never used.
+    // ClerkAuthGuard is not overridden (games are public) so CLERK_SECRET_KEY must be non-empty.
     process.env.API_KEY = TEST_API_KEY;
+    process.env.RAWG_API_KEY ??= 'e2e-dummy-rawg-key';
+    process.env.CLERK_SECRET_KEY ??= 'e2e-dummy-clerk-key';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],

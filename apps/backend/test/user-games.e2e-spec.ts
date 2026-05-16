@@ -23,6 +23,8 @@ describe('UserGamesController (e2e)', () => {
 
   beforeAll(async () => {
     process.env.API_KEY = TEST_API_KEY;
+    process.env.RAWG_API_KEY ??= 'e2e-dummy-rawg-key';
+    process.env.CLERK_SECRET_KEY ??= 'e2e-dummy-clerk-key';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
