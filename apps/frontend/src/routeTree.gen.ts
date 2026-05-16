@@ -85,7 +85,7 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof SignUpRoute
   '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/games/$id': typeof GamesIdRoute
-  '/games': typeof GamesIndexRoute
+  '/games/': typeof GamesIndexRoute
   '/api/games/$id': typeof ApiGamesIdRoute
   '/api/games/search': typeof ApiGamesSearchRoute
   '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
@@ -127,7 +127,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/api/user-games'
     | '/games/$id'
-    | '/games'
+    | '/games/'
     | '/api/games/$id'
     | '/api/games/search'
     | '/api/user-games/$gameId'
@@ -212,7 +212,7 @@ declare module '@tanstack/react-router' {
     '/games/': {
       id: '/games/'
       path: '/games'
-      fullPath: '/games'
+      fullPath: '/games/'
       preLoaderRoute: typeof GamesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
