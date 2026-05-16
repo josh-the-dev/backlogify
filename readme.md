@@ -13,7 +13,11 @@ A full-stack video game backlog tracker. Search 500k+ games via the RAWG API, ad
 - **Authenticated** - Per-user data isolation via Clerk JWT; all routes protected by an internal API key
 - **Paginated API** - Configurable `limit`/`offset` pagination with input validation on every endpoint
 - **Rate Limited** - 100 requests per minute per client via `@nestjs/throttler`
-- **Request Logging** - Structured HTTP logs (`METHOD /path status - Xms`) via a global NestJS interceptor
+- **Health Check** - `GET /health` confirms database connectivity; suitable for Railway/k8s readiness probes
+- **Request Tracing** - Every request gets a `X-Request-ID` correlation ID threaded through logs and error responses
+- **Structured Logging** - `[correlationId] METHOD /path status - Xms` on every response via a global interceptor
+- **OpenAPI Docs** - Swagger UI at `/api` with typed request/response schemas for all endpoints
+- **Secure by Default** - Helmet security headers, Zod env validation at startup, response DTOs with `excludeExtraneousValues`
 - **Responsive UI** - Tailwind CSS + shadcn/ui, works on desktop and mobile
 
 ## Tech Stack
@@ -25,7 +29,7 @@ A full-stack video game backlog tracker. Search 500k+ games via the RAWG API, ad
 | [TanStack Start](https://tanstack.com/start) | Full-stack React SSR framework |
 | [TanStack Router](https://tanstack.com/router) | Type-safe file-based routing |
 | [TanStack Query](https://tanstack.com/query) | Server state, caching, optimistic updates |
-| [Clerk](https://clerk.com/) | Authentication & user management |
+| [Clerk](https://clerk.com/) | Authentication and user management |
 | [Tailwind CSS v4](https://tailwindcss.com/) | Utility-first styling |
 | [shadcn/ui](https://ui.shadcn.com/) | Radix UI component library |
 
@@ -36,7 +40,11 @@ A full-stack video game backlog tracker. Search 500k+ games via the RAWG API, ad
 | [NestJS](https://nestjs.com/) | Node.js framework with DI, guards, pipes, interceptors |
 | [Drizzle ORM](https://orm.drizzle.team/) | Type-safe SQL query builder |
 | [PostgreSQL](https://www.postgresql.org/) | Relational database |
+| [@nestjs/terminus](https://docs.nestjs.com/recipes/terminus) | Health checks |
+| [@nestjs/swagger](https://docs.nestjs.com/openapi/introduction) | OpenAPI documentation |
 | [@nestjs/throttler](https://github.com/nestjs/throttler) | Rate limiting |
+| [Helmet](https://helmetjs.github.io/) | HTTP security headers |
+| [Zod](https://zod.dev/) | Environment variable validation |
 
 ### Infrastructure
 
@@ -67,12 +75,14 @@ backlogify/
 ```
 Browser
   → TanStack Start SSR route (/api/...)   [injects API_KEY + Clerk JWT]
-  → NestJS API                            [validates API_KEY → Clerk JWT → handler]
+  → CorrelationIdMiddleware               [attaches X-Request-ID]
+  → ThrottlerGuard → ApiKeyGuard → ClerkAuthGuard (user-games only)
+  → LoggingInterceptor → ValidationPipe → Controller → Service
   → Drizzle ORM → PostgreSQL
 ```
 
 **Auth layers:**
-- `ApiKeyGuard` - validates `x-api-key` on every route (server-to-server secret)
+- `ApiKeyGuard` - validates `x-api-key` on every route (server-to-server secret). Routes marked `@Public()` bypass this guard.
 - `ClerkAuthGuard` - validates Clerk JWT on user-specific routes, extracts `userId`
 
 ## Getting Started
@@ -80,7 +90,7 @@ Browser
 ### Prerequisites
 
 - Node.js 22+
-- Docker & Docker Compose (for local database)
+- Docker and Docker Compose (for local database)
 
 ### Environment Variables
 
@@ -110,25 +120,26 @@ npm run db:migrate -w apps/backend
 npm run dev
 ```
 
-Frontend: `http://localhost:3000` | Backend: `http://localhost:3001`
+Frontend: `http://localhost:3000` | Backend: `http://localhost:3001` | API Docs: `http://localhost:3001/api`
 
 ## API Reference
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| `GET` | `/games/search?query=&limit=&offset=` | API Key | Search games |
+| `GET` | `/health` | Public | Service and database health check |
+| `GET` | `/games/search?query=` | API Key | Search games by title |
 | `GET` | `/games/:id` | API Key | Get game details |
 | `GET` | `/user-games?limit=&offset=` | JWT + API Key | Get user's backlog |
 | `POST` | `/user-games` | JWT + API Key | Add game to backlog |
 | `PATCH` | `/user-games/:id/status` | JWT + API Key | Update game status |
 | `DELETE` | `/user-games/:id` | JWT + API Key | Remove from backlog |
 
-All endpoints are rate-limited to **100 req/min**. Pagination defaults: `limit=50`, `offset=0`, max `limit=100`.
+All endpoints are rate-limited to **100 req/min**. Pagination defaults: `limit=50`, `offset=0`, max `limit=100`. Full schema available at `/api` (Swagger UI).
 
 ## Testing
 
 ```bash
-# Unit tests (Jest, 34 specs, fully mocked)
+# Unit tests (Jest, 45 specs, fully mocked)
 npm test -w apps/backend
 
 # E2E tests (Jest + Supertest, real PostgreSQL, mocked Clerk/RAWG)
