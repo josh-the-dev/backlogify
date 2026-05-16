@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/games/search")({
 					if (e instanceof HTTPError) {
 						return json(
 							{ error: `Upstream error: ${e.response.status}` },
-							{ status: 500 },
+							{ status: e.response.status },
 						);
 					}
 					throw e;

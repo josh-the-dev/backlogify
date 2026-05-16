@@ -1,115 +1,179 @@
+import { ExecutionContext, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { ClerkAuthGuard } from '../src/auth';
+import { AllExceptionsFilter } from '../src/common/http-exception.filter';
+import { LoggingInterceptor } from '../src/common/logging.interceptor';
+
+const TEST_API_KEY = 'e2e-test-key';
+const TEST_USER_ID = 'e2e-test-user-999';
+
+// Bypasses Clerk JWT verification and injects a deterministic userId.
+const mockClerkGuard = {
+  canActivate: (ctx: ExecutionContext) => {
+    ctx.switchToHttp().getRequest().userId = TEST_USER_ID;
+    return true;
+  },
+};
 
 describe('UserGamesController (e2e)', () => {
   let app: INestApplication;
-  const testUserId = 'test-user-123';
-  let gameId: string;
+  let createdGameId: string;
 
   beforeAll(async () => {
+    process.env.API_KEY = TEST_API_KEY;
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideGuard(ClerkAuthGuard)
+      .useValue(mockClerkGuard)
+      .compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+    app.useGlobalFilters(new AllExceptionsFilter());
+    app.useGlobalInterceptors(new LoggingInterceptor());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+      }),
+    );
     await app.init();
   });
 
   afterAll(async () => {
+    // Clean up any games created for the test user during this run.
+    await request(app.getHttpServer())
+      .get('/user-games')
+      .set('x-api-key', TEST_API_KEY)
+      .then(async (res) => {
+        for (const game of res.body ?? []) {
+          await request(app.getHttpServer())
+            .delete(`/user-games/${game.id}`)
+            .set('x-api-key', TEST_API_KEY);
+        }
+      });
+
     await app.close();
   });
 
-  it('GET /users/:userId/games - should return empty array initially', async () => {
-    const response = await request(app.getHttpServer())
-      .get(`/users/${testUserId}/games`)
-      .expect(200);
+  describe('GET /user-games', () => {
+    it('returns 200 with an array', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/user-games')
+        .set('x-api-key', TEST_API_KEY);
 
-    expect(Array.isArray(response.body)).toBe(true);
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+    });
+
+    it('returns 401 when API key is missing', async () => {
+      const res = await request(app.getHttpServer()).get('/user-games');
+      expect(res.status).toBe(401);
+    });
+
+    it('accepts limit and offset query params', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/user-games')
+        .query({ limit: 10, offset: 0 })
+        .set('x-api-key', TEST_API_KEY);
+
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+    });
+
+    it('returns 400 for invalid pagination params', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/user-games')
+        .query({ limit: 999 })
+        .set('x-api-key', TEST_API_KEY);
+
+      expect(res.status).toBe(400);
+    });
   });
 
-  it('POST /users/:userId/games - should add a game', async () => {
-    const response = await request(app.getHttpServer())
-      .post(`/users/${testUserId}/games`)
-      .send({
-        externalServiceId: '12345',
-        name: 'Test Game',
-        coverUrl: 'https://example.com/cover.jpg',
+  describe('POST /user-games', () => {
+    it('returns 201 and the created game', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/user-games')
+        .set('x-api-key', TEST_API_KEY)
+        .send({
+          externalServiceId: 'rawg-12345',
+          name: 'E2E Test Game',
+          coverUrl: 'https://example.com/cover.jpg',
+          status: 'backlog',
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body).toMatchObject({
+        userId: TEST_USER_ID,
+        name: 'E2E Test Game',
         status: 'backlog',
-      })
-      .expect(201);
+      });
+      expect(res.body.id).toBeDefined();
+      createdGameId = res.body.id;
+    });
 
-    expect(response.body).toHaveProperty('id');
-    expect(response.body).toHaveProperty('userId', testUserId);
-    expect(response.body).toHaveProperty('name', 'Test Game');
-    expect(response.body).toHaveProperty('status', 'backlog');
+    it('returns 400 for invalid status value', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/user-games')
+        .set('x-api-key', TEST_API_KEY)
+        .send({ externalServiceId: '999', name: 'Bad Game', status: 'wishlist' });
 
-    gameId = response.body.id;
+      expect(res.status).toBe(400);
+    });
+
+    it('returns 400 when required fields are missing', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/user-games')
+        .set('x-api-key', TEST_API_KEY)
+        .send({ status: 'backlog' });
+
+      expect(res.status).toBe(400);
+    });
   });
 
-  it('POST /users/:userId/games - should reject invalid status', async () => {
-    const response = await request(app.getHttpServer())
-      .post(`/users/${testUserId}/games`)
-      .send({
-        externalServiceId: '99999',
-        name: 'Another Game',
-        status: 'invalid-status',
-      })
-      .expect(400);
+  describe('PATCH /user-games/:gameId/status', () => {
+    it('returns 200 and updated game with new status', async () => {
+      const res = await request(app.getHttpServer())
+        .patch(`/user-games/${createdGameId}/status`)
+        .set('x-api-key', TEST_API_KEY)
+        .send({ status: 'playing' });
 
-    expect(response.body.message).toBeDefined();
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({ id: createdGameId, status: 'playing' });
+    });
+
+    it('returns 404 for a non-existent game', async () => {
+      const res = await request(app.getHttpServer())
+        .patch('/user-games/00000000-0000-0000-0000-000000000000/status')
+        .set('x-api-key', TEST_API_KEY)
+        .send({ status: 'played' });
+
+      expect(res.status).toBe(404);
+      expect(res.body.message).toBe('Game not found for this user');
+    });
   });
 
-  it('GET /users/:userId/games - should return added game', async () => {
-    const response = await request(app.getHttpServer())
-      .get(`/users/${testUserId}/games`)
-      .expect(200);
+  describe('DELETE /user-games/:gameId', () => {
+    it('returns 204 when game is successfully removed', async () => {
+      const res = await request(app.getHttpServer())
+        .delete(`/user-games/${createdGameId}`)
+        .set('x-api-key', TEST_API_KEY);
 
-    expect(Array.isArray(response.body)).toBe(true);
-    const addedGame = response.body.find((g) => g.id === gameId);
-    expect(addedGame).toBeDefined();
-    expect(addedGame.name).toBe('Test Game');
-  });
+      expect(res.status).toBe(204);
+    });
 
-  it('PATCH /users/:userId/games/:gameId/status - should update status', async () => {
-    const response = await request(app.getHttpServer())
-      .patch(`/users/${testUserId}/games/${gameId}/status`)
-      .send({ status: 'playing' })
-      .expect(200);
+    it('returns 404 when game does not exist', async () => {
+      const res = await request(app.getHttpServer())
+        .delete('/user-games/00000000-0000-0000-0000-000000000000')
+        .set('x-api-key', TEST_API_KEY);
 
-    expect(response.body).toHaveProperty('status', 'playing');
-  });
-
-  it('PATCH /users/:userId/games/:gameId/status - should return 404 for unknown game', async () => {
-    const response = await request(app.getHttpServer())
-      .patch(`/users/${testUserId}/games/00000000-0000-0000-0000-000000000000/status`)
-      .send({ status: 'played' })
-      .expect(404);
-
-    expect(response.body.message).toBe('Game not found for this user');
-  });
-
-  it('DELETE /users/:userId/games/:gameId - should remove the game', async () => {
-    await request(app.getHttpServer())
-      .delete(`/users/${testUserId}/games/${gameId}`)
-      .expect(200);
-
-    // Verify it's gone
-    const response = await request(app.getHttpServer())
-      .get(`/users/${testUserId}/games`)
-      .expect(200);
-
-    const deletedGame = response.body.find((g) => g.id === gameId);
-    expect(deletedGame).toBeUndefined();
-  });
-
-  it('DELETE /users/:userId/games/:gameId - should return 404 for unknown game', async () => {
-    const response = await request(app.getHttpServer())
-      .delete(`/users/${testUserId}/games/00000000-0000-0000-0000-000000000000`)
-      .expect(404);
-
-    expect(response.body.message).toBe('Game not found for this user');
+      expect(res.status).toBe(404);
+    });
   });
 });

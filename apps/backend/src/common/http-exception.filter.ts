@@ -32,6 +32,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 				`Unhandled exception on ${request.method} ${request.url}`,
 				exception instanceof Error ? exception.stack : String(exception),
 			);
+			response.status(status).json({ statusCode: status, message: "Internal server error" });
+			return;
 		}
 
 		response.status(status).json(

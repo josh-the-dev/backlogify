@@ -11,6 +11,7 @@ import { eq, and } from "drizzle-orm";
 import { DRIZZLE, userGames } from "../database";
 import * as schema from "../database/schema";
 import { AddUserGameDto } from "./dtos/add-user-game.dto";
+import { PaginationDto } from "./dtos/pagination.dto";
 
 @Injectable()
 export class UserGamesService {
@@ -20,12 +21,14 @@ export class UserGamesService {
 		@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
 	) {}
 
-	async getAll(userId: string): Promise<UserGame[]> {
+	async getAll(userId: string, { limit = 50, offset = 0 }: PaginationDto = {}): Promise<UserGame[]> {
 		try {
 			const results = await this.db
 				.select()
 				.from(userGames)
-				.where(eq(userGames.userId, userId));
+				.where(eq(userGames.userId, userId))
+				.limit(limit)
+				.offset(offset);
 
 			return results.map((row) => ({
 				id: row.id,
@@ -37,6 +40,7 @@ export class UserGamesService {
 				addedAt: row.addedAt,
 			}));
 		} catch (error) {
+			if (error instanceof NotFoundException) throw error;
 			this.logger.error(
 				"Failed to fetch user games",
 				error instanceof Error ? error.stack : String(error),

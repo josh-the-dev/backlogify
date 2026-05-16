@@ -1,6 +1,7 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { ClerkAuthGuard } from "../auth";
+import { PaginationDto } from "./dtos/pagination.dto";
 import { UserGamesController } from "./user-games.controller";
 import { UserGamesService } from "./user-games.service";
 
@@ -63,17 +64,18 @@ describe("UserGamesController", () => {
 
 			mockUserGamesService.getAll.mockReturnValue(expectedGames);
 
-			const result = controller.getAll(userId);
+			const pagination: PaginationDto = { limit: 50, offset: 0 };
+			const result = controller.getAll(userId, pagination);
 
 			expect(result).toEqual(expectedGames);
-			expect(mockUserGamesService.getAll).toHaveBeenCalledWith(userId);
+			expect(mockUserGamesService.getAll).toHaveBeenCalledWith(userId, pagination);
 			expect(mockUserGamesService.getAll).toHaveBeenCalledTimes(1);
 		});
 
 		it("should return empty array when user has no games", () => {
 			mockUserGamesService.getAll.mockReturnValue([]);
 
-			const result = controller.getAll("user-1");
+			const result = controller.getAll("user-1", { limit: 50, offset: 0 });
 
 			expect(result).toEqual([]);
 		});

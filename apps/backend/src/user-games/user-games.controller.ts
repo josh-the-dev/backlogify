@@ -7,12 +7,14 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 	UseGuards,
 	ValidationPipe,
 } from "@nestjs/common";
 import { UserGame } from "@backlogify/types";
 import { ClerkAuthGuard, UserId } from "../auth";
 import { AddUserGameDto } from "./dtos/add-user-game.dto";
+import { PaginationDto } from "./dtos/pagination.dto";
 import { UpdateUserGameStatusDto } from "./dtos/update-user-game-status.dto";
 import { UserGamesService } from "./user-games.service";
 
@@ -22,8 +24,11 @@ export class UserGamesController {
 	constructor(private readonly userGamesService: UserGamesService) {}
 
 	@Get()
-	getAll(@UserId() userId: string): Promise<UserGame[]> {
-		return this.userGamesService.getAll(userId);
+	getAll(
+		@UserId() userId: string,
+		@Query(ValidationPipe) pagination: PaginationDto,
+	): Promise<UserGame[]> {
+		return this.userGamesService.getAll(userId, pagination);
 	}
 
 	@Post()

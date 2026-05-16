@@ -13,7 +13,9 @@ export class ClerkAuthGuard implements CanActivate {
 	private secretKey: string;
 
 	constructor(private configService: ConfigService) {
-		this.secretKey = this.configService.get<string>("CLERK_SECRET_KEY")!;
+		const key = this.configService.get<string>("CLERK_SECRET_KEY");
+		if (!key) throw new Error("CLERK_SECRET_KEY is not configured");
+		this.secretKey = key;
 	}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {

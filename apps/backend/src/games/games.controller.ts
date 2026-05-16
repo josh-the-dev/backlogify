@@ -3,6 +3,7 @@ import {
 	Controller,
 	Get,
 	Param,
+	ParseIntPipe,
 	Query,
 } from "@nestjs/common";
 import { GameDetails, GameSearchResult } from "@backlogify/types";
@@ -22,11 +23,7 @@ export class GamesController {
 	}
 
 	@Get(":id")
-	async getGameDetails(@Param("id") id: string): Promise<GameDetails> {
-		if (!id) {
-			throw new BadRequestException("Game ID is required");
-		}
-
-		return this.gamesService.getGameDetails(id);
+	async getGameDetails(@Param("id", ParseIntPipe) id: number): Promise<GameDetails> {
+		return this.gamesService.getGameDetails(String(id));
 	}
 }

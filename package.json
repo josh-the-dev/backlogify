@@ -21,7 +21,9 @@
     "turbo": "^2.0.0"
   },
   "overrides": {
-    "srvx": "0.8.15"
+    "srvx": "0.8.15",
+    "@nestjs/core": ">=11.1.21",
+    "@nestjs/platform-express": ">=11.1.21"
   },
   "dependencies": {
     "srvx": "0.8.15"

@@ -37,11 +37,15 @@ describe("UserGamesService", () => {
 		it("should return empty array when user has no games", async () => {
 			mockDb.select.mockReturnValue({
 				from: jest.fn().mockReturnValue({
-					where: jest.fn().mockResolvedValue([]),
+					where: jest.fn().mockReturnValue({
+						limit: jest.fn().mockReturnValue({
+							offset: jest.fn().mockResolvedValue([]),
+						}),
+					}),
 				}),
 			});
 
-			const result = await service.getAll("user-1");
+			const result = await service.getAll("user-1", { limit: 50, offset: 0 });
 
 			expect(result).toEqual([]);
 		});
@@ -70,11 +74,15 @@ describe("UserGamesService", () => {
 
 			mockDb.select.mockReturnValue({
 				from: jest.fn().mockReturnValue({
-					where: jest.fn().mockResolvedValue(mockGames),
+					where: jest.fn().mockReturnValue({
+						limit: jest.fn().mockReturnValue({
+							offset: jest.fn().mockResolvedValue(mockGames),
+						}),
+					}),
 				}),
 			});
 
-			const result = await service.getAll("user-1");
+			const result = await service.getAll("user-1", { limit: 50, offset: 0 });
 
 			expect(result).toHaveLength(2);
 			expect(result.every((g) => g.userId === "user-1")).toBe(true);
