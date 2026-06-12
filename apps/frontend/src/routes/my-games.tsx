@@ -7,6 +7,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { StatusFilter } from "../components/UserGames/StatusFilter";
+import { UpNextCard } from "../components/UserGames/UpNextCard";
 import { UserGameList } from "../components/UserGames/UserGameList";
 import { userGamesQueryOptions } from "../queries/user-games";
 
@@ -38,6 +39,7 @@ function MyGamesPage() {
 	const userGamesQuery = useQuery(userGamesQueryOptions());
 
 	const games = userGamesQuery.data ?? [];
+	const upNext = games.find((g) => g.pinnedAt);
 	const counts: Record<FilterOption, number> = {
 		all: games.length,
 		backlog: games.filter((g) => g.status === "backlog").length,
@@ -50,10 +52,10 @@ function MyGamesPage() {
 		<div className="mx-auto w-full max-w-6xl px-6 py-10">
 			<div className="flex flex-wrap items-end justify-between gap-4">
 				<div>
-					<h1 className="font-display font-bold text-3xl tracking-tight">
+					<h1 className="font-display text-3xl font-bold tracking-tight">
 						My Games
 					</h1>
-					<p className="mt-1 text-muted-foreground text-sm">
+					<p className="text-muted-foreground mt-1 text-sm">
 						{games.length === 1 ? "1 game" : `${games.length} games`} in your
 						library
 					</p>
@@ -65,6 +67,7 @@ function MyGamesPage() {
 					</Link>
 				</Button>
 			</div>
+			{upNext && <UpNextCard game={upNext} />}
 			<div className="mt-6">
 				<StatusFilter
 					value={statusFilter}

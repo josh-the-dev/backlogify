@@ -196,6 +196,7 @@ describe("UserGamesService", () => {
 			expect(setMock).toHaveBeenCalledWith({
 				status: "played",
 				finishedAt: expect.any(Date),
+				pinnedAt: null,
 			});
 		});
 
@@ -207,6 +208,7 @@ describe("UserGamesService", () => {
 			expect(setMock).toHaveBeenCalledWith({
 				status: "abandoned",
 				finishedAt: null,
+				pinnedAt: null,
 			});
 		});
 
@@ -221,6 +223,7 @@ describe("UserGamesService", () => {
 			expect(setMock).toHaveBeenCalledWith({
 				status: "played",
 				finishedAt: new Date("2026-01-05T00:00:00.000Z"),
+				pinnedAt: null,
 			});
 		});
 
@@ -243,6 +246,42 @@ describe("UserGamesService", () => {
 			await service.update("user-1", "game-1", { note: null });
 
 			expect(setMock).toHaveBeenCalledWith({ note: null });
+		});
+
+		it("should unpin every other game before pinning", async () => {
+			const setMock = mockUpdateChain([
+				{ ...updatedGame, pinnedAt: new Date() },
+			]);
+
+			const result = await service.update("user-1", "game-1", {
+				pinned: true,
+			});
+
+			// First statement clears the user's existing pin, second sets the
+			// new one - the slot only ever holds one game
+			expect(setMock).toHaveBeenCalledTimes(2);
+			expect(setMock).toHaveBeenNthCalledWith(1, { pinnedAt: null });
+			expect(setMock).toHaveBeenNthCalledWith(2, {
+				pinnedAt: expect.any(Date),
+			});
+			expect(result.pinnedAt).toBeInstanceOf(Date);
+		});
+
+		it("should clear the pin when false is provided", async () => {
+			const setMock = mockUpdateChain([updatedGame]);
+
+			await service.update("user-1", "game-1", { pinned: false });
+
+			expect(setMock).toHaveBeenCalledTimes(1);
+			expect(setMock).toHaveBeenCalledWith({ pinnedAt: null });
+		});
+
+		it("should not touch other games when only unpinning", async () => {
+			mockUpdateChain([updatedGame]);
+
+			await service.update("user-1", "game-1", { pinned: false });
+
+			expect(mockDb.update).toHaveBeenCalledTimes(1);
 		});
 
 		it("should throw NotFoundException when game does not exist", async () => {
@@ -275,12 +314,12 @@ describe("UserGamesService", () => {
 				}),
 			});
 
-			await expect(
-				service.remove("user-1", "non-existent-id"),
-			).rejects.toThrow(NotFoundException);
-			await expect(
-				service.remove("user-1", "non-existent-id"),
-			).rejects.toThrow("Game not found for this user");
+			await expect(service.remove("user-1", "non-existent-id")).rejects.toThrow(
+				NotFoundException,
+			);
+			await expect(service.remove("user-1", "non-existent-id")).rejects.toThrow(
+				"Game not found for this user",
+			);
 		});
 	});
 });

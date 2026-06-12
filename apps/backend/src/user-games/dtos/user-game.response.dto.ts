@@ -47,4 +47,8 @@ export class UserGameResponseDto {
 		nullable: true,
 	})
 	note: string | null;
+
+	@Expose()
+	@ApiPropertyOptional({ example: "2026-06-12T18:00:00.000Z", nullable: true })
+	pinnedAt: Date | null;
 }

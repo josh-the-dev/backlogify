@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Backlogify is a full-stack monorepo for tracking personal video game backlogs. Users search ~500k games via the RAWG API and track them across Backlog → Playing → Played (or Abandoned) statuses, with an auto-stamped finish date and a personal note per game.
+Backlogify is a full-stack monorepo for tracking personal video game backlogs. Users search ~500k games via the RAWG API and track them across Backlog → Playing → Played (or Abandoned) statuses, with an auto-stamped finish date, a personal note, and a single pinned "Up next" game (stored as `pinnedAt`; pinning steals the slot, finishing/abandoning clears it).
 
 ## Commands
 
@@ -123,4 +123,4 @@ docker-compose up -d   # or use docker-compose.yml for full stack
 - **Build orchestration**: Turbo caches `build` and `test`; `dev` runs uncached in persistent mode.
 - **Database migrations**: Always run `db:generate` then `db:migrate` after schema changes in `src/database/schema.ts`. `drizzle-kit` version must stay in sync with `drizzle-orm` - currently both on the 0.31.x / 0.45.x compatible pair.
 - **CI pipeline**: `.github/workflows/ci.yml` runs on every push and PR to `main`. Jobs: `quality` (lint + tsc --noEmit), `backend-unit`, `backend-e2e` (PostgreSQL service container), `frontend-build`, `security` (npm audit --audit-level=critical). Branch protection on `main` requires all jobs to pass before merge.
-- **E2E tests**: `test/jest-e2e.json` config. Tests mock `RawgService` via `overrideProvider` and bypass `ClerkAuthGuard` via `overrideGuard`. Env vars are set in `test/e2e-env-setup.ts` via Jest `setupFiles` - this runs before any module imports, which is required because `ConfigModule.forRoot({ validate })` executes at import time. The `API_KEY` in `e2e-env-setup.ts` must match `TEST_API_KEY` in the spec files (`'e2e-test-key'`).
+- **E2E tests**: `test/jest-e2e.json` config. Tests mock `RawgService` via `overrideProvider` and bypass `ClerkAuthGuard` via `overrideGuard`. Env vars are set in `test/e2e-env-setup.ts` via Jest `setupFiles` - this runs before any module imports, which is required because `ConfigModule.forRoot({ validate })` executes at import time. The `API_KEY` in `e2e-env-setup.ts` must match `TEST_API_KEY` in the spec files (`'e2e-test-key'`). To run locally, set `DATABASE_URL=postgresql://backlogify:backlogify_dev@localhost:5432/backlogify_test` (a migrated test DB in the dev docker container) - otherwise the fallback URL points at a DB that does not exist locally.
