@@ -24,11 +24,11 @@ These three share one schema migration, so build together.
 
 ## 3. "What do I play next?" (the differentiator)
 
-- [ ] A pinned "Up next" slot at the top of My Games, or full drag-to-reorder priority within the Backlog tab
-- [ ] Needs a `position`/`pinnedAt` column on `user_games` (could ride along with the #2 migration if built soon after)
-- [ ] Surfacing: "Up next" card bigger than the rest of the grid
+- [x] Decided: pinned "Up next" slot, not drag-to-reorder (priority lists go stale; one pinned game answers the actual question). Revisit reorder only if the pin proves insufficient
+- [x] Nullable `pinnedAt` on `user_games` (migration `0003_petite_legion.sql`); PATCH `:gameId` takes `pinned: boolean`, pinning steals the slot from any other game, moving to played/abandoned clears it
+- [x] Surfacing: "Up next" hero card above the My Games grid; pin toggles on library tiles and the detail page ("Play this next")
 
-**Size:** medium-large if drag-reorder; small if just a pin.
+**Size:** small, as predicted for the pin route.
 
 ## 4. Stats strip on My Games
 
@@ -61,7 +61,7 @@ Cheap once #2 exists (needs `finishedAt`).
 
 - [ ] Upgrade `@clerk/tanstack-react-start` 0.26.x to 1.x: fixes a high-severity authorization bypass advisory (GHSA-w24r-5266-9c3c) but is a breaking major bump, needs its own PR with auth flow re-testing
 - [ ] Periodically re-run `npm audit` for new criticals; CI only fails at critical level (shell-quote and vitest were bumped June 2026)
-- [ ] Baseline the local dev database for `drizzle-kit migrate`: the schema was originally pushed, so `drizzle.__drizzle_migrations` is empty and `db:migrate` fails locally (migration 0002 was applied by hand on 12 Jun 2026; CI migrates fresh DBs fine)
+- [x] Baseline the local dev database for `drizzle-kit migrate`: done 12 Jun 2026 - inserted rows for 0000-0002 (sha256 of each .sql + journal timestamp) into `drizzle.__drizzle_migrations`, so `db:migrate` now works locally. Also created a local `backlogify_test` DB for e2e runs: set `DATABASE_URL=postgresql://backlogify:backlogify_dev@localhost:5432/backlogify_test` before `npm run test:e2e`
 
 ## Polish backlog (grab-bag, any time)
 

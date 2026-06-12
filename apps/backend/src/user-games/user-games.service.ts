@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { eq, and } from "drizzle-orm";
+import { eq, and, isNotNull } from "drizzle-orm";
 import { DRIZZLE, userGames } from "../database";
 import * as schema from "../database/schema";
 import { AddUserGameDto } from "./dtos/add-user-game.dto";
@@ -19,11 +19,12 @@ import { UserGameResponseDto } from "./dtos/user-game.response.dto";
 export class UserGamesService {
 	private readonly logger = new Logger(UserGamesService.name);
 
-	constructor(
-		@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
-	) {}
+	constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
 
-	async getAll(userId: string, { limit = 50, offset = 0 }: PaginationDto = {}): Promise<UserGameResponseDto[]> {
+	async getAll(
+		userId: string,
+		{ limit = 50, offset = 0 }: PaginationDto = {},
+	): Promise<UserGameResponseDto[]> {
 		try {
 			const results = await this.db
 				.select()
@@ -97,7 +98,25 @@ export class UserGamesService {
 			changes.note = dto.note;
 		}
 
+		if (dto.pinned !== undefined) {
+			changes.pinnedAt = dto.pinned ? new Date() : null;
+		} else if (dto.status === "played" || dto.status === "abandoned") {
+			// Finishing or abandoning a game frees the Up next slot
+			changes.pinnedAt = null;
+		}
+
 		try {
+			if (dto.pinned) {
+				// Unpin everything first so "at most one pinned game" holds
+				// even if the second statement fails
+				await this.db
+					.update(userGames)
+					.set({ pinnedAt: null })
+					.where(
+						and(eq(userGames.userId, userId), isNotNull(userGames.pinnedAt)),
+					);
+			}
+
 			const [updated] = await this.db
 				.update(userGames)
 				.set(changes)

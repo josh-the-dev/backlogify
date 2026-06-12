@@ -5,6 +5,7 @@ import DOMPurify from "dompurify";
 import { AddToBacklogButton } from "../AddToBacklogButton";
 import { GameCover } from "../GameSearch/GameCover";
 import { GameNote } from "./GameNote";
+import { PlayNextButton } from "./PlayNextButton";
 
 export function GameDetailsContent({ game }: { game: GameDetailsType }) {
 	const formattedDate = game.releaseDate
@@ -16,7 +17,7 @@ export function GameDetailsContent({ game }: { game: GameDetailsType }) {
 		.join(" · ");
 
 	return (
-		<div className="mx-auto w-full max-w-5xl px-6 pt-12 pb-16 sm:pt-24">
+		<div className="mx-auto w-full max-w-5xl px-6 pb-16 pt-12 sm:pt-24">
 			<div className="flex flex-col gap-8 sm:flex-row sm:items-end">
 				<GameCover
 					name={game.name}
@@ -24,18 +25,21 @@ export function GameDetailsContent({ game }: { game: GameDetailsType }) {
 					className="aspect-[3/4] w-40 shrink-0 rounded-xl border border-white/10 shadow-2xl sm:w-52"
 				/>
 				<div className="min-w-0 flex-1 pb-1">
-					<h1 className="font-display font-bold text-4xl tracking-tight sm:text-5xl">
+					<h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">
 						{game.name}
 					</h1>
 					{metaLine && (
-						<p className="mt-3 text-muted-foreground text-sm">{metaLine}</p>
+						<p className="text-muted-foreground mt-3 text-sm">{metaLine}</p>
 					)}
-					<div className="mt-6">
+					<div className="mt-6 flex flex-wrap items-center gap-2">
 						<AddToBacklogButton
 							externalServiceId={game.id.toString()}
 							name={game.name}
 							coverUrl={game.coverUrl}
 						/>
+						<SignedIn>
+							<PlayNextButton externalServiceId={game.id.toString()} />
+						</SignedIn>
 					</div>
 				</div>
 			</div>
@@ -50,7 +54,7 @@ export function GameDetailsContent({ game }: { game: GameDetailsType }) {
 			)}
 
 			<div
-				className="game-description mt-6 max-w-3xl text-[15px] text-muted-foreground leading-relaxed"
+				className="game-description text-muted-foreground mt-6 max-w-3xl text-[15px] leading-relaxed"
 				dangerouslySetInnerHTML={{
 					__html: DOMPurify.sanitize(game.description),
 				}}

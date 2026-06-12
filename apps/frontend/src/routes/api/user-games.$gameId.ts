@@ -21,7 +21,7 @@ export const Route = createFileRoute("/api/user-games/$gameId")({
 
 				try {
 					const data = await backendApi
-						.patch(`user-games/${gameId}/status`, {
+						.patch(`user-games/${gameId}`, {
 							headers: { Authorization: `Bearer ${token}` },
 							json: body,
 						})
@@ -31,7 +31,9 @@ export const Route = createFileRoute("/api/user-games/$gameId")({
 					if (e instanceof HTTPError) {
 						const error = await e.response.json().catch(() => ({}));
 						return json(
-							{ error: error.message || `Upstream error: ${e.response.status}` },
+							{
+								error: error.message || `Upstream error: ${e.response.status}`,
+							},
 							{ status: e.response.status },
 						);
 					}
@@ -57,7 +59,9 @@ export const Route = createFileRoute("/api/user-games/$gameId")({
 					if (e instanceof HTTPError) {
 						const error = await e.response.json().catch(() => ({}));
 						return json(
-							{ error: error.message || `Upstream error: ${e.response.status}` },
+							{
+								error: error.message || `Upstream error: ${e.response.status}`,
+							},
 							{ status: e.response.status },
 						);
 					}

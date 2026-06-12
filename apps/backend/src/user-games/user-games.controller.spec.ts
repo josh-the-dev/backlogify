@@ -68,7 +68,10 @@ describe("UserGamesController", () => {
 			const result = controller.getAll(userId, pagination);
 
 			expect(result).toEqual(expectedGames);
-			expect(mockUserGamesService.getAll).toHaveBeenCalledWith(userId, pagination);
+			expect(mockUserGamesService.getAll).toHaveBeenCalledWith(
+				userId,
+				pagination,
+			);
 			expect(mockUserGamesService.getAll).toHaveBeenCalledTimes(1);
 		});
 
@@ -174,6 +177,18 @@ describe("UserGamesController", () => {
 			);
 		});
 
+		it("should accept a pin-only update", () => {
+			mockUserGamesService.update.mockReturnValue({});
+
+			controller.update("user-1", "game-1", { pinned: true });
+
+			expect(mockUserGamesService.update).toHaveBeenCalledWith(
+				"user-1",
+				"game-1",
+				{ pinned: true },
+			);
+		});
+
 		it("should reject an empty body", () => {
 			expect(() => controller.update("user-1", "game-1", {})).toThrow(
 				"Nothing to update",
@@ -222,7 +237,9 @@ describe("UserGamesController", () => {
 				throw new NotFoundException("Game not found for this user");
 			});
 
-			expect(() => controller.remove(userId, gameId)).toThrow(NotFoundException);
+			expect(() => controller.remove(userId, gameId)).toThrow(
+				NotFoundException,
+			);
 			expect(() => controller.remove(userId, gameId)).toThrow(
 				"Game not found for this user",
 			);

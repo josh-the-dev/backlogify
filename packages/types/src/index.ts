@@ -30,6 +30,7 @@ export interface UserGame {
 	addedAt: Date;
 	finishedAt?: Date | null;
 	note?: string | null;
+	pinnedAt?: Date | null;
 }
 
 // Backlog types

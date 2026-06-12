@@ -1,0 +1,1 @@
+ALTER TABLE "user_games" ADD COLUMN "pinned_at" timestamp;

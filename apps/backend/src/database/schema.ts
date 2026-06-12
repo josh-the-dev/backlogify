@@ -27,6 +27,9 @@ export const userGames = pgTable(
     addedAt: timestamp('added_at').notNull().defaultNow(),
     finishedAt: timestamp('finished_at'),
     note: text('note'),
+    // "Up next" slot: at most one game per user carries a timestamp here,
+    // enforced in UserGamesService.update
+    pinnedAt: timestamp('pinned_at'),
   },
   (table) => [index('user_games_user_id_idx').on(table.userId)],
 );

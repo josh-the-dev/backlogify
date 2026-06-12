@@ -37,7 +37,11 @@ export class UserGamesController {
 
 	@Get()
 	@ApiOperation({ summary: "Get the authenticated user's game backlog" })
-	@ApiResponse({ status: 200, type: [UserGameResponseDto], description: "Paginated list of user games" })
+	@ApiResponse({
+		status: 200,
+		type: [UserGameResponseDto],
+		description: "Paginated list of user games",
+	})
 	@ApiResponse({ status: 401, description: "Invalid or missing API key / JWT" })
 	getAll(
 		@UserId() userId: string,
@@ -49,7 +53,11 @@ export class UserGamesController {
 	@Post()
 	@HttpCode(201)
 	@ApiOperation({ summary: "Add a game to the authenticated user's backlog" })
-	@ApiResponse({ status: 201, type: UserGameResponseDto, description: "Game added to backlog" })
+	@ApiResponse({
+		status: 201,
+		type: UserGameResponseDto,
+		description: "Game added to backlog",
+	})
 	@ApiResponse({ status: 400, description: "Invalid request body" })
 	@ApiResponse({ status: 401, description: "Invalid or missing API key / JWT" })
 	addGame(
@@ -60,9 +68,18 @@ export class UserGamesController {
 	}
 
 	@Patch(":gameId")
-	@ApiOperation({ summary: "Update a game's status, note, or finish date" })
-	@ApiResponse({ status: 200, type: UserGameResponseDto, description: "Game updated" })
-	@ApiResponse({ status: 400, description: "Invalid field value or empty body" })
+	@ApiOperation({
+		summary: "Update a game's status, note, finish date, or Up next pin",
+	})
+	@ApiResponse({
+		status: 200,
+		type: UserGameResponseDto,
+		description: "Game updated",
+	})
+	@ApiResponse({
+		status: 400,
+		description: "Invalid field value or empty body",
+	})
 	@ApiResponse({ status: 401, description: "Invalid or missing API key / JWT" })
 	@ApiResponse({ status: 404, description: "Game not found for this user" })
 	update(
@@ -73,7 +90,8 @@ export class UserGamesController {
 		if (
 			body.status === undefined &&
 			body.note === undefined &&
-			body.finishedAt === undefined
+			body.finishedAt === undefined &&
+			body.pinned === undefined
 		) {
 			throw new BadRequestException("Nothing to update");
 		}
@@ -87,7 +105,10 @@ export class UserGamesController {
 	@ApiResponse({ status: 204, description: "Game removed" })
 	@ApiResponse({ status: 401, description: "Invalid or missing API key / JWT" })
 	@ApiResponse({ status: 404, description: "Game not found for this user" })
-	remove(@UserId() userId: string, @Param("gameId", ParseUUIDPipe) gameId: string): Promise<void> {
+	remove(
+		@UserId() userId: string,
+		@Param("gameId", ParseUUIDPipe) gameId: string,
+	): Promise<void> {
 		return this.userGamesService.remove(userId, gameId);
 	}
 }

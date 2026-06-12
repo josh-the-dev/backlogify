@@ -1,6 +1,13 @@
 import { GameStatus } from "@backlogify/types";
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsDateString, IsIn, IsOptional, IsString, MaxLength } from "class-validator";
+import {
+	IsBoolean,
+	IsDateString,
+	IsIn,
+	IsOptional,
+	IsString,
+	MaxLength,
+} from "class-validator";
 
 export const GAME_STATUSES = [
 	"backlog",
@@ -34,4 +41,13 @@ export class UpdateUserGameDto {
 	@IsOptional()
 	@IsDateString()
 	finishedAt?: string | null;
+
+	@ApiPropertyOptional({
+		example: true,
+		description:
+			"true pins this game as the single Up next slot (any other pinned game is unpinned); false clears the pin",
+	})
+	@IsOptional()
+	@IsBoolean()
+	pinned?: boolean;
 }

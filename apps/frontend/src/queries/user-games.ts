@@ -135,8 +135,13 @@ export function useUpdateUserGameStatus() {
 									...game,
 									status,
 									// Mirror the backend: played stamps the finish
-									// date, anything else clears it
+									// date, anything else clears it; finishing or
+									// abandoning also frees the Up next slot
 									finishedAt: status === "played" ? new Date() : null,
+									pinnedAt:
+										status === "played" || status === "abandoned"
+											? null
+											: game.pinnedAt,
 								}
 							: game,
 					),
@@ -201,6 +206,63 @@ export function useUpdateUserGameNote() {
 				queryClient.setQueryData(["user-games"], context.previousGames);
 			}
 			toast.error("Failed to save note");
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: ["user-games"] });
+		},
+	});
+}
+
+export function useUpdateUserGamePin() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			gameId,
+			pinned,
+		}: {
+			gameId: string;
+			pinned: boolean;
+		}): Promise<UserGame> => {
+			const res = await fetch(`/api/user-games/${gameId}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ pinned }),
+			});
+			if (!res.ok) {
+				const error = await res.json().catch(() => ({}));
+				throw new Error(error.error || `Request failed: ${res.status}`);
+			}
+			return res.json();
+		},
+		onMutate: async ({ gameId, pinned }) => {
+			await queryClient.cancelQueries({ queryKey: ["user-games"] });
+			const previousGames = queryClient.getQueryData<UserGame[]>([
+				"user-games",
+			]);
+
+			if (previousGames) {
+				queryClient.setQueryData<UserGame[]>(
+					["user-games"],
+					// Mirror the backend: the Up next slot holds one game, so
+					// pinning steals it from whoever had it
+					previousGames.map((game) =>
+						game.id === gameId
+							? { ...game, pinnedAt: pinned ? new Date() : null }
+							: pinned
+								? { ...game, pinnedAt: null }
+								: game,
+					),
+				);
+			}
+
+			return { previousGames };
+		},
+		onError: (_err, _variables, context) => {
+			if (context?.previousGames) {
+				queryClient.setQueryData(["user-games"], context.previousGames);
+			}
+			toast.error("Failed to update Up next");
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: ["user-games"] });
