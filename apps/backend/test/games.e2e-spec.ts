@@ -14,6 +14,17 @@ const mockRawgService = {
       { id: 1, name: 'Doom', background_image: 'https://example.com/doom.jpg' },
     ],
   }),
+  getPopularGames: jest.fn().mockResolvedValue({
+    results: [
+      {
+        id: 2,
+        name: 'Quake',
+        background_image: 'https://example.com/quake.jpg',
+        released: '1996-06-22',
+        metacritic: 94,
+      },
+    ],
+  }),
   getGameDetails: jest.fn().mockResolvedValue({
     id: 1,
     name: 'Doom',
@@ -97,6 +108,28 @@ describe('GamesController (e2e)', () => {
       const res = await request(app.getHttpServer())
         .get('/games/search')
         .query({ query: 'doom' });
+
+      expect(res.status).toBe(401);
+    });
+  });
+
+  describe('GET /games/popular', () => {
+    it('returns 200 with popular games (not swallowed by the :id route)', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/games/popular')
+        .set('x-api-key', TEST_API_KEY);
+
+      expect(res.status).toBe(200);
+      expect(res.body[0]).toMatchObject({
+        id: 2,
+        name: 'Quake',
+        releaseDate: '1996-06-22',
+        metacritic: 94,
+      });
+    });
+
+    it('returns 401 when API key is missing', async () => {
+      const res = await request(app.getHttpServer()).get('/games/popular');
 
       expect(res.status).toBe(401);
     });

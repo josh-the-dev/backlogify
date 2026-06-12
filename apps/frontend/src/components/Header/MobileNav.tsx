@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-react-start";
 import { Link } from "@tanstack/react-router";
-import { Gamepad2, Home, Library, Search, X } from "lucide-react";
+import { Home, Library, Search, X } from "lucide-react";
 
 interface MobileNavProps {
 	isOpen: boolean;
@@ -30,9 +30,12 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
 			>
 				{/* Header */}
 				<div className="flex items-center justify-between border-b border-border p-4">
-					<Link to="/" className="flex items-center gap-2" onClick={onClose}>
-						<Gamepad2 className="size-6 text-primary" />
-						<span className="font-bold text-lg">Backlogify</span>
+					<Link
+						to="/"
+						className="font-bold font-display text-lg tracking-tight"
+						onClick={onClose}
+					>
+						Backlogify<span className="text-primary">.</span>
 					</Link>
 					<Button
 						variant="ghost"

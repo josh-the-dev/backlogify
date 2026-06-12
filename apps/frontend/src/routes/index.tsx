@@ -1,125 +1,120 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-react-start";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Library, Search } from "lucide-react";
+import { popularGamesQueryOptions } from "../queries/games";
 
 export const Route = createFileRoute("/")({ component: App });
 
-// Decorative cover art gradients — evoke game box art at a glance
-const coverGradients = [
-	"linear-gradient(160deg, #0f0c29, #302b63, #24243e)",
-	"linear-gradient(160deg, #1a0533, #833ab4, #4a0080)",
-	"linear-gradient(160deg, #0d1b2a, #1b4332, #40916c)",
-	"linear-gradient(160deg, #3d0000, #c0392b, #e74c3c)",
-	"linear-gradient(160deg, #0a0a2e, #1a1a6e, #4444cc)",
-	"linear-gradient(160deg, #1a0a00, #b45309, #d97706)",
-	"linear-gradient(160deg, #0d0d1a, #1e3a5f, #2980b9)",
-	"linear-gradient(160deg, #1a0020, #6d28d9, #a78bfa)",
-	"linear-gradient(160deg, #001a0a, #065f46, #10b981)",
-	"linear-gradient(160deg, #1a0505, #991b1b, #f87171)",
-	"linear-gradient(160deg, #0a0a0a, #374151, #6b7280)",
-	"linear-gradient(160deg, #0f1923, #1e3a5f, #00b4d8)",
-];
-
 const steps = [
 	{
-		number: "01",
 		title: "Search",
-		description: "Browse 500,000+ games from the RAWG database by title.",
+		description:
+			"Type a name, get the game. The RAWG database covers just about everything ever released.",
 	},
 	{
-		number: "02",
 		title: "Save",
-		description: "Add anything to your backlog in one click. No clutter.",
+		description:
+			"One click adds it to your backlog. No forms, no star ratings, no homework.",
 	},
 	{
-		number: "03",
-		title: "Track",
-		description: "Move games through Backlog, Playing, and Played as you go.",
+		title: "Finish",
+		description:
+			"Move it to Playing when you start and Played when you're done. That's the whole system.",
 	},
 ];
+
+function CoverMarquee() {
+	const popularQuery = useQuery(popularGamesQueryOptions());
+	const covers = (popularQuery.data ?? []).filter((g) => g.coverUrl);
+
+	if (popularQuery.isLoading) {
+		return (
+			<div className="flex gap-3 overflow-hidden">
+				{Array.from({ length: 10 }).map((_, i) => (
+					<Skeleton
+						key={`cover-skeleton-${i}`}
+						className="aspect-[3/4] w-28 shrink-0 rounded-md sm:w-36"
+					/>
+				))}
+			</div>
+		);
+	}
+
+	if (covers.length === 0) return null;
+
+	return (
+		<div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+			<div className="cover-marquee flex w-max gap-3">
+				{[...covers, ...covers].map((game, i) => (
+					<Link
+						key={`${game.id}-${i}`}
+						to="/games/$id"
+						params={{ id: game.id.toString() }}
+						tabIndex={i >= covers.length ? -1 : undefined}
+						aria-hidden={i >= covers.length || undefined}
+						className="w-28 shrink-0 sm:w-36"
+					>
+						<img
+							src={game.coverUrl ?? undefined}
+							alt={game.name}
+							loading="lazy"
+							className="aspect-[3/4] w-full rounded-md border border-border/60 object-cover transition-opacity duration-200 hover:opacity-75"
+						/>
+					</Link>
+				))}
+			</div>
+		</div>
+	);
+}
 
 function App() {
 	return (
 		<div className="min-h-screen">
 			{/* Hero */}
-			<section className="relative overflow-hidden px-6 py-28 text-center">
-
-				{/* Game cover mosaic — the visual anchor */}
-				<div className="mosaic-drift pointer-events-none absolute inset-0 flex flex-wrap content-start gap-1.5 p-1.5 opacity-20">
-					{coverGradients.map((gradient, i) => (
-						<div
-							key={i}
-							className="shrink-0 rounded-sm"
-							style={{
-								background: gradient,
-								width: "calc(8.333% - 6px)",
-								aspectRatio: "2/3",
-							}}
-						/>
-					))}
-				</div>
-
-				{/* Gradient overlays to fade the mosaic into the background */}
-				<div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background" />
-				<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_50%,transparent_30%,oklch(0.10_0.025_280)_80%)]" />
-
-				{/* Primary colour glow */}
-				<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,oklch(0.68_0.28_280/0.2),transparent_70%)]" />
-
-				<div className="relative mx-auto max-w-4xl">
-					<h1 className="mb-5 font-extrabold text-7xl tracking-tight md:text-9xl">
-						<span className="bg-gradient-to-br from-white via-white to-primary/60 bg-clip-text text-transparent drop-shadow-[0_0_40px_oklch(0.68_0.28_280/0.6)]">
-							Backlogify
-						</span>
+			<section className="px-6 pt-20 pb-14 sm:pt-28">
+				<div className="mx-auto max-w-6xl">
+					<h1 className="max-w-3xl font-display font-bold text-5xl tracking-tight sm:text-7xl">
+						Every game you swore you&apos;d get to.
 					</h1>
-					<p className="mb-10 text-muted-foreground text-xl md:text-2xl">
-						The games you mean to play, finally in one place.
+					<p className="mt-5 max-w-xl text-lg text-muted-foreground">
+						Search half a million titles, queue up the ones you mean to play,
+						and keep track of what you actually finish.
 					</p>
-					<div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-						<Button
-							size="lg"
-							className="shadow-[0_0_24px_oklch(0.68_0.28_280/0.4)] transition-shadow hover:shadow-[0_0_36px_oklch(0.68_0.28_280/0.6)]"
-							asChild
-						>
-							<Link to="/games">
-								<Search className="size-4" />
-								Search Games
-							</Link>
-						</Button>
-						<SignedIn>
-							<Button size="lg" variant="outline" asChild>
-								<Link to="/my-games">
-									<Library className="size-4" />
-									My Backlog
-								</Link>
-							</Button>
-						</SignedIn>
+					<div className="mt-8 flex flex-wrap items-center gap-3">
 						<SignedOut>
 							<SignInButton mode="modal" forceRedirectUrl="/my-games">
-								<Button size="lg" variant="outline">
-									<Library className="size-4" />
-									My Backlog
-								</Button>
+								<Button size="lg">Start your backlog</Button>
 							</SignInButton>
 						</SignedOut>
+						<SignedIn>
+							<Button size="lg" asChild>
+								<Link to="/my-games">Open my library</Link>
+							</Button>
+						</SignedIn>
+						<Button size="lg" variant="outline" asChild>
+							<Link to="/games">Browse games</Link>
+						</Button>
 					</div>
+					<p className="mt-6 text-muted-foreground text-sm">
+						Free, no ads. Game data from RAWG.
+					</p>
 				</div>
 			</section>
 
-			{/* Steps */}
-			<section className="mx-auto max-w-4xl px-6 pb-28">
-				<div className="grid grid-cols-1 divide-y divide-border overflow-hidden rounded-xl border border-border md:grid-cols-3 md:divide-x md:divide-y-0">
+			{/* What people are actually playing */}
+			<section className="pb-20" aria-label="Popular games">
+				<CoverMarquee />
+			</section>
+
+			{/* How it works */}
+			<section className="mx-auto max-w-6xl px-6 pb-24">
+				<div className="grid gap-10 sm:grid-cols-3">
 					{steps.map((step) => (
-						<div
-							key={step.number}
-							className="step-scroll group bg-card/50 p-8 transition-colors duration-200 hover:bg-card"
-						>
-							<span className="mb-4 block font-mono text-primary text-xs tracking-[0.2em] uppercase">
-								{step.number}
-							</span>
-							<h3 className="mb-2 font-bold text-xl">{step.title}</h3>
-							<p className="text-muted-foreground text-sm leading-relaxed">
+						<div key={step.title} className="border-border border-t pt-5">
+							<h3 className="font-display font-semibold">{step.title}</h3>
+							<p className="mt-2 text-muted-foreground text-sm leading-relaxed">
 								{step.description}
 							</p>
 						</div>

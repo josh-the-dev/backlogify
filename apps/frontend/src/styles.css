@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "@fontsource-variable/figtree";
+@import "@fontsource-variable/bricolage-grotesque";
 
 body {
 	@apply m-0;
@@ -15,6 +16,7 @@ code {
 
 @theme inline {
 	--font-sans: "Figtree Variable", sans-serif;
+	--font-display: "Bricolage Grotesque Variable", "Figtree Variable", sans-serif;
 
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -55,49 +57,49 @@ code {
 :root {
 	--radius: 0.5rem;
 
-	/* Deep violet-tinted dark background */
-	--background: oklch(0.10 0.025 280);
-	--foreground: oklch(0.96 0.01 280);
+	/* Deep cool charcoal: barely blue, never purple */
+	--background: oklch(0.15 0.012 255);
+	--foreground: oklch(0.94 0.006 90);
 
-	/* Cards — slightly lifted from background */
-	--card: oklch(0.15 0.02 280);
-	--card-foreground: oklch(0.96 0.01 280);
+	/* Cards: one step up from the background */
+	--card: oklch(0.185 0.014 255);
+	--card-foreground: oklch(0.94 0.006 90);
 
-	--popover: oklch(0.17 0.02 280);
-	--popover-foreground: oklch(0.96 0.01 280);
+	--popover: oklch(0.2 0.014 255);
+	--popover-foreground: oklch(0.94 0.006 90);
 
-	/* Primary — vibrant violet */
-	--primary: oklch(0.68 0.28 280);
-	--primary-foreground: oklch(0.10 0.025 280);
+	/* Primary: ember orange */
+	--primary: oklch(0.72 0.16 45);
+	--primary-foreground: oklch(0.17 0.03 45);
 
-	--secondary: oklch(0.20 0.03 280);
-	--secondary-foreground: oklch(0.90 0.01 280);
+	--secondary: oklch(0.23 0.015 255);
+	--secondary-foreground: oklch(0.9 0.006 90);
 
-	--muted: oklch(0.18 0.02 280);
-	--muted-foreground: oklch(0.60 0.02 280);
+	--muted: oklch(0.21 0.014 255);
+	--muted-foreground: oklch(0.63 0.012 255);
 
-	--accent: oklch(0.22 0.04 280);
-	--accent-foreground: oklch(0.96 0.01 280);
+	--accent: oklch(0.24 0.016 255);
+	--accent-foreground: oklch(0.94 0.006 90);
 
-	--destructive: oklch(0.60 0.22 25);
+	--destructive: oklch(0.6 0.22 25);
 
-	--border: oklch(0.24 0.03 280);
-	--input: oklch(0.18 0.02 280);
-	--ring: oklch(0.68 0.28 280);
+	--border: oklch(0.26 0.015 255);
+	--input: oklch(0.21 0.014 255);
+	--ring: oklch(0.72 0.16 45);
 
-	--sidebar: oklch(0.12 0.025 280);
-	--sidebar-foreground: oklch(0.96 0.01 280);
-	--sidebar-primary: oklch(0.68 0.28 280);
-	--sidebar-primary-foreground: oklch(0.10 0.025 280);
-	--sidebar-accent: oklch(0.20 0.03 280);
-	--sidebar-accent-foreground: oklch(0.96 0.01 280);
-	--sidebar-border: oklch(0.22 0.03 280);
-	--sidebar-ring: oklch(0.68 0.28 280);
+	--sidebar: oklch(0.17 0.013 255);
+	--sidebar-foreground: oklch(0.94 0.006 90);
+	--sidebar-primary: oklch(0.72 0.16 45);
+	--sidebar-primary-foreground: oklch(0.17 0.03 45);
+	--sidebar-accent: oklch(0.23 0.015 255);
+	--sidebar-accent-foreground: oklch(0.94 0.006 90);
+	--sidebar-border: oklch(0.24 0.015 255);
+	--sidebar-ring: oklch(0.72 0.16 45);
 
-	/* Status colors */
-	--status-backlog: oklch(0.78 0.16 85);    /* Amber */
-	--status-playing: oklch(0.68 0.28 280);   /* Violet — matches primary */
-	--status-played: oklch(0.72 0.18 145);    /* Green */
+	/* Status colors: blue = on ice, ember = in play, green = finished */
+	--status-backlog: oklch(0.7 0.13 240);
+	--status-playing: oklch(0.72 0.16 45);
+	--status-played: oklch(0.72 0.15 150);
 }
 
 @layer base {
@@ -107,6 +109,34 @@ code {
 	body {
 		@apply bg-background text-foreground;
 	}
+	/* Tailwind preflight resets buttons to cursor: default; undo that for
+	   anything actually clickable */
+	button:not(:disabled),
+	[role="button"]:not(:disabled) {
+		cursor: pointer;
+	}
+	h1,
+	h2,
+	h3 {
+		font-family: var(--font-display);
+	}
+}
+
+/* ─── Game description (sanitized HTML from RAWG) ──────── */
+.game-description p {
+	margin-bottom: 1em;
+}
+.game-description p:last-child {
+	margin-bottom: 0;
+}
+.game-description h1,
+.game-description h2,
+.game-description h3 {
+	margin-bottom: 0.5em;
+	font-family: var(--font-sans);
+	font-size: 1.05em;
+	font-weight: 600;
+	color: var(--foreground);
 }
 
 /* ─── View transitions ─────────────────────────────────── */
@@ -127,25 +157,22 @@ code {
 	animation: 220ms ease-out both vt-slide-in;
 }
 
-/* ─── Homepage cover mosaic drift ──────────────────────── */
-@keyframes mosaic-drift {
-	0%   { transform: translateY(0px); }
-	50%  { transform: translateY(-12px); }
-	100% { transform: translateY(0px); }
+/* ─── Homepage cover marquee ───────────────────────────── */
+@keyframes marquee {
+	from { transform: translateX(0); }
+	to   { transform: translateX(-50%); }
 }
 
-.mosaic-drift {
-	animation: mosaic-drift 20s ease-in-out infinite;
+.cover-marquee {
+	animation: marquee 60s linear infinite;
 }
 
-/* ─── Scroll-driven step entrance ──────────────────────── */
-@keyframes step-in {
-	from { opacity: 0; transform: translateY(24px); }
-	to   { opacity: 1; transform: translateY(0); }
+.cover-marquee:hover {
+	animation-play-state: paused;
 }
 
-.step-scroll {
-	animation: step-in linear both;
-	animation-timeline: view();
-	animation-range: entry 0% entry 35%;
+@media (prefers-reduced-motion: reduce) {
+	.cover-marquee {
+		animation: none;
+	}
 }

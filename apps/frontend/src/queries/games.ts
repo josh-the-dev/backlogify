@@ -1,5 +1,5 @@
 import type { GameDetails, GameSearchResult } from "@backlogify/types";
-import { queryOptions } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
 export const gamesQueryOptions = (searchTerm: string) =>
 	queryOptions({
@@ -12,6 +12,18 @@ export const gamesQueryOptions = (searchTerm: string) =>
 			return res.json();
 		},
 		enabled: !!searchTerm,
+		placeholderData: keepPreviousData,
+	});
+
+export const popularGamesQueryOptions = () =>
+	queryOptions({
+		queryKey: ["games", "popular"],
+		queryFn: async (): Promise<GameSearchResult[]> => {
+			const res = await fetch("/api/games/popular");
+			if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+			return res.json();
+		},
+		staleTime: 1000 * 60 * 30,
 	});
 
 export const gameDetailsQueryOptions = (id: string) =>

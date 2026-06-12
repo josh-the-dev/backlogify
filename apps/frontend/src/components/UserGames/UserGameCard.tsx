@@ -15,8 +15,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { STATUS_OPTIONS } from "@/constants/game-status";
+import { STATUS_DOT_CLASSES, STATUS_OPTIONS } from "@/constants/game-status";
+import { cn } from "@/lib/utils";
 import type { GameStatus, UserGame } from "@backlogify/types";
+import { Link } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -41,45 +43,32 @@ export function UserGameCard({ game }: { game: UserGame }) {
 	const isUpdating = updateStatus.isPending || removeGame.isPending;
 
 	return (
-		<div className="flex flex-col items-center gap-3 rounded-lg border bg-card p-3 text-center sm:flex-row sm:items-center sm:gap-4 sm:text-left">
-			<GameCover
-				name={game.name}
-				coverUrl={game.coverUrl ?? null}
-				className="aspect-3/4 w-16 shrink-0 rounded sm:w-12"
-			/>
-			<span className="font-medium sm:min-w-0 sm:flex-1 sm:truncate">
-				{game.name}
-			</span>
-			<div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
-				<Select
-					value={game.status}
-					onValueChange={(value: string) =>
-						handleStatusChange(value as GameStatus)
-					}
-					disabled={isUpdating}
+		<div className="group">
+			<div className="relative overflow-hidden rounded-lg border border-border/60 bg-card transition-colors duration-200 group-hover:border-primary/60">
+				<Link
+					to="/games/$id"
+					params={{ id: game.externalServiceId }}
+					aria-label={`View ${game.name}`}
+					className="block"
 				>
-					<SelectTrigger className="flex-1 border-primary/50 bg-primary/10 sm:w-32 sm:flex-none">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{STATUS_OPTIONS.map((option) => (
-							<SelectItem key={option.value} value={option.value}>
-								{option.label}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+					<GameCover
+						name={game.name}
+						coverUrl={game.coverUrl ?? null}
+						className="aspect-[3/4] w-full transition-transform duration-300 group-hover:scale-[1.04]"
+					/>
+				</Link>
 
 				<Dialog open={open} onOpenChange={setOpen}>
 					<DialogTrigger asChild>
-						<Button
-							variant="destructive"
-							size="icon"
+						<button
+							type="button"
 							disabled={isUpdating}
-							className="shrink-0"
+							aria-label={`Remove ${game.name} from library`}
+							title="Remove from library"
+							className="absolute top-1.5 right-1.5 flex size-7 items-center justify-center rounded-md bg-black/60 text-white/80 opacity-100 backdrop-blur-sm transition-all hover:bg-destructive hover:text-white focus-visible:opacity-100 disabled:pointer-events-none sm:opacity-0 sm:group-hover:opacity-100"
 						>
-							<Trash2 className="size-4" />
-						</Button>
+							<Trash2 className="size-3.5" />
+						</button>
 					</DialogTrigger>
 					<DialogContent>
 						<DialogHeader>
@@ -104,6 +93,36 @@ export function UserGameCard({ game }: { game: UserGame }) {
 					</DialogContent>
 				</Dialog>
 			</div>
+
+			<h3 className="mt-2 line-clamp-1 font-medium text-sm" title={game.name}>
+				{game.name}
+			</h3>
+			<Select
+				value={game.status}
+				onValueChange={(value: string) => handleStatusChange(value as GameStatus)}
+				disabled={isUpdating}
+			>
+				<SelectTrigger
+					size="sm"
+					className="-ml-2 mt-0.5 h-7 gap-1.5 border-0 bg-transparent px-2 text-muted-foreground text-xs shadow-none hover:text-foreground dark:bg-transparent dark:hover:bg-accent/50"
+				>
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent>
+					{STATUS_OPTIONS.map((option) => (
+						<SelectItem key={option.value} value={option.value}>
+							<span
+								aria-hidden
+								className={cn(
+									"size-2 rounded-full",
+									STATUS_DOT_CLASSES[option.value],
+								)}
+							/>
+							{option.label}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
 		</div>
 	);
 }

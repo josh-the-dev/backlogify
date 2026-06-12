@@ -2,6 +2,8 @@ export interface RawgGame {
 	id: number;
 	name: string;
 	background_image: string | null;
+	released?: string | null;
+	metacritic?: number | null;
 }
 
 export interface RawgSearchResponse {

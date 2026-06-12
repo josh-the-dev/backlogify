@@ -1,5 +1,6 @@
 import type { GameStatus } from "@backlogify/types";
-import { Button } from "@/components/ui/button";
+import { STATUS_DOT_CLASSES } from "@/constants/game-status";
+import { cn } from "@/lib/utils";
 
 type FilterOption = GameStatus | "all";
 
@@ -18,18 +19,41 @@ const OPTIONS: { value: FilterOption; label: string }[] = [
 
 export function StatusFilter({ value, onChange, counts }: StatusFilterProps) {
 	return (
-		<div className="flex flex-wrap justify-center gap-2">
-			{OPTIONS.map((option) => (
-				<Button
-					key={option.value}
-					variant={value === option.value ? "default" : "outline"}
-					size="sm"
-					onClick={() => onChange(option.value)}
-					className="rounded-full"
-				>
-					{option.label} ({counts[option.value]})
-				</Button>
-			))}
+		<div className="flex flex-wrap gap-1 border-border border-b">
+			{OPTIONS.map((option) => {
+				const isActive = value === option.value;
+				return (
+					<button
+						key={option.value}
+						type="button"
+						onClick={() => onChange(option.value)}
+						aria-pressed={isActive}
+						className={cn(
+							"relative flex shrink-0 items-center gap-2 px-3 py-2.5 text-sm transition-colors",
+							isActive
+								? "text-foreground"
+								: "text-muted-foreground hover:text-foreground",
+						)}
+					>
+						{option.value !== "all" && (
+							<span
+								aria-hidden
+								className={cn(
+									"size-2 rounded-full",
+									STATUS_DOT_CLASSES[option.value],
+								)}
+							/>
+						)}
+						{option.label}
+						<span className="text-muted-foreground text-xs tabular-nums">
+							{counts[option.value]}
+						</span>
+						{isActive && (
+							<span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-primary" />
+						)}
+					</button>
+				);
+			})}
 		</div>
 	);
 }

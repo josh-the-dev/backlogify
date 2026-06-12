@@ -82,6 +82,20 @@ export class RawgService {
 		);
 	}
 
+	async getPopularGames(): Promise<RawgSearchResponse> {
+		// Most-added within the last year, so the shelf reflects what people
+		// are playing now rather than the all-time most-added back catalogue
+		const today = new Date();
+		const yearAgo = new Date(today);
+		yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+		const toDateParam = (date: Date) => date.toISOString().slice(0, 10);
+
+		return this.fetchFromRawg<RawgSearchResponse>(
+			`/games?dates=${toDateParam(yearAgo)},${toDateParam(today)}&ordering=-added&page_size=18`,
+			"get popular games",
+		);
+	}
+
 	async getGameDetails(id: string): Promise<RawgGameDetails> {
 		return this.fetchFromRawg<RawgGameDetails>(
 			`/games/${id}`,

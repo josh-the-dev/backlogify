@@ -9,6 +9,7 @@ describe("GamesController", () => {
 
 	const mockGamesService = {
 		search: jest.fn(),
+		getPopularGames: jest.fn(),
 	};
 
 	beforeEach(async () => {
@@ -87,6 +88,25 @@ describe("GamesController", () => {
 			).rejects.toThrow(BadRequestException);
 
 			expect(mockGamesService.search).not.toHaveBeenCalled();
+		});
+
+		it("should return popular games", async () => {
+			const expectedResults = [
+				{
+					id: 1,
+					name: "The Witcher 3: Wild Hunt",
+					coverUrl: "https://example.com/witcher3.jpg",
+					releaseDate: "2015-05-18",
+					metacritic: 92,
+				},
+			];
+
+			mockGamesService.getPopularGames.mockResolvedValue(expectedResults);
+
+			const result = await controller.getPopularGames();
+
+			expect(result).toEqual(expectedResults);
+			expect(mockGamesService.getPopularGames).toHaveBeenCalledTimes(1);
 		});
 
 		it("should propagate service errors", async () => {

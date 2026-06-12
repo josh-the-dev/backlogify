@@ -71,6 +71,9 @@ export function useAddUserGame() {
 			}
 			toast.error("Failed to add game to library");
 		},
+		onSuccess: (_data, newGame) => {
+			toast.success(`${newGame.name} added to your backlog`);
+		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: ["user-games"] });
 		},
