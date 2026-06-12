@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { popularGamesQueryOptions } from "../queries/games";
 
@@ -26,8 +26,10 @@ const steps = [
 ];
 
 function CoverMarquee() {
-	const popularQuery = useQuery(popularGamesQueryOptions());
-	const covers = (popularQuery.data ?? []).filter((g) => g.coverUrl);
+	// The cache is shared with the search page, which can load more pages;
+	// pin the marquee to page one so its length and speed stay stable
+	const popularQuery = useInfiniteQuery(popularGamesQueryOptions());
+	const covers = (popularQuery.data?.pages[0] ?? []).filter((g) => g.coverUrl);
 
 	if (popularQuery.isLoading) {
 		return (

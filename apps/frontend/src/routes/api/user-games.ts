@@ -8,7 +8,7 @@ import { backendApi } from "../../backend-api";
 export const Route = createFileRoute("/api/user-games")({
 	server: {
 		handlers: {
-			GET: async () => {
+			GET: async ({ request }) => {
 				const { userId, getToken } = await auth();
 
 				if (!userId) {
@@ -17,10 +17,18 @@ export const Route = createFileRoute("/api/user-games")({
 
 				const token = await getToken();
 
+				const url = new URL(request.url);
+				const searchParams: Record<string, string> = {};
+				const limit = url.searchParams.get("limit");
+				const offset = url.searchParams.get("offset");
+				if (limit) searchParams.limit = limit;
+				if (offset) searchParams.offset = offset;
+
 				try {
 					const data = await backendApi
 						.get("user-games", {
 							headers: { Authorization: `Bearer ${token}` },
+							searchParams,
 						})
 						.json<UserGame[]>();
 					return json(data);

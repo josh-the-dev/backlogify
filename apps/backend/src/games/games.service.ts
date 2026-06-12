@@ -11,11 +11,14 @@ export class GamesService {
 
 	constructor(private readonly rawgService: RawgService) {}
 
-	async search(query: string): Promise<GameSearchResultResponseDto[]> {
+	async search(
+		query: string,
+		page = 1,
+	): Promise<GameSearchResultResponseDto[]> {
 		try {
-			this.logger.log(`Searching games for query: "${query}"`);
+			this.logger.log(`Searching games for query: "${query}" (page ${page})`);
 
-			const rawgResponse = await this.rawgService.searchGames(query);
+			const rawgResponse = await this.rawgService.searchGames(query, page);
 
 			return this.toSearchResults(rawgResponse.results);
 		} catch (error) {
@@ -27,11 +30,11 @@ export class GamesService {
 		}
 	}
 
-	async getPopularGames(): Promise<GameSearchResultResponseDto[]> {
+	async getPopularGames(page = 1): Promise<GameSearchResultResponseDto[]> {
 		try {
-			this.logger.log("Fetching popular games");
+			this.logger.log(`Fetching popular games (page ${page})`);
 
-			const rawgResponse = await this.rawgService.getPopularGames();
+			const rawgResponse = await this.rawgService.getPopularGames(page);
 
 			return this.toSearchResults(rawgResponse.results);
 		} catch (error) {

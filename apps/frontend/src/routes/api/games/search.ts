@@ -10,6 +10,7 @@ export const Route = createFileRoute("/api/games/search")({
 			GET: async ({ request }) => {
 				const url = new URL(request.url);
 				const query = url.searchParams.get("query");
+				const page = url.searchParams.get("page");
 
 				if (!query || !query.trim()) {
 					return json({ error: "Missing query parameter" }, { status: 400 });
@@ -17,7 +18,9 @@ export const Route = createFileRoute("/api/games/search")({
 
 				try {
 					const data = await backendApi
-						.get("games/search", { searchParams: { query } })
+						.get("games/search", {
+							searchParams: { query, ...(page ? { page } : {}) },
+						})
 						.json<GameSearchResult[]>();
 					return json(data);
 				} catch (e) {

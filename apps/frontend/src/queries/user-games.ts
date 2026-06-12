@@ -7,13 +7,31 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+/* Backend caps limit at 100 per request */
+const PAGE_LIMIT = 100;
+/* Hard stop (5000 games) so a misbehaving backend can never loop forever */
+const MAX_PAGES = 50;
+
 export const userGamesQueryOptions = () =>
 	queryOptions({
 		queryKey: ["user-games"],
+		// Pages through the backend until a short page so the whole library
+		// loads, keeping the flat UserGame[] shape that filters, counts, and
+		// optimistic updates rely on
 		queryFn: async (): Promise<UserGame[]> => {
-			const res = await fetch("/api/user-games");
-			if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-			return res.json();
+			const games: UserGame[] = [];
+
+			for (let page = 0; page < MAX_PAGES; page++) {
+				const res = await fetch(
+					`/api/user-games?limit=${PAGE_LIMIT}&offset=${page * PAGE_LIMIT}`,
+				);
+				if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+				const batch: UserGame[] = await res.json();
+				games.push(...batch);
+				if (batch.length < PAGE_LIMIT) break;
+			}
+
+			return games;
 		},
 	});
 

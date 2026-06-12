@@ -78,10 +78,18 @@ describe("GamesService", () => {
 				},
 			]);
 
-			expect(mockRawgService.searchGames).toHaveBeenCalledWith(query);
+			expect(mockRawgService.searchGames).toHaveBeenCalledWith(query, 1);
 			expect(loggerLogSpy).toHaveBeenCalledWith(
-				`Searching games for query: "${query}"`,
+				`Searching games for query: "${query}" (page 1)`,
 			);
+		});
+
+		it("should forward the requested page to RawgService", async () => {
+			mockRawgService.searchGames.mockResolvedValue({ results: [] });
+
+			await service.search("witcher", 4);
+
+			expect(mockRawgService.searchGames).toHaveBeenCalledWith("witcher", 4);
 		});
 
 		it("should convert undefined or empty background_image to null", async () => {
@@ -112,7 +120,7 @@ describe("GamesService", () => {
 
 			expect(result).toEqual([]);
 			expect(loggerLogSpy).toHaveBeenCalledWith(
-				`Searching games for query: "${query}"`,
+				`Searching games for query: "${query}" (page 1)`,
 			);
 		});
 
@@ -124,7 +132,7 @@ describe("GamesService", () => {
 			await expect(service.search(query)).rejects.toThrow(error);
 
 			expect(loggerLogSpy).toHaveBeenCalledWith(
-				`Searching games for query: "${query}"`,
+				`Searching games for query: "${query}" (page 1)`,
 			);
 			expect(loggerErrorSpy).toHaveBeenCalledWith(
 				"Failed to search games",
@@ -160,7 +168,17 @@ describe("GamesService", () => {
 					metacritic: 92,
 				},
 			]);
-			expect(loggerLogSpy).toHaveBeenCalledWith("Fetching popular games");
+			expect(loggerLogSpy).toHaveBeenCalledWith(
+				"Fetching popular games (page 1)",
+			);
+		});
+
+		it("should forward the requested page to RawgService", async () => {
+			mockRawgService.getPopularGames.mockResolvedValue({ results: [] });
+
+			await service.getPopularGames(2);
+
+			expect(mockRawgService.getPopularGames).toHaveBeenCalledWith(2);
 		});
 
 		it("should log error and re-throw if rawgService.getPopularGames fails", async () => {

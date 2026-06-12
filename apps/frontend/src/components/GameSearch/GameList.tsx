@@ -4,7 +4,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 import { motion } from "motion/react";
-import { UseQueryResult } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { GameCard } from "./GameCard";
 
@@ -32,11 +31,22 @@ function GameCardSkeleton() {
 }
 
 interface GameListProps {
-	query: UseQueryResult<GameSearchResult[], Error>;
+	games: GameSearchResult[] | undefined;
+	isLoading: boolean;
+	isError: boolean;
+	error: Error | null;
+	/* Dims the grid while a background refetch replaces its contents */
+	isFetching?: boolean;
 }
 
-export function GameList({ query }: GameListProps) {
-	if (query.isLoading) {
+export function GameList({
+	games,
+	isLoading,
+	isError,
+	error,
+	isFetching = false,
+}: GameListProps) {
+	if (isLoading) {
 		return (
 			<ul className={cn("mt-6", GRID_CLASSES)}>
 				{Array.from({ length: 12 }).map((_, i) => (
@@ -46,16 +56,18 @@ export function GameList({ query }: GameListProps) {
 		);
 	}
 
-	if (query.isError) {
+	if (isError) {
 		return (
 			<Alert variant="destructive" className="mt-6">
 				<AlertCircle className="h-4 w-4" />
-				<AlertDescription>{query.error.message}</AlertDescription>
+				<AlertDescription>
+					{error?.message ?? "Something went wrong."}
+				</AlertDescription>
 			</Alert>
 		);
 	}
 
-	if (!query.data?.length) {
+	if (!games?.length) {
 		return (
 			<p className="mt-12 text-muted-foreground">
 				No games found. Try a different name, or fewer words.
@@ -71,10 +83,10 @@ export function GameList({ query }: GameListProps) {
 			className={cn(
 				"mt-6 transition-opacity duration-200",
 				GRID_CLASSES,
-				query.isFetching && "opacity-60",
+				isFetching && "opacity-60",
 			)}
 		>
-			{query.data.map((game) => (
+			{games.map((game) => (
 				<motion.li key={game.id} variants={card}>
 					<Link
 						to="/games/$id"

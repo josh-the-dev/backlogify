@@ -104,6 +104,32 @@ describe('GamesController (e2e)', () => {
       expect(res.body[0]).toMatchObject({ id: 1, name: 'Doom' });
     });
 
+    it('returns 200 and forwards the page param', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/games/search')
+        .query({ query: 'doom', page: 2 })
+        .set('x-api-key', TEST_API_KEY);
+
+      expect(res.status).toBe(200);
+      expect(mockRawgService.searchGames).toHaveBeenCalledWith('doom', 2);
+    });
+
+    it('returns 400 for a non-numeric or sub-1 page', async () => {
+      const nonNumeric = await request(app.getHttpServer())
+        .get('/games/search')
+        .query({ query: 'doom', page: 'abc' })
+        .set('x-api-key', TEST_API_KEY);
+
+      expect(nonNumeric.status).toBe(400);
+
+      const subOne = await request(app.getHttpServer())
+        .get('/games/search')
+        .query({ query: 'doom', page: 0 })
+        .set('x-api-key', TEST_API_KEY);
+
+      expect(subOne.status).toBe(400);
+    });
+
     it('returns 401 when API key is missing', async () => {
       const res = await request(app.getHttpServer())
         .get('/games/search')

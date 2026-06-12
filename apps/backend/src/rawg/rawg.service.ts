@@ -74,15 +74,15 @@ export class RawgService {
 		}
 	}
 
-	async searchGames(query: string): Promise<RawgSearchResponse> {
+	async searchGames(query: string, page = 1): Promise<RawgSearchResponse> {
 		const encodedQuery = encodeURIComponent(query);
 		return this.fetchFromRawg<RawgSearchResponse>(
-			`/games?search=${encodedQuery}`,
-			`search for query "${query}"`,
+			`/games?search=${encodedQuery}&page=${page}&page_size=20`,
+			`search for query "${query}" (page ${page})`,
 		);
 	}
 
-	async getPopularGames(): Promise<RawgSearchResponse> {
+	async getPopularGames(page = 1): Promise<RawgSearchResponse> {
 		// Most-added within the last year, so the shelf reflects what people
 		// are playing now rather than the all-time most-added back catalogue
 		const today = new Date();
@@ -91,8 +91,8 @@ export class RawgService {
 		const toDateParam = (date: Date) => date.toISOString().slice(0, 10);
 
 		return this.fetchFromRawg<RawgSearchResponse>(
-			`/games?dates=${toDateParam(yearAgo)},${toDateParam(today)}&ordering=-added&page_size=18`,
-			"get popular games",
+			`/games?dates=${toDateParam(yearAgo)},${toDateParam(today)}&ordering=-added&page=${page}&page_size=20`,
+			`get popular games (page ${page})`,
 		);
 	}
 

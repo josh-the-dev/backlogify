@@ -44,10 +44,10 @@ describe("GamesController", () => {
 
 			mockGamesService.search.mockResolvedValue(expectedResults);
 
-			const result = await controller.search(query);
+			const result = await controller.search(query, 1);
 
 			expect(result).toEqual(expectedResults);
-			expect(mockGamesService.search).toHaveBeenCalledWith("witcher");
+			expect(mockGamesService.search).toHaveBeenCalledWith("witcher", 1);
 			expect(mockGamesService.search).toHaveBeenCalledTimes(1);
 		});
 
@@ -57,14 +57,24 @@ describe("GamesController", () => {
 
 			mockGamesService.search.mockResolvedValue(expectedResults);
 
-			await controller.search(query);
+			await controller.search(query, 1);
 
-			expect(mockGamesService.search).toHaveBeenCalledWith("witcher");
+			expect(mockGamesService.search).toHaveBeenCalledWith("witcher", 1);
+		});
+
+		it("should forward the requested page to the service", async () => {
+			mockGamesService.search.mockResolvedValue([]);
+
+			await controller.search("witcher", 3);
+
+			expect(mockGamesService.search).toHaveBeenCalledWith("witcher", 3);
 		});
 
 		it("should throw BadRequestException for empty query", async () => {
-			await expect(controller.search("")).rejects.toThrow(BadRequestException);
-			await expect(controller.search("")).rejects.toThrow(
+			await expect(controller.search("", 1)).rejects.toThrow(
+				BadRequestException,
+			);
+			await expect(controller.search("", 1)).rejects.toThrow(
 				"Search query is required",
 			);
 
@@ -72,10 +82,10 @@ describe("GamesController", () => {
 		});
 
 		it("should throw BadRequestException for whitespace-only query", async () => {
-			await expect(controller.search("   ")).rejects.toThrow(
+			await expect(controller.search("   ", 1)).rejects.toThrow(
 				BadRequestException,
 			);
-			await expect(controller.search("   ")).rejects.toThrow(
+			await expect(controller.search("   ", 1)).rejects.toThrow(
 				"Search query is required",
 			);
 
@@ -84,8 +94,16 @@ describe("GamesController", () => {
 
 		it("should throw BadRequestException for undefined query", async () => {
 			await expect(
-				controller.search(undefined as unknown as string),
+				controller.search(undefined as unknown as string, 1),
 			).rejects.toThrow(BadRequestException);
+
+			expect(mockGamesService.search).not.toHaveBeenCalled();
+		});
+
+		it("should throw BadRequestException for a page below 1", async () => {
+			await expect(controller.search("witcher", 0)).rejects.toThrow(
+				"Page must be at least 1",
+			);
 
 			expect(mockGamesService.search).not.toHaveBeenCalled();
 		});
@@ -103,10 +121,19 @@ describe("GamesController", () => {
 
 			mockGamesService.getPopularGames.mockResolvedValue(expectedResults);
 
-			const result = await controller.getPopularGames();
+			const result = await controller.getPopularGames(1);
 
 			expect(result).toEqual(expectedResults);
+			expect(mockGamesService.getPopularGames).toHaveBeenCalledWith(1);
 			expect(mockGamesService.getPopularGames).toHaveBeenCalledTimes(1);
+		});
+
+		it("should throw BadRequestException for a popular page below 1", async () => {
+			await expect(controller.getPopularGames(0)).rejects.toThrow(
+				"Page must be at least 1",
+			);
+
+			expect(mockGamesService.getPopularGames).not.toHaveBeenCalled();
 		});
 
 		it("should propagate service errors", async () => {
@@ -115,10 +142,10 @@ describe("GamesController", () => {
 
 			mockGamesService.search.mockRejectedValue(serviceError);
 
-			await expect(controller.search(query)).rejects.toThrow(
+			await expect(controller.search(query, 1)).rejects.toThrow(
 				"Service unavailable",
 			);
-			expect(mockGamesService.search).toHaveBeenCalledWith("test");
+			expect(mockGamesService.search).toHaveBeenCalledWith("test", 1);
 		});
 	});
 });
