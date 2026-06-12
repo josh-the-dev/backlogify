@@ -6,6 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../components/ui/button";
+import { LibraryStats } from "../components/UserGames/LibraryStats";
 import { StatusFilter } from "../components/UserGames/StatusFilter";
 import { UpNextCard } from "../components/UserGames/UpNextCard";
 import { UserGameList } from "../components/UserGames/UserGameList";
@@ -68,6 +69,7 @@ function MyGamesPage() {
 				</Button>
 			</div>
 			{upNext && <UpNextCard game={upNext} />}
+			<LibraryStats games={games} />
 			<div className="mt-6">
 				<StatusFilter
 					value={statusFilter}

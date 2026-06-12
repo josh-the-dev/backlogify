@@ -34,11 +34,11 @@ These three share one schema migration, so build together.
 
 Cheap once #2 exists (needs `finishedAt`).
 
-- [ ] Completion rate (played / total)
-- [ ] Finished this year count
-- [ ] Oldest backlog entry ("you added this 14 months ago" - very on-brand voice)
+- [x] Completion rate (played / total, rounded whole percent)
+- [x] Finished this year count
+- [x] Oldest backlog entry ("14 months / since you added X"; tile hidden when the backlog is empty)
 
-**Size:** small. Frontend-only aggregation over data already fetched.
+**Size:** small, as predicted. Pure aggregation in `lib/library-stats.ts` (unit tested), strip rendered between the Up next card and the filter tabs.
 
 ## 5. Richer game pages (no schema changes)
 
