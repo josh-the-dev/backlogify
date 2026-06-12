@@ -27,10 +27,24 @@ export class UserGameResponseDto {
 	coverUrl: string | null;
 
 	@Expose()
-	@ApiProperty({ enum: ["backlog", "playing", "played"], example: "backlog" })
+	@ApiProperty({
+		enum: ["backlog", "playing", "played", "abandoned"],
+		example: "backlog",
+	})
 	status: string;
 
 	@Expose()
 	@ApiProperty({ example: "2024-01-15T10:30:00.000Z" })
 	addedAt: Date;
+
+	@Expose()
+	@ApiPropertyOptional({ example: "2026-06-12T18:00:00.000Z", nullable: true })
+	finishedAt: Date | null;
+
+	@Expose()
+	@ApiPropertyOptional({
+		example: "Stopped at the water temple.",
+		nullable: true,
+	})
+	note: string | null;
 }

@@ -153,45 +153,106 @@ describe("UserGamesService", () => {
 		});
 	});
 
-	describe("updateStatus", () => {
-		it("should update the status of an existing game", async () => {
-			const updatedGame = {
-				id: "game-1",
-				userId: "user-1",
-				externalServiceId: "ext-1",
-				name: "Game",
-				coverUrl: null,
-				status: "playing",
-				addedAt: new Date(),
-			};
-
-			mockDb.update.mockReturnValue({
-				set: jest.fn().mockReturnValue({
-					where: jest.fn().mockReturnValue({
-						returning: jest.fn().mockResolvedValue([updatedGame]),
-					}),
+	describe("update", () => {
+		function mockUpdateChain(result: unknown[]) {
+			const setMock = jest.fn().mockReturnValue({
+				where: jest.fn().mockReturnValue({
+					returning: jest.fn().mockResolvedValue(result),
 				}),
 			});
+			mockDb.update.mockReturnValue({ set: setMock });
+			return setMock;
+		}
 
-			const result = await service.updateStatus("user-1", "game-1", "playing");
+		const updatedGame = {
+			id: "game-1",
+			userId: "user-1",
+			externalServiceId: "ext-1",
+			name: "Game",
+			coverUrl: null,
+			status: "playing",
+			addedAt: new Date(),
+			finishedAt: null,
+			note: null,
+		};
+
+		it("should update the status of an existing game", async () => {
+			mockUpdateChain([updatedGame]);
+
+			const result = await service.update("user-1", "game-1", {
+				status: "playing",
+			});
 
 			expect(result.status).toBe("playing");
 		});
 
-		it("should throw NotFoundException when game does not exist", async () => {
-			mockDb.update.mockReturnValue({
-				set: jest.fn().mockReturnValue({
-					where: jest.fn().mockReturnValue({
-						returning: jest.fn().mockResolvedValue([]),
-					}),
-				}),
+		it("should stamp finishedAt when status moves to played", async () => {
+			const setMock = mockUpdateChain([
+				{ ...updatedGame, status: "played", finishedAt: new Date() },
+			]);
+
+			await service.update("user-1", "game-1", { status: "played" });
+
+			expect(setMock).toHaveBeenCalledWith({
+				status: "played",
+				finishedAt: expect.any(Date),
+			});
+		});
+
+		it("should clear finishedAt when status moves away from played", async () => {
+			const setMock = mockUpdateChain([updatedGame]);
+
+			await service.update("user-1", "game-1", { status: "abandoned" });
+
+			expect(setMock).toHaveBeenCalledWith({
+				status: "abandoned",
+				finishedAt: null,
+			});
+		});
+
+		it("should use an explicitly provided finishedAt over the stamp", async () => {
+			const setMock = mockUpdateChain([updatedGame]);
+
+			await service.update("user-1", "game-1", {
+				status: "played",
+				finishedAt: "2026-01-05T00:00:00.000Z",
 			});
 
+			expect(setMock).toHaveBeenCalledWith({
+				status: "played",
+				finishedAt: new Date("2026-01-05T00:00:00.000Z"),
+			});
+		});
+
+		it("should update note alone without touching status or finishedAt", async () => {
+			const setMock = mockUpdateChain([
+				{ ...updatedGame, note: "Great so far" },
+			]);
+
+			const result = await service.update("user-1", "game-1", {
+				note: "Great so far",
+			});
+
+			expect(setMock).toHaveBeenCalledWith({ note: "Great so far" });
+			expect(result.note).toBe("Great so far");
+		});
+
+		it("should clear note when null is provided", async () => {
+			const setMock = mockUpdateChain([updatedGame]);
+
+			await service.update("user-1", "game-1", { note: null });
+
+			expect(setMock).toHaveBeenCalledWith({ note: null });
+		});
+
+		it("should throw NotFoundException when game does not exist", async () => {
+			mockUpdateChain([]);
+
 			await expect(
-				service.updateStatus("user-1", "non-existent-id", "playing"),
+				service.update("user-1", "non-existent-id", { status: "playing" }),
 			).rejects.toThrow(NotFoundException);
 			await expect(
-				service.updateStatus("user-1", "non-existent-id", "playing"),
+				service.update("user-1", "non-existent-id", { status: "playing" }),
 			).rejects.toThrow("Game not found for this user");
 		});
 	});

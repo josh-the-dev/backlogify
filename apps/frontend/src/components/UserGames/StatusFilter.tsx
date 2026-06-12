@@ -15,6 +15,7 @@ const OPTIONS: { value: FilterOption; label: string }[] = [
 	{ value: "backlog", label: "Backlog" },
 	{ value: "playing", label: "Playing" },
 	{ value: "played", label: "Played" },
+	{ value: "abandoned", label: "Abandoned" },
 ];
 
 export function StatusFilter({ value, onChange, counts }: StatusFilterProps) {

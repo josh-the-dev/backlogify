@@ -1,4 +1,3 @@
-import { GameStatus } from "@backlogify/types";
 import {
 	Inject,
 	Injectable,
@@ -13,6 +12,7 @@ import { DRIZZLE, userGames } from "../database";
 import * as schema from "../database/schema";
 import { AddUserGameDto } from "./dtos/add-user-game.dto";
 import { PaginationDto } from "./dtos/pagination.dto";
+import { UpdateUserGameDto } from "./dtos/update-user-game.dto";
 import { UserGameResponseDto } from "./dtos/user-game.response.dto";
 
 @Injectable()
@@ -55,6 +55,7 @@ export class UserGamesService {
 					name: dto.name,
 					coverUrl: dto.coverUrl || null,
 					status: dto.status,
+					finishedAt: dto.status === "played" ? new Date() : null,
 				})
 				.returning();
 
@@ -70,15 +71,36 @@ export class UserGamesService {
 		}
 	}
 
-	async updateStatus(
+	async update(
 		userId: string,
 		gameId: string,
-		status: GameStatus,
+		dto: UpdateUserGameDto,
 	): Promise<UserGameResponseDto> {
+		const changes: Partial<typeof userGames.$inferInsert> = {};
+
+		if (dto.status !== undefined) {
+			changes.status = dto.status;
+			// Moving to played stamps the finish date (unless one was sent
+			// along); moving anywhere else clears it - the game is no longer
+			// finished
+			changes.finishedAt =
+				dto.status === "played"
+					? dto.finishedAt
+						? new Date(dto.finishedAt)
+						: new Date()
+					: null;
+		} else if (dto.finishedAt !== undefined) {
+			changes.finishedAt = dto.finishedAt ? new Date(dto.finishedAt) : null;
+		}
+
+		if (dto.note !== undefined) {
+			changes.note = dto.note;
+		}
+
 		try {
 			const [updated] = await this.db
 				.update(userGames)
-				.set({ status })
+				.set(changes)
 				.where(and(eq(userGames.userId, userId), eq(userGames.id, gameId)))
 				.returning();
 
@@ -92,10 +114,10 @@ export class UserGamesService {
 		} catch (error) {
 			if (error instanceof NotFoundException) throw error;
 			this.logger.error(
-				`Failed to update status for game ${gameId}`,
+				`Failed to update game ${gameId}`,
 				error instanceof Error ? error.stack : String(error),
 			);
-			throw new InternalServerErrorException("Failed to update game status");
+			throw new InternalServerErrorException("Failed to update game");
 		}
 	}
 

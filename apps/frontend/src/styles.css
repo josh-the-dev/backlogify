@@ -52,6 +52,7 @@ code {
 	--color-status-backlog: var(--status-backlog);
 	--color-status-playing: var(--status-playing);
 	--color-status-played: var(--status-played);
+	--color-status-abandoned: var(--status-abandoned);
 }
 
 :root {
@@ -96,10 +97,12 @@ code {
 	--sidebar-border: oklch(0.24 0.015 255);
 	--sidebar-ring: oklch(0.72 0.16 45);
 
-	/* Status colors: blue = on ice, ember = in play, green = finished */
+	/* Status colors: blue = on ice, ember = in play, green = finished,
+	   muted brick = walked away */
 	--status-backlog: oklch(0.7 0.13 240);
 	--status-playing: oklch(0.72 0.16 45);
 	--status-played: oklch(0.72 0.15 150);
+	--status-abandoned: oklch(0.55 0.06 25);
 }
 
 @layer base {

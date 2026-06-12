@@ -12,6 +12,7 @@ export const gameStatusEnum = pgEnum('game_status', [
   'backlog',
   'playing',
   'played',
+  'abandoned',
 ]);
 
 export const userGames = pgTable(
@@ -24,6 +25,8 @@ export const userGames = pgTable(
     coverUrl: text('cover_url'),
     status: gameStatusEnum('status').notNull().default('backlog'),
     addedAt: timestamp('added_at').notNull().defaultNow(),
+    finishedAt: timestamp('finished_at'),
+    note: text('note'),
   },
   (table) => [index('user_games_user_id_idx').on(table.userId)],
 );

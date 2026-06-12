@@ -19,6 +19,7 @@ import { STATUS_DOT_CLASSES, STATUS_OPTIONS } from "@/constants/game-status";
 import { cn } from "@/lib/utils";
 import type { GameStatus, UserGame } from "@backlogify/types";
 import { Link } from "@tanstack/react-router";
+import { format } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -123,6 +124,19 @@ export function UserGameCard({ game }: { game: UserGame }) {
 					))}
 				</SelectContent>
 			</Select>
+			{game.status === "played" && game.finishedAt && (
+				<p className="text-muted-foreground text-xs">
+					Finished {format(new Date(game.finishedAt), "d MMM yyyy")}
+				</p>
+			)}
+			{game.note && (
+				<p
+					className="line-clamp-1 text-muted-foreground text-xs italic"
+					title={game.note}
+				>
+					{game.note}
+				</p>
+			)}
 		</div>
 	);
 }

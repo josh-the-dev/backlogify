@@ -142,20 +142,79 @@ describe('UserGamesController (e2e)', () => {
     });
   });
 
-  describe('PATCH /user-games/:gameId/status', () => {
+  describe('PATCH /user-games/:gameId', () => {
     it('returns 200 and updated game with new status', async () => {
       const res = await request(app.getHttpServer())
-        .patch(`/user-games/${createdGameId}/status`)
+        .patch(`/user-games/${createdGameId}`)
         .set('x-api-key', TEST_API_KEY)
         .send({ status: 'playing' });
 
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({ id: createdGameId, status: 'playing' });
+      expect(res.body.finishedAt).toBeNull();
+    });
+
+    it('stamps finishedAt when status moves to played', async () => {
+      const res = await request(app.getHttpServer())
+        .patch(`/user-games/${createdGameId}`)
+        .set('x-api-key', TEST_API_KEY)
+        .send({ status: 'played' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('played');
+      expect(res.body.finishedAt).toEqual(expect.any(String));
+    });
+
+    it('clears finishedAt when status moves to abandoned', async () => {
+      const res = await request(app.getHttpServer())
+        .patch(`/user-games/${createdGameId}`)
+        .set('x-api-key', TEST_API_KEY)
+        .send({ status: 'abandoned' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('abandoned');
+      expect(res.body.finishedAt).toBeNull();
+    });
+
+    it('updates and clears the note', async () => {
+      const setRes = await request(app.getHttpServer())
+        .patch(`/user-games/${createdGameId}`)
+        .set('x-api-key', TEST_API_KEY)
+        .send({ note: 'Stopped at the final boss' });
+
+      expect(setRes.status).toBe(200);
+      expect(setRes.body.note).toBe('Stopped at the final boss');
+
+      const clearRes = await request(app.getHttpServer())
+        .patch(`/user-games/${createdGameId}`)
+        .set('x-api-key', TEST_API_KEY)
+        .send({ note: null });
+
+      expect(clearRes.status).toBe(200);
+      expect(clearRes.body.note).toBeNull();
+    });
+
+    it('returns 400 for an empty body', async () => {
+      const res = await request(app.getHttpServer())
+        .patch(`/user-games/${createdGameId}`)
+        .set('x-api-key', TEST_API_KEY)
+        .send({});
+
+      expect(res.status).toBe(400);
+    });
+
+    it('returns 400 for an invalid status', async () => {
+      const res = await request(app.getHttpServer())
+        .patch(`/user-games/${createdGameId}`)
+        .set('x-api-key', TEST_API_KEY)
+        .send({ status: 'wishlist' });
+
+      expect(res.status).toBe(400);
     });
 
     it('returns 404 for a non-existent game', async () => {
       const res = await request(app.getHttpServer())
-        .patch('/user-games/00000000-0000-0000-0000-000000000000/status')
+        .patch('/user-games/00000000-0000-0000-0000-000000000000')
         .set('x-api-key', TEST_API_KEY)
         .send({ status: 'played' });
 
