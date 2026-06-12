@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -22,7 +23,7 @@ import {
 import { ClerkAuthGuard, UserId } from "../auth";
 import { AddUserGameDto } from "./dtos/add-user-game.dto";
 import { PaginationDto } from "./dtos/pagination.dto";
-import { UpdateUserGameStatusDto } from "./dtos/update-user-game-status.dto";
+import { UpdateUserGameDto } from "./dtos/update-user-game.dto";
 import { UserGameResponseDto } from "./dtos/user-game.response.dto";
 import { UserGamesService } from "./user-games.service";
 
@@ -58,18 +59,26 @@ export class UserGamesController {
 		return this.userGamesService.add(userId, body);
 	}
 
-	@Patch(":gameId/status")
-	@ApiOperation({ summary: "Update the status of a game in the backlog" })
-	@ApiResponse({ status: 200, type: UserGameResponseDto, description: "Game status updated" })
-	@ApiResponse({ status: 400, description: "Invalid status value" })
+	@Patch(":gameId")
+	@ApiOperation({ summary: "Update a game's status, note, or finish date" })
+	@ApiResponse({ status: 200, type: UserGameResponseDto, description: "Game updated" })
+	@ApiResponse({ status: 400, description: "Invalid field value or empty body" })
 	@ApiResponse({ status: 401, description: "Invalid or missing API key / JWT" })
 	@ApiResponse({ status: 404, description: "Game not found for this user" })
-	updateStatus(
+	update(
 		@UserId() userId: string,
 		@Param("gameId", ParseUUIDPipe) gameId: string,
-		@Body(ValidationPipe) body: UpdateUserGameStatusDto,
+		@Body(ValidationPipe) body: UpdateUserGameDto,
 	): Promise<UserGameResponseDto> {
-		return this.userGamesService.updateStatus(userId, gameId, body.status);
+		if (
+			body.status === undefined &&
+			body.note === undefined &&
+			body.finishedAt === undefined
+		) {
+			throw new BadRequestException("Nothing to update");
+		}
+
+		return this.userGamesService.update(userId, gameId, body);
 	}
 
 	@Delete(":gameId")

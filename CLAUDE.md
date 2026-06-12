@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Backlogify is a full-stack monorepo for tracking personal video game backlogs. Users search ~500k games via the RAWG API and track them across Backlog → Playing → Played statuses.
+Backlogify is a full-stack monorepo for tracking personal video game backlogs. Users search ~500k games via the RAWG API and track them across Backlog → Playing → Played (or Abandoned) statuses, with an auto-stamped finish date and a personal note per game.
 
 ## Commands
 
@@ -52,7 +52,7 @@ packages/
 - **Auth**: Clerk via `@clerk/tanstack-react-start`. Server middleware in `app/start.ts`. JWT tokens are extracted server-side and forwarded to backend calls.
 - **API proxy**: Routes under `src/routes/api/` are Nitro server functions that proxy requests to the backend, injecting the internal `API_KEY` header and Clerk JWT.
 - **UI**: Tailwind CSS 4 + shadcn/ui components in `src/components/ui/`.
-- **Design system**: dark charcoal + ember orange palette defined as oklch vars in `src/styles.css` (status colors: blue = backlog, orange = playing, green = played). Bricolage Grotesque for display headings (`font-display`, applied to h1-h3 globally), Figtree for body. No em dashes in user-facing copy.
+- **Design system**: dark charcoal + ember orange palette defined as oklch vars in `src/styles.css` (status colors: blue = backlog, orange = playing, green = played, muted brick = abandoned). Bricolage Grotesque for display headings (`font-display`, applied to h1-h3 globally), Figtree for body. No em dashes in user-facing copy.
 
 ### Backend (NestJS + Drizzle ORM)
 - **Modules**: `games` (RAWG search/popular/details - `GET /games/popular` returns most-added games of the last year and must stay declared before `GET /games/:id`), `user-games` (backlog CRUD), `auth` (guards/decorators), `database` (Drizzle setup), `rawg` (RAWG API service), `health` (terminus health check).

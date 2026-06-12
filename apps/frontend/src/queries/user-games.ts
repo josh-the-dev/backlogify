@@ -130,7 +130,15 @@ export function useUpdateUserGameStatus() {
 				queryClient.setQueryData<UserGame[]>(
 					["user-games"],
 					previousGames.map((game) =>
-						game.id === gameId ? { ...game, status } : game,
+						game.id === gameId
+							? {
+									...game,
+									status,
+									// Mirror the backend: played stamps the finish
+									// date, anything else clears it
+									finishedAt: status === "played" ? new Date() : null,
+								}
+							: game,
 					),
 				);
 			}
@@ -142,6 +150,57 @@ export function useUpdateUserGameStatus() {
 				queryClient.setQueryData(["user-games"], context.previousGames);
 			}
 			toast.error("Failed to update game status");
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: ["user-games"] });
+		},
+	});
+}
+
+export function useUpdateUserGameNote() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			gameId,
+			note,
+		}: {
+			gameId: string;
+			note: string | null;
+		}): Promise<UserGame> => {
+			const res = await fetch(`/api/user-games/${gameId}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ note }),
+			});
+			if (!res.ok) {
+				const error = await res.json().catch(() => ({}));
+				throw new Error(error.error || `Request failed: ${res.status}`);
+			}
+			return res.json();
+		},
+		onMutate: async ({ gameId, note }) => {
+			await queryClient.cancelQueries({ queryKey: ["user-games"] });
+			const previousGames = queryClient.getQueryData<UserGame[]>([
+				"user-games",
+			]);
+
+			if (previousGames) {
+				queryClient.setQueryData<UserGame[]>(
+					["user-games"],
+					previousGames.map((game) =>
+						game.id === gameId ? { ...game, note } : game,
+					),
+				);
+			}
+
+			return { previousGames };
+		},
+		onError: (_err, _variables, context) => {
+			if (context?.previousGames) {
+				queryClient.setQueryData(["user-games"], context.previousGames);
+			}
+			toast.error("Failed to save note");
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: ["user-games"] });

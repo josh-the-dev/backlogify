@@ -43,6 +43,7 @@ function MyGamesPage() {
 		backlog: games.filter((g) => g.status === "backlog").length,
 		playing: games.filter((g) => g.status === "playing").length,
 		played: games.filter((g) => g.status === "played").length,
+		abandoned: games.filter((g) => g.status === "abandoned").length,
 	};
 
 	return (

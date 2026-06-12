@@ -1,8 +1,10 @@
 import type { GameDetails as GameDetailsType } from "@backlogify/types";
+import { SignedIn } from "@clerk/tanstack-react-start";
 import { format } from "date-fns";
 import DOMPurify from "dompurify";
 import { AddToBacklogButton } from "../AddToBacklogButton";
 import { GameCover } from "../GameSearch/GameCover";
+import { GameNote } from "./GameNote";
 
 export function GameDetailsContent({ game }: { game: GameDetailsType }) {
 	const formattedDate = game.releaseDate
@@ -53,6 +55,10 @@ export function GameDetailsContent({ game }: { game: GameDetailsType }) {
 					__html: DOMPurify.sanitize(game.description),
 				}}
 			/>
+
+			<SignedIn>
+				<GameNote externalServiceId={game.id.toString()} />
+			</SignedIn>
 		</div>
 	);
 }

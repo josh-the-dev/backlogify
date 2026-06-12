@@ -18,7 +18,10 @@ export class AddUserGameDto {
 	@IsString()
 	coverUrl?: string;
 
-	@ApiProperty({ enum: ["backlog", "playing", "played"], example: "backlog" })
-	@IsIn(["backlog", "playing", "played"])
+	@ApiProperty({
+		enum: ["backlog", "playing", "played", "abandoned"],
+		example: "backlog",
+	})
+	@IsIn(["backlog", "playing", "played", "abandoned"])
 	status: GameStatus;
 }

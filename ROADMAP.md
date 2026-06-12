@@ -14,11 +14,11 @@ Working list of improvements, roughly in build order. Tick them off as they land
 
 These three share one schema migration, so build together.
 
-- [ ] Add `finishedAt` (nullable timestamp) to `user_games`; set automatically when status moves to `played`, editable after
-- [ ] Add `note` (nullable text) to `user_games`; short free-text shown on the library tile/detail page
-- [ ] Add `abandoned` to the status enum (the honest exit; keeps the backlog trustworthy). Pick a status color (likely muted gray/red)
-- [ ] Update: shared types, backend DTOs + validation, status constants, filter tabs, selects
-- [ ] Drizzle migration (`db:generate` + `db:migrate`), e2e test updates
+- [x] Add `finishedAt` (nullable timestamp) to `user_games`; stamped when status moves to `played` (cleared on any other status), editable/backdatable via the same PATCH
+- [x] Add `note` (nullable text) to `user_games`; editable on the detail page, shown truncated on the library tile
+- [x] Add `abandoned` to the status enum; muted brick status color
+- [x] Update: shared types, backend DTOs + validation (PATCH `:gameId/status` generalized to PATCH `:gameId`), status constants, filter tabs, selects
+- [x] Drizzle migration `0002_lonely_tombstone.sql` (applied automatically in CI; run `db:migrate` locally)
 
 **Size:** medium. One migration, touches most status UI.
 
@@ -61,6 +61,7 @@ Cheap once #2 exists (needs `finishedAt`).
 
 - [ ] Upgrade `@clerk/tanstack-react-start` 0.26.x to 1.x: fixes a high-severity authorization bypass advisory (GHSA-w24r-5266-9c3c) but is a breaking major bump, needs its own PR with auth flow re-testing
 - [ ] Periodically re-run `npm audit` for new criticals; CI only fails at critical level (shell-quote and vitest were bumped June 2026)
+- [ ] Baseline the local dev database for `drizzle-kit migrate`: the schema was originally pushed, so `drizzle.__drizzle_migrations` is empty and `db:migrate` fails locally (migration 0002 was applied by hand on 12 Jun 2026; CI migrates fresh DBs fine)
 
 ## Polish backlog (grab-bag, any time)
 

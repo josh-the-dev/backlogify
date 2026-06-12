@@ -11,7 +11,7 @@ describe("UserGamesController", () => {
 	const mockUserGamesService = {
 		getAll: jest.fn(),
 		add: jest.fn(),
-		updateStatus: jest.fn(),
+		update: jest.fn(),
 		remove: jest.fn(),
 	};
 
@@ -132,7 +132,7 @@ describe("UserGamesController", () => {
 		});
 	});
 
-	describe("updateStatus", () => {
+	describe("update", () => {
 		it("should update game status and return updated game", () => {
 			const userId = "user-1";
 			const gameId = "game-1";
@@ -145,19 +145,41 @@ describe("UserGamesController", () => {
 				coverUrl: null,
 				status: "played",
 				addedAt: new Date(),
+				finishedAt: new Date(),
+				note: null,
 			};
 
-			mockUserGamesService.updateStatus.mockReturnValue(expectedGame);
+			mockUserGamesService.update.mockReturnValue(expectedGame);
 
-			const result = controller.updateStatus(userId, gameId, dto);
+			const result = controller.update(userId, gameId, dto);
 
 			expect(result).toEqual(expectedGame);
-			expect(mockUserGamesService.updateStatus).toHaveBeenCalledWith(
+			expect(mockUserGamesService.update).toHaveBeenCalledWith(
 				userId,
 				gameId,
-				dto.status,
+				dto,
 			);
-			expect(mockUserGamesService.updateStatus).toHaveBeenCalledTimes(1);
+			expect(mockUserGamesService.update).toHaveBeenCalledTimes(1);
+		});
+
+		it("should accept a note-only update", () => {
+			mockUserGamesService.update.mockReturnValue({});
+
+			controller.update("user-1", "game-1", { note: "Halfway through" });
+
+			expect(mockUserGamesService.update).toHaveBeenCalledWith(
+				"user-1",
+				"game-1",
+				{ note: "Halfway through" },
+			);
+		});
+
+		it("should reject an empty body", () => {
+			expect(() => controller.update("user-1", "game-1", {})).toThrow(
+				"Nothing to update",
+			);
+
+			expect(mockUserGamesService.update).not.toHaveBeenCalled();
 		});
 
 		it("should propagate NotFoundException from service", () => {
@@ -165,14 +187,14 @@ describe("UserGamesController", () => {
 			const gameId = "non-existent";
 			const dto = { status: "playing" as const };
 
-			mockUserGamesService.updateStatus.mockImplementation(() => {
+			mockUserGamesService.update.mockImplementation(() => {
 				throw new NotFoundException("Game not found for this user");
 			});
 
-			expect(() => controller.updateStatus(userId, gameId, dto)).toThrow(
+			expect(() => controller.update(userId, gameId, dto)).toThrow(
 				NotFoundException,
 			);
-			expect(() => controller.updateStatus(userId, gameId, dto)).toThrow(
+			expect(() => controller.update(userId, gameId, dto)).toThrow(
 				"Game not found for this user",
 			);
 		});

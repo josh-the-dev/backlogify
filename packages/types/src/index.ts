@@ -17,7 +17,7 @@ export interface GameDetails {
 	platforms: string[];
 }
 
-export type GameStatus = "backlog" | "playing" | "played";
+export type GameStatus = "backlog" | "playing" | "played" | "abandoned";
 
 // User game types
 export interface UserGame {
@@ -28,6 +28,8 @@ export interface UserGame {
 	coverUrl?: string | null;
 	status: GameStatus;
 	addedAt: Date;
+	finishedAt?: Date | null;
+	note?: string | null;
 }
 
 // Backlog types

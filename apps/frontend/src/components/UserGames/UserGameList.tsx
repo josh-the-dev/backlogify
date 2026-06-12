@@ -12,15 +12,17 @@ const GRID_CLASSES =
 	"grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-4 sm:gap-x-4 md:grid-cols-5 lg:grid-cols-6";
 
 const STATUS_ORDER: Record<GameStatus, number> = {
-	backlog: 0,
-	playing: 1,
+	playing: 0,
+	backlog: 1,
 	played: 2,
+	abandoned: 3,
 };
 
 const EMPTY_FILTER_COPY: Record<GameStatus, string> = {
 	backlog: "Nothing in your backlog. Go queue something up.",
 	playing: "You're not playing anything right now.",
 	played: "No finished games yet. One day.",
+	abandoned: "Nothing abandoned. Either great taste or great stubbornness.",
 };
 
 const list = {
