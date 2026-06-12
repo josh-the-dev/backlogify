@@ -70,6 +70,14 @@ describe("GamesController", () => {
 			expect(mockGamesService.search).toHaveBeenCalledWith("witcher", 3);
 		});
 
+		it("should default to page 1 when page is omitted", async () => {
+			mockGamesService.search.mockResolvedValue([]);
+
+			await controller.search("witcher", undefined);
+
+			expect(mockGamesService.search).toHaveBeenCalledWith("witcher", 1);
+		});
+
 		it("should throw BadRequestException for empty query", async () => {
 			await expect(controller.search("", 1)).rejects.toThrow(
 				BadRequestException,

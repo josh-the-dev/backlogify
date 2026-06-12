@@ -1,7 +1,6 @@
 import {
 	BadRequestException,
 	Controller,
-	DefaultValuePipe,
 	Get,
 	Param,
 	ParseIntPipe,
@@ -27,16 +26,18 @@ export class GamesController {
 	@ApiResponse({ status: 401, description: "Invalid or missing API key" })
 	async search(
 		@Query("query") query: string,
-		@Query("page", new DefaultValuePipe(1), ParseIntPipe) page: number,
+		@Query("page", new ParseIntPipe({ optional: true })) page?: number,
 	): Promise<GameSearchResultResponseDto[]> {
 		if (!query || query.trim().length === 0) {
 			throw new BadRequestException("Search query is required");
 		}
-		if (page < 1) {
+
+		const requestedPage = page ?? 1;
+		if (requestedPage < 1) {
 			throw new BadRequestException("Page must be at least 1");
 		}
 
-		return this.gamesService.search(query.trim(), page);
+		return this.gamesService.search(query.trim(), requestedPage);
 	}
 
 	@Get("popular")
@@ -46,13 +47,14 @@ export class GamesController {
 	@ApiResponse({ status: 400, description: "Page is invalid" })
 	@ApiResponse({ status: 401, description: "Invalid or missing API key" })
 	async getPopularGames(
-		@Query("page", new DefaultValuePipe(1), ParseIntPipe) page: number,
+		@Query("page", new ParseIntPipe({ optional: true })) page?: number,
 	): Promise<GameSearchResultResponseDto[]> {
-		if (page < 1) {
+		const requestedPage = page ?? 1;
+		if (requestedPage < 1) {
 			throw new BadRequestException("Page must be at least 1");
 		}
 
-		return this.gamesService.getPopularGames(page);
+		return this.gamesService.getPopularGames(requestedPage);
 	}
 
 	@Get(":id")
