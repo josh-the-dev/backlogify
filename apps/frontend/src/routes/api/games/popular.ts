@@ -7,10 +7,15 @@ import { backendApi } from "../../../backend-api";
 export const Route = createFileRoute("/api/games/popular")({
 	server: {
 		handlers: {
-			GET: async () => {
+			GET: async ({ request }) => {
+				const url = new URL(request.url);
+				const page = url.searchParams.get("page");
+
 				try {
 					const data = await backendApi
-						.get("games/popular")
+						.get("games/popular", {
+							searchParams: page ? { page } : {},
+						})
 						.json<GameSearchResult[]>();
 					return json(data);
 				} catch (e) {

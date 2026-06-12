@@ -47,10 +47,22 @@ describe("RawgService", () => {
 		const result = await service.searchGames("zelda");
 
 		expect(httpService.get).toHaveBeenCalledWith(
-			"https://api.rawg.io/api/games?search=zelda",
+			"https://api.rawg.io/api/games?search=zelda&page=1&page_size=20",
 			{ params: { key: "test-api-key" } },
 		);
 		expect(result).toEqual(mockResponse.data);
+	});
+
+	it("should forward the requested search page", async () => {
+		const mockResponse = { data: { results: [] } };
+		(httpService.get as jest.Mock).mockReturnValue(of(mockResponse));
+
+		await service.searchGames("zelda", 3);
+
+		expect(httpService.get).toHaveBeenCalledWith(
+			"https://api.rawg.io/api/games?search=zelda&page=3&page_size=20",
+			{ params: { key: "test-api-key" } },
+		);
 	});
 
 	it("should request popular games scoped to the last year", async () => {
@@ -62,7 +74,7 @@ describe("RawgService", () => {
 		const result = await service.getPopularGames();
 
 		expect(httpService.get).toHaveBeenCalledWith(
-			"https://api.rawg.io/api/games?dates=2025-06-12,2026-06-12&ordering=-added&page_size=18",
+			"https://api.rawg.io/api/games?dates=2025-06-12,2026-06-12&ordering=-added&page=1&page_size=20",
 			{ params: { key: "test-api-key" } },
 		);
 		expect(result).toEqual(mockResponse.data);

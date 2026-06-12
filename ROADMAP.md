@@ -4,9 +4,9 @@ Working list of improvements, roughly in build order. Tick them off as they land
 
 ## 1. Fix: library truncates at 50 games (bug, do first)
 
-- [ ] Backend `GET /user-games` paginates (default limit 50) but the frontend never passes `limit`/`offset`, so game 51+ silently disappears from My Games
-- [ ] Decide: pass `limit=100` + "load more" button, or proper infinite scroll with TanStack Query `useInfiniteQuery`
-- [ ] Same theme on search: RAWG returns one page (~20 results) with no way to see more. Add a "more results" affordance (RAWG supports `page` param)
+- [x] Backend `GET /user-games` paginates (default limit 50) but the frontend never passes `limit`/`offset`, so game 51+ silently disappears from My Games
+- [x] Decided: the library queryFn pages through the backend (100 per request) until a short page, keeping the flat `UserGame[]` shape that filters/counts/optimistic updates rely on
+- [x] Search and the popular shelf both take a `page` param through the stack (RAWG, backend, proxy) and render via `useInfiniteQuery` with a "Load more" button (20 per page)
 
 **Size:** small-medium. No schema changes.
 
