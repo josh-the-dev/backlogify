@@ -18,6 +18,7 @@ describe("GamesService", () => {
 	const mockRawgService = {
 		searchGames: jest.fn(),
 		getGameDetails: jest.fn(),
+		getPopularGames: jest.fn(),
 	};
 
 	beforeEach(async () => {
@@ -45,6 +46,8 @@ describe("GamesService", () => {
 						id: 1,
 						name: "The Witcher 3: Wild Hunt",
 						background_image: "https://example.com/witcher3.jpg",
+						released: "2015-05-18",
+						metacritic: 92,
 					},
 					{
 						id: 2,
@@ -63,11 +66,15 @@ describe("GamesService", () => {
 					id: 1,
 					name: "The Witcher 3: Wild Hunt",
 					coverUrl: "https://example.com/witcher3.jpg",
+					releaseDate: "2015-05-18",
+					metacritic: 92,
 				},
 				{
 					id: 2,
 					name: "The Witcher 2",
 					coverUrl: null,
+					releaseDate: null,
+					metacritic: null,
 				},
 			]);
 
@@ -91,8 +98,8 @@ describe("GamesService", () => {
 			const result = await service.search(query);
 
 			expect(result).toEqual([
-				{ id: 3, name: "Game A", coverUrl: null },
-				{ id: 4, name: "Game B", coverUrl: null },
+				{ id: 3, name: "Game A", coverUrl: null, releaseDate: null, metacritic: null },
+				{ id: 4, name: "Game B", coverUrl: null, releaseDate: null, metacritic: null },
 			]);
 		});
 
@@ -121,6 +128,49 @@ describe("GamesService", () => {
 			);
 			expect(loggerErrorSpy).toHaveBeenCalledWith(
 				"Failed to search games",
+				error.stack,
+			);
+		});
+	});
+
+	describe("getPopularGames", () => {
+		it("should log and return mapped popular games", async () => {
+			const rawgResponse = {
+				results: [
+					{
+						id: 3328,
+						name: "The Witcher 3: Wild Hunt",
+						background_image: "https://example.com/witcher3.jpg",
+						released: "2015-05-18",
+						metacritic: 92,
+					},
+				],
+			};
+
+			mockRawgService.getPopularGames.mockResolvedValue(rawgResponse);
+
+			const result = await service.getPopularGames();
+
+			expect(result).toEqual([
+				{
+					id: 3328,
+					name: "The Witcher 3: Wild Hunt",
+					coverUrl: "https://example.com/witcher3.jpg",
+					releaseDate: "2015-05-18",
+					metacritic: 92,
+				},
+			]);
+			expect(loggerLogSpy).toHaveBeenCalledWith("Fetching popular games");
+		});
+
+		it("should log error and re-throw if rawgService.getPopularGames fails", async () => {
+			const error = new Error("RAWG API failure");
+			mockRawgService.getPopularGames.mockRejectedValue(error);
+
+			await expect(service.getPopularGames()).rejects.toThrow(error);
+
+			expect(loggerErrorSpy).toHaveBeenCalledWith(
+				"Failed to fetch popular games",
 				error.stack,
 			);
 		});

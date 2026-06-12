@@ -18,7 +18,7 @@ function SignInPage() {
 	const { redirect } = Route.useSearch();
 
 	return (
-		<div className="flex flex-1 items-center justify-center bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 py-12">
+		<div className="flex flex-1 items-center justify-center py-12">
 			<SignIn
 				fallbackRedirectUrl={redirect || "/"}
 				signUpUrl="/sign-up"

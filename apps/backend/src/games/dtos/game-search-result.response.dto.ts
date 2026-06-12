@@ -17,4 +17,12 @@ export class GameSearchResultResponseDto {
 		nullable: true,
 	})
 	coverUrl: string | null;
+
+	@Expose()
+	@ApiPropertyOptional({ example: "2013-09-17", nullable: true })
+	releaseDate: string | null;
+
+	@Expose()
+	@ApiPropertyOptional({ example: 92, nullable: true })
+	metacritic: number | null;
 }

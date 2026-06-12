@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
+import type { RawgGame } from "../rawg/interfaces/rawg.interface";
 import { RawgService } from "../rawg/rawg.service";
 import { GameDetailsResponseDto } from "./dtos/game-details.response.dto";
 import { GameSearchResultResponseDto } from "./dtos/game-search-result.response.dto";
@@ -16,15 +17,7 @@ export class GamesService {
 
 			const rawgResponse = await this.rawgService.searchGames(query);
 
-			return plainToInstance(
-				GameSearchResultResponseDto,
-				rawgResponse.results.map((game) => ({
-					id: game.id,
-					name: game.name,
-					coverUrl: game.background_image || null,
-				})),
-				{ excludeExtraneousValues: true },
-			);
+			return this.toSearchResults(rawgResponse.results);
 		} catch (error) {
 			this.logger.error(
 				"Failed to search games",
@@ -32,6 +25,36 @@ export class GamesService {
 			);
 			throw error;
 		}
+	}
+
+	async getPopularGames(): Promise<GameSearchResultResponseDto[]> {
+		try {
+			this.logger.log("Fetching popular games");
+
+			const rawgResponse = await this.rawgService.getPopularGames();
+
+			return this.toSearchResults(rawgResponse.results);
+		} catch (error) {
+			this.logger.error(
+				"Failed to fetch popular games",
+				error instanceof Error ? error.stack : String(error),
+			);
+			throw error;
+		}
+	}
+
+	private toSearchResults(games: RawgGame[]): GameSearchResultResponseDto[] {
+		return plainToInstance(
+			GameSearchResultResponseDto,
+			games.map((game) => ({
+				id: game.id,
+				name: game.name,
+				coverUrl: game.background_image || null,
+				releaseDate: game.released ?? null,
+				metacritic: game.metacritic ?? null,
+			})),
+			{ excludeExtraneousValues: true },
+		);
 	}
 
 	async getGameDetails(id: string): Promise<GameDetailsResponseDto> {

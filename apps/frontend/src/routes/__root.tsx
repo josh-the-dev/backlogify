@@ -30,7 +30,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "Backlogify",
+				title: "Backlogify - every game you swore you'd get to",
+			},
+			{
+				name: "description",
+				content:
+					"Track your game backlog. Search half a million titles, queue up the ones you mean to play, and keep track of what you actually finish.",
 			},
 		],
 		links: [

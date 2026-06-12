@@ -19,6 +19,7 @@ import { Route as GamesIdRouteImport } from './routes/games/$id'
 import { Route as ApiUserGamesRouteImport } from './routes/api/user-games'
 import { Route as ApiUserGamesGameIdRouteImport } from './routes/api/user-games.$gameId'
 import { Route as ApiGamesSearchRouteImport } from './routes/api/games/search'
+import { Route as ApiGamesPopularRouteImport } from './routes/api/games/popular'
 import { Route as ApiGamesIdRouteImport } from './routes/api/games/$id'
 
 const SignUpRoute = SignUpRouteImport.update({
@@ -71,6 +72,11 @@ const ApiGamesSearchRoute = ApiGamesSearchRouteImport.update({
   path: '/api/games/search',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGamesPopularRoute = ApiGamesPopularRouteImport.update({
+  id: '/api/games/popular',
+  path: '/api/games/popular',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGamesIdRoute = ApiGamesIdRouteImport.update({
   id: '/api/games/$id',
   path: '/api/games/$id',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/games/$id': typeof GamesIdRoute
   '/games/': typeof GamesIndexRoute
   '/api/games/$id': typeof ApiGamesIdRoute
+  '/api/games/popular': typeof ApiGamesPopularRoute
   '/api/games/search': typeof ApiGamesSearchRoute
   '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
 }
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/games/$id': typeof GamesIdRoute
   '/games': typeof GamesIndexRoute
   '/api/games/$id': typeof ApiGamesIdRoute
+  '/api/games/popular': typeof ApiGamesPopularRoute
   '/api/games/search': typeof ApiGamesSearchRoute
   '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
 }
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/games/$id': typeof GamesIdRoute
   '/games/': typeof GamesIndexRoute
   '/api/games/$id': typeof ApiGamesIdRoute
+  '/api/games/popular': typeof ApiGamesPopularRoute
   '/api/games/search': typeof ApiGamesSearchRoute
   '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
 }
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/games/$id'
     | '/games/'
     | '/api/games/$id'
+    | '/api/games/popular'
     | '/api/games/search'
     | '/api/user-games/$gameId'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/games/$id'
     | '/games'
     | '/api/games/$id'
+    | '/api/games/popular'
     | '/api/games/search'
     | '/api/user-games/$gameId'
   id:
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/games/$id'
     | '/games/'
     | '/api/games/$id'
+    | '/api/games/popular'
     | '/api/games/search'
     | '/api/user-games/$gameId'
   fileRoutesById: FileRoutesById
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   GamesIdRoute: typeof GamesIdRoute
   GamesIndexRoute: typeof GamesIndexRoute
   ApiGamesIdRoute: typeof ApiGamesIdRoute
+  ApiGamesPopularRoute: typeof ApiGamesPopularRoute
   ApiGamesSearchRoute: typeof ApiGamesSearchRoute
 }
 
@@ -244,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGamesSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/games/popular': {
+      id: '/api/games/popular'
+      path: '/api/games/popular'
+      fullPath: '/api/games/popular'
+      preLoaderRoute: typeof ApiGamesPopularRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/games/$id': {
       id: '/api/games/$id'
       path: '/api/games/$id'
@@ -276,6 +296,7 @@ const rootRouteChildren: RootRouteChildren = {
   GamesIdRoute: GamesIdRoute,
   GamesIndexRoute: GamesIndexRoute,
   ApiGamesIdRoute: ApiGamesIdRoute,
+  ApiGamesPopularRoute: ApiGamesPopularRoute,
   ApiGamesSearchRoute: ApiGamesSearchRoute,
 }
 export const routeTree = rootRouteImport

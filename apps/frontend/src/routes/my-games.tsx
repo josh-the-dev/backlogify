@@ -1,9 +1,11 @@
 import type { GameStatus } from "@backlogify/types";
 import { auth } from "@clerk/tanstack-react-start/server";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import { Plus } from "lucide-react";
 import { useState } from "react";
+import { Button } from "../components/ui/button";
 import { StatusFilter } from "../components/UserGames/StatusFilter";
 import { UserGameList } from "../components/UserGames/UserGameList";
 import { userGamesQueryOptions } from "../queries/user-games";
@@ -44,13 +46,31 @@ function MyGamesPage() {
 	};
 
 	return (
-		<div className="mx-auto max-w-6xl p-6">
-			<h1 className="mb-6 text-center font-bold text-3xl tracking-tight">My Games</h1>
-			<StatusFilter
-				value={statusFilter}
-				onChange={setStatusFilter}
-				counts={counts}
-			/>
+		<div className="mx-auto w-full max-w-6xl px-6 py-10">
+			<div className="flex flex-wrap items-end justify-between gap-4">
+				<div>
+					<h1 className="font-display font-bold text-3xl tracking-tight">
+						My Games
+					</h1>
+					<p className="mt-1 text-muted-foreground text-sm">
+						{games.length === 1 ? "1 game" : `${games.length} games`} in your
+						library
+					</p>
+				</div>
+				<Button variant="outline" size="sm" asChild>
+					<Link to="/games">
+						<Plus className="size-4" />
+						Add games
+					</Link>
+				</Button>
+			</div>
+			<div className="mt-6">
+				<StatusFilter
+					value={statusFilter}
+					onChange={setStatusFilter}
+					counts={counts}
+				/>
+			</div>
 			<UserGameList query={userGamesQuery} statusFilter={statusFilter} />
 		</div>
 	);

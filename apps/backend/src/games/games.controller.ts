@@ -31,6 +31,14 @@ export class GamesController {
 		return this.gamesService.search(query.trim());
 	}
 
+	@Get("popular")
+	@ApiOperation({ summary: "Get currently popular games" })
+	@ApiResponse({ status: 200, type: [GameSearchResultResponseDto], description: "List of popular games" })
+	@ApiResponse({ status: 401, description: "Invalid or missing API key" })
+	async getPopularGames(): Promise<GameSearchResultResponseDto[]> {
+		return this.gamesService.getPopularGames();
+	}
+
 	@Get(":id")
 	@ApiOperation({ summary: "Get full details for a game by RAWG ID" })
 	@ApiResponse({ status: 200, type: GameDetailsResponseDto, description: "Game details" })

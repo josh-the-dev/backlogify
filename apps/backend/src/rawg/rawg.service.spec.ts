@@ -53,6 +53,23 @@ describe("RawgService", () => {
 		expect(result).toEqual(mockResponse.data);
 	});
 
+	it("should request popular games scoped to the last year", async () => {
+		jest.useFakeTimers().setSystemTime(new Date("2026-06-12T12:00:00Z"));
+
+		const mockResponse = { data: { results: [{ id: 1, name: "Game 1" }] } };
+		(httpService.get as jest.Mock).mockReturnValue(of(mockResponse));
+
+		const result = await service.getPopularGames();
+
+		expect(httpService.get).toHaveBeenCalledWith(
+			"https://api.rawg.io/api/games?dates=2025-06-12,2026-06-12&ordering=-added&page_size=18",
+			{ params: { key: "test-api-key" } },
+		);
+		expect(result).toEqual(mockResponse.data);
+
+		jest.useRealTimers();
+	});
+
 	it("should throw UNAUTHORIZED HttpException on 401 error", async () => {
 		const error = {
 			message: "Unauthorized",

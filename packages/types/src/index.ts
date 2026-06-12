@@ -3,6 +3,8 @@ export interface GameSearchResult {
 	id: number;
 	name: string;
 	coverUrl: string | null;
+	releaseDate: string | null;
+	metacritic: number | null;
 }
 
 export interface GameDetails {

@@ -1,19 +1,41 @@
 import type { GameSearchResult } from "@backlogify/types";
+import { SignedIn } from "@clerk/tanstack-react-start";
 import { GameCover } from "./GameCover";
+import { QuickAddButton } from "./QuickAddButton";
+
+function metacriticColor(score: number) {
+	if (score >= 75) return "text-status-played";
+	if (score >= 50) return "text-status-backlog";
+	return "text-destructive";
+}
 
 export function GameCard({ game }: { game: GameSearchResult }) {
+	const year = game.releaseDate?.slice(0, 4);
+
 	return (
-		<div className="group flex w-40 flex-col overflow-hidden rounded-lg border border-border/50 bg-card transition-all duration-200 hover:border-primary/40 hover:shadow-[0_0_24px_oklch(0.68_0.28_280/0.2)] hover:-translate-y-1">
-			<GameCover
-				name={game.name}
-				coverUrl={game.coverUrl}
-				className="h-52 w-full transition-transform duration-200 group-hover:scale-[1.02]"
-			/>
-			<div className="flex h-14 items-center justify-center p-2">
-				<h3 className="line-clamp-2 text-center text-sm font-medium">
-					{game.name}
-				</h3>
+		<div className="group">
+			<div className="relative overflow-hidden rounded-lg border border-border/60 bg-card transition-colors duration-200 group-hover:border-primary/60">
+				<GameCover
+					name={game.name}
+					coverUrl={game.coverUrl}
+					className="aspect-[3/4] w-full transition-transform duration-300 group-hover:scale-[1.04]"
+				/>
+				{game.metacritic != null && (
+					<span
+						title="Metacritic score"
+						className={`absolute bottom-1.5 left-1.5 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[11px] font-semibold backdrop-blur-sm ${metacriticColor(game.metacritic)}`}
+					>
+						{game.metacritic}
+					</span>
+				)}
+				<SignedIn>
+					<QuickAddButton game={game} />
+				</SignedIn>
 			</div>
+			<h3 className="mt-2 line-clamp-1 text-sm font-medium" title={game.name}>
+				{game.name}
+			</h3>
+			{year && <p className="text-xs text-muted-foreground">{year}</p>}
 		</div>
 	);
 }
