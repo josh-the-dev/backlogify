@@ -9,6 +9,7 @@ import {
 import { ApiOperation, ApiQuery, ApiResponse, ApiSecurity, ApiTags } from "@nestjs/swagger";
 import { GamesService } from "./games.service";
 import { GameDetailsResponseDto } from "./dtos/game-details.response.dto";
+import { GameExtrasResponseDto } from "./dtos/game-extras.response.dto";
 import { GameSearchResultResponseDto } from "./dtos/game-search-result.response.dto";
 
 @ApiTags("games")
@@ -55,6 +56,18 @@ export class GamesController {
 		}
 
 		return this.gamesService.getPopularGames(requestedPage);
+	}
+
+	@Get(":id/extras")
+	@ApiOperation({
+		summary: "Get supplementary detail content (screenshots, stores, similar)",
+	})
+	@ApiResponse({ status: 200, type: GameExtrasResponseDto, description: "Game extras" })
+	@ApiResponse({ status: 401, description: "Invalid or missing API key" })
+	async getGameExtras(
+		@Param("id", ParseIntPipe) id: number,
+	): Promise<GameExtrasResponseDto> {
+		return this.gamesService.getGameExtras(String(id));
 	}
 
 	@Get(":id")

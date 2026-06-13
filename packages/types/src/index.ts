@@ -17,6 +17,18 @@ export interface GameDetails {
 	platforms: string[];
 }
 
+export interface StoreLink {
+	storeId: number;
+	name: string;
+	url: string;
+}
+
+export interface GameExtras {
+	screenshots: string[];
+	stores: StoreLink[];
+	similar: GameSearchResult[];
+}
+
 export type GameStatus = "backlog" | "playing" | "played" | "abandoned";
 
 // User game types

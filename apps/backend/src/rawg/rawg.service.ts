@@ -5,7 +5,9 @@ import { AxiosError } from "axios";
 import { firstValueFrom } from "rxjs";
 import type {
 	RawgGameDetails,
+	RawgScreenshotsResponse,
 	RawgSearchResponse,
+	RawgStoresResponse,
 } from "./interfaces/rawg.interface";
 
 @Injectable()
@@ -100,6 +102,27 @@ export class RawgService {
 		return this.fetchFromRawg<RawgGameDetails>(
 			`/games/${id}`,
 			`get game details for ID "${id}"`,
+		);
+	}
+
+	async getScreenshots(id: string): Promise<RawgScreenshotsResponse> {
+		return this.fetchFromRawg<RawgScreenshotsResponse>(
+			`/games/${id}/screenshots`,
+			`get screenshots for ID "${id}"`,
+		);
+	}
+
+	async getStores(id: string): Promise<RawgStoresResponse> {
+		return this.fetchFromRawg<RawgStoresResponse>(
+			`/games/${id}/stores`,
+			`get stores for ID "${id}"`,
+		);
+	}
+
+	async getSuggestedGames(id: string): Promise<RawgSearchResponse> {
+		return this.fetchFromRawg<RawgSearchResponse>(
+			`/games/${id}/game-series?page_size=12`,
+			`get suggested games for ID "${id}"`,
 		);
 	}
 }

@@ -1,4 +1,8 @@
-import type { GameDetails, GameSearchResult } from "@backlogify/types";
+import type {
+	GameDetails,
+	GameExtras,
+	GameSearchResult,
+} from "@backlogify/types";
 import {
 	infiniteQueryOptions,
 	keepPreviousData,
@@ -48,4 +52,16 @@ export const gameDetailsQueryOptions = (id: string) =>
 			return res.json();
 		},
 		enabled: !!id,
+	});
+
+export const gameExtrasQueryOptions = (id: string) =>
+	queryOptions({
+		queryKey: ["games", "extras", id],
+		queryFn: async (): Promise<GameExtras> => {
+			const res = await fetch(`/api/games/${id}/extras`);
+			if (!res.ok) throw new Error("Failed to fetch game extras");
+			return res.json();
+		},
+		enabled: !!id,
+		staleTime: 1000 * 60 * 30,
 	});
