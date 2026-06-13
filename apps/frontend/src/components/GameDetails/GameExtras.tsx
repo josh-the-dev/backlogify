@@ -134,7 +134,7 @@ function ScreenshotLightbox({
 	return (
 		<Dialog
 			open={index !== null}
-			onOpenChange={(open) => !open && onIndexChange(null)}
+			onOpenChange={(open: boolean) => !open && onIndexChange(null)}
 		>
 			<DialogContent
 				onKeyDown={onKeyDown}
