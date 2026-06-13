@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { SignedIn, SignedOut } from "@clerk/tanstack-react-start";
+import { Show } from "@clerk/tanstack-react-start";
 import { Home, Library, LogIn, Search, X } from "lucide-react";
 import { NavLink } from "./NavLink";
 
@@ -14,12 +14,12 @@ interface SidebarProps {
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
 	return (
 		<aside
-			className={`fixed top-0 left-0 z-50 flex h-full w-80 transform flex-col bg-background border-r border-border shadow-2xl transition-transform duration-300 ease-in-out ${
+			className={`bg-background border-border fixed left-0 top-0 z-50 flex h-full w-80 transform flex-col border-r shadow-2xl transition-transform duration-300 ease-in-out ${
 				isOpen ? "translate-x-0" : "-translate-x-full"
 			}`}
 		>
-			<div className="flex items-center justify-between border-b border-border p-4">
-				<h2 className="font-bold text-xl">Backlogify</h2>
+			<div className="border-border flex items-center justify-between border-b p-4">
+				<h2 className="text-xl font-bold">Backlogify</h2>
 				<Button
 					variant="ghost"
 					size="icon"
@@ -38,15 +38,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 					label="Search Games"
 					onClick={onClose}
 				/>
-				<SignedIn>
+				<Show when="signed-in">
 					<NavLink
 						to="/my-games"
 						icon={Library}
 						label="My Games"
 						onClick={onClose}
 					/>
-				</SignedIn>
-				<SignedOut>
+				</Show>
+				<Show when="signed-out">
 					<NavLink
 						to="/sign-in"
 						search={{ redirect: "/my-games" }}
@@ -54,7 +54,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 						label="Sign In"
 						onClick={onClose}
 					/>
-				</SignedOut>
+				</Show>
 			</nav>
 		</aside>
 	);

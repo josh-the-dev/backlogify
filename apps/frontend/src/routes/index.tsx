@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-react-start";
+import { Show, SignInButton } from "@clerk/tanstack-react-start";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { popularGamesQueryOptions } from "../queries/games";
@@ -62,7 +62,7 @@ function CoverMarquee() {
 							src={game.coverUrl ?? undefined}
 							alt={game.name}
 							loading="lazy"
-							className="aspect-[3/4] w-full rounded-md border border-border/60 object-cover transition-opacity duration-200 hover:opacity-75"
+							className="border-border/60 aspect-[3/4] w-full rounded-md border object-cover transition-opacity duration-200 hover:opacity-75"
 						/>
 					</Link>
 				))}
@@ -75,31 +75,31 @@ function App() {
 	return (
 		<div className="min-h-screen">
 			{/* Hero */}
-			<section className="px-6 pt-20 pb-14 sm:pt-28">
+			<section className="px-6 pb-14 pt-20 sm:pt-28">
 				<div className="mx-auto max-w-6xl">
-					<h1 className="max-w-3xl font-display font-bold text-5xl tracking-tight sm:text-7xl">
+					<h1 className="font-display max-w-3xl text-5xl font-bold tracking-tight sm:text-7xl">
 						Every game you swore you&apos;d get to.
 					</h1>
-					<p className="mt-5 max-w-xl text-lg text-muted-foreground">
+					<p className="text-muted-foreground mt-5 max-w-xl text-lg">
 						Search half a million titles, queue up the ones you mean to play,
 						and keep track of what you actually finish.
 					</p>
 					<div className="mt-8 flex flex-wrap items-center gap-3">
-						<SignedOut>
+						<Show when="signed-out">
 							<SignInButton mode="modal" forceRedirectUrl="/my-games">
 								<Button size="lg">Start your backlog</Button>
 							</SignInButton>
-						</SignedOut>
-						<SignedIn>
+						</Show>
+						<Show when="signed-in">
 							<Button size="lg" asChild>
 								<Link to="/my-games">Open my library</Link>
 							</Button>
-						</SignedIn>
+						</Show>
 						<Button size="lg" variant="outline" asChild>
 							<Link to="/games">Browse games</Link>
 						</Button>
 					</div>
-					<p className="mt-6 text-muted-foreground text-sm">
+					<p className="text-muted-foreground mt-6 text-sm">
 						Free, no ads. Game data from RAWG.
 					</p>
 				</div>
@@ -116,7 +116,7 @@ function App() {
 					{steps.map((step) => (
 						<div key={step.title} className="border-border border-t pt-5">
 							<h3 className="font-display font-semibold">{step.title}</h3>
-							<p className="mt-2 text-muted-foreground text-sm leading-relaxed">
+							<p className="text-muted-foreground mt-2 text-sm leading-relaxed">
 								{step.description}
 							</p>
 						</div>

@@ -3,9 +3,10 @@ import { auth } from "@clerk/tanstack-react-start/server";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { Plus } from "lucide-react";
+import { Plus, Share2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../components/ui/button";
+import { ShareBacklogDialog } from "../components/UserGames/ShareBacklogDialog";
 import { LibraryStats } from "../components/UserGames/LibraryStats";
 import { StatusFilter } from "../components/UserGames/StatusFilter";
 import { UpNextCard } from "../components/UserGames/UpNextCard";
@@ -37,6 +38,7 @@ export const Route = createFileRoute("/my-games")({
 
 function MyGamesPage() {
 	const [statusFilter, setStatusFilter] = useState<FilterOption>("all");
+	const [shareOpen, setShareOpen] = useState(false);
 	const userGamesQuery = useQuery(userGamesQueryOptions());
 
 	const games = userGamesQuery.data ?? [];
@@ -61,12 +63,22 @@ function MyGamesPage() {
 						library
 					</p>
 				</div>
-				<Button variant="outline" size="sm" asChild>
-					<Link to="/games">
-						<Plus className="size-4" />
-						Add games
-					</Link>
-				</Button>
+				<div className="flex items-center gap-2">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => setShareOpen(true)}
+					>
+						<Share2 className="size-4" />
+						Share
+					</Button>
+					<Button variant="outline" size="sm" asChild>
+						<Link to="/games">
+							<Plus className="size-4" />
+							Add games
+						</Link>
+					</Button>
+				</div>
 			</div>
 			{upNext && <UpNextCard game={upNext} />}
 			<LibraryStats games={games} />
@@ -78,6 +90,7 @@ function MyGamesPage() {
 				/>
 			</div>
 			<UserGameList query={userGamesQuery} statusFilter={statusFilter} />
+			<ShareBacklogDialog open={shareOpen} onOpenChange={setShareOpen} />
 		</div>
 	);
 }

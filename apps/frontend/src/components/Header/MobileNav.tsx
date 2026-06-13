@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-react-start";
+import { Show, SignInButton } from "@clerk/tanstack-react-start";
 import { Link } from "@tanstack/react-router";
 import { Home, Library, Search, X } from "lucide-react";
 
@@ -24,15 +24,15 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
 
 			{/* Slide-in drawer */}
 			<aside
-				className={`fixed top-0 right-0 z-50 flex h-full w-72 transform flex-col bg-background border-l border-border shadow-2xl transition-transform duration-300 ease-in-out md:hidden ${
+				className={`bg-background border-border fixed right-0 top-0 z-50 flex h-full w-72 transform flex-col border-l shadow-2xl transition-transform duration-300 ease-in-out md:hidden ${
 					isOpen ? "translate-x-0" : "translate-x-full"
 				}`}
 			>
 				{/* Header */}
-				<div className="flex items-center justify-between border-b border-border p-4">
+				<div className="border-border flex items-center justify-between border-b p-4">
 					<Link
 						to="/"
-						className="font-bold font-display text-lg tracking-tight"
+						className="font-display text-lg font-bold tracking-tight"
 						onClick={onClose}
 					>
 						Backlogify<span className="text-primary">.</span>
@@ -48,7 +48,7 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
 				</div>
 
 				{/* Navigation */}
-				<nav className="flex-1 overflow-y-auto p-4 space-y-1">
+				<nav className="flex-1 space-y-1 overflow-y-auto p-4">
 					<MobileNavLink to="/" icon={Home} label="Home" onClick={onClose} />
 					<MobileNavLink
 						to="/games"
@@ -56,24 +56,24 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
 						label="Search Games"
 						onClick={onClose}
 					/>
-					<SignedIn>
+					<Show when="signed-in">
 						<MobileNavLink
 							to="/my-games"
 							icon={Library}
 							label="My Games"
 							onClick={onClose}
 						/>
-					</SignedIn>
+					</Show>
 				</nav>
 
 				{/* Footer - Sign in for signed out users */}
-				<SignedOut>
-					<div className="border-t border-border p-4">
+				<Show when="signed-out">
+					<div className="border-border border-t p-4">
 						<SignInButton mode="modal">
 							<Button className="w-full">Sign In</Button>
 						</SignInButton>
 					</div>
-				</SignedOut>
+				</Show>
 			</aside>
 		</>
 	);
@@ -91,7 +91,7 @@ function MobileNavLink({ to, icon: Icon, label, onClick }: MobileNavLinkProps) {
 		<Link
 			to={to}
 			onClick={onClick}
-			className="flex items-center gap-3 rounded-lg p-3 text-foreground transition-colors hover:bg-accent"
+			className="text-foreground hover:bg-accent flex items-center gap-3 rounded-lg p-3 transition-colors"
 			activeProps={{
 				className:
 					"flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors",

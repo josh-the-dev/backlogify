@@ -51,11 +51,11 @@ Cheap once #2 exists (needs `finishedAt`).
 
 ## 6. Public shareable backlog
 
-- [ ] Read-only `/u/:username` page showing someone's library
-- [ ] Needs: public/private toggle per user, username slug, unauthenticated backend route
-- [ ] The only social feature worth doing before going full Backloggd; it's how the app spreads
+- [x] Read-only `/u/:username` page showing someone's library (full read-only mirror: Up next, stats strip, filterable grid; cards link to game pages; per-user title + OG/Twitter cards)
+- [x] Needs: public/private toggle per user, username slug, unauthenticated backend route
+- [x] The only social feature worth doing before going full Backloggd; it's how the app spreads
 
-**Size:** large. Auth model changes, new public surface.
+**Size:** large, as predicted. New `user_profiles` table (`userId` PK = Clerk subject id, unique lowercased `username`, `isPublic` default false; migration `0004_jittery_wasp.sql`). New `profiles` module: Clerk-guarded `GET`/`PUT /profiles/me` (upsert, 409 on taken username) and a public `GET /profiles/:username/backlog` (still behind the global API key, no Clerk JWT; 404 for missing *or* private so visitors can't probe who exists; serialized through a `PublicGameResponseDto` that drops `userId`). Share controls live in a dialog on My Games (claim username, public toggle, copy link). Read-only `PublicGameCard`/`PublicGameList` reuse the status constants and grid layout; `UpNextCard` gained a `readOnly` prop.
 
 ## Security / maintenance
 

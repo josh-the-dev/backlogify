@@ -18,7 +18,7 @@ import {
 import { STATUS_DOT_CLASSES, STATUS_OPTIONS } from "@/constants/game-status";
 import { cn } from "@/lib/utils";
 import type { GameStatus, UserGame } from "@backlogify/types";
-import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-react-start";
+import { Show, SignInButton } from "@clerk/tanstack-react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -96,7 +96,7 @@ export function AddToBacklogButton({
 					disabled={isUpdating}
 				>
 					<SelectTrigger
-						className={`w-[130px] border-primary/50 bg-primary/10 ${selectSize}`}
+						className={`border-primary/50 bg-primary/10 w-[130px] ${selectSize}`}
 						onClick={(e: React.MouseEvent) => e.stopPropagation()}
 					>
 						<SelectValue />
@@ -139,7 +139,10 @@ export function AddToBacklogButton({
 							</DialogDescription>
 						</DialogHeader>
 						<DialogFooter>
-							<Button variant="outline" onClick={() => setRemoveDialogOpen(false)}>
+							<Button
+								variant="outline"
+								onClick={() => setRemoveDialogOpen(false)}
+							>
 								Cancel
 							</Button>
 							<Button
@@ -158,7 +161,7 @@ export function AddToBacklogButton({
 
 	return (
 		<>
-			<SignedIn>
+			<Show when="signed-in">
 				<Button
 					size={buttonSize}
 					onClick={handleAdd}
@@ -167,15 +170,15 @@ export function AddToBacklogButton({
 					<Plus className="size-4" />
 					{addGame.isPending ? "Adding..." : "Add to Backlog"}
 				</Button>
-			</SignedIn>
-			<SignedOut>
+			</Show>
+			<Show when="signed-out">
 				<SignInButton mode="modal">
 					<Button size={buttonSize}>
 						<Plus className="size-4" />
 						Add to Backlog
 					</Button>
 				</SignInButton>
-			</SignedOut>
+			</Show>
 		</>
 	);
 }

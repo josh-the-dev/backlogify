@@ -9,6 +9,7 @@ import { ApiKeyGuard, AuthModule } from "./auth";
 import { DatabaseModule } from "./database";
 import { GamesModule } from "./games/games.module";
 import { HealthModule } from "./health/health.module";
+import { ProfilesModule } from "./profiles/profiles.module";
 import { UserGamesModule } from "./user-games/user-games.module";
 
 const envSchema = z.object({
@@ -38,6 +39,7 @@ const envSchema = z.object({
 		AuthModule,
 		GamesModule,
 		HealthModule,
+		ProfilesModule,
 		UserGamesModule,
 	],
 	providers: [

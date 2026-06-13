@@ -1,24 +1,24 @@
 import { Button } from "@/components/ui/button";
-import {
-	SignedIn,
-	SignedOut,
-	SignInButton,
-	UserButton,
-} from "@clerk/tanstack-react-start";
+import { Show, SignInButton, UserButton } from "@clerk/tanstack-react-start";
 import { Link } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
+import { Menu, Share2 } from "lucide-react";
 import { useState } from "react";
+import { ShareBacklogDialog } from "../UserGames/ShareBacklogDialog";
 import { MobileNav } from "./MobileNav";
 
 export default function Header() {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+	const [shareOpen, setShareOpen] = useState(false);
 
 	return (
 		<>
-			<header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+			<header className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 border-b backdrop-blur">
 				<div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
 					{/* Logo */}
-					<Link to="/" className="font-bold font-display text-lg tracking-tight">
+					<Link
+						to="/"
+						className="font-display text-lg font-bold tracking-tight"
+					>
 						Backlogify<span className="text-primary">.</span>
 					</Link>
 
@@ -33,7 +33,7 @@ export default function Header() {
 							>
 								<Link to="/games">Search</Link>
 							</Button>
-							<SignedIn>
+							<Show when="signed-in">
 								<Button
 									variant="ghost"
 									asChild
@@ -41,20 +41,32 @@ export default function Header() {
 								>
 									<Link to="/my-games">My Games</Link>
 								</Button>
-							</SignedIn>
+							</Show>
 						</nav>
 
 						{/* Auth */}
-						<SignedOut>
+						<Show when="signed-out">
 							<SignInButton mode="modal">
 								<Button size="sm" className="hidden md:flex">
 									Sign In
 								</Button>
 							</SignInButton>
-						</SignedOut>
-						<SignedIn>
-							<UserButton />
-						</SignedIn>
+						</Show>
+						<Show when="signed-in">
+							<UserButton>
+								<UserButton.MenuItems>
+									<UserButton.Action
+										label="Share your backlog"
+										labelIcon={<Share2 className="size-4" />}
+										onClick={() => setShareOpen(true)}
+									/>
+								</UserButton.MenuItems>
+							</UserButton>
+							<ShareBacklogDialog
+								open={shareOpen}
+								onOpenChange={setShareOpen}
+							/>
+						</Show>
 
 						{/* Mobile menu button */}
 						<Button
