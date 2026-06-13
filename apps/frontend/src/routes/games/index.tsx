@@ -4,6 +4,7 @@ import z from "zod";
 import { Button } from "../../components/ui/button";
 import { GameList } from "../../components/GameSearch/GameList";
 import { GameSearchForm } from "../../components/GameSearch/GameSearchForm";
+import { useRecentlyViewed } from "../../lib/recently-viewed";
 import {
 	gamesSearchQueryOptions,
 	popularGamesQueryOptions,
@@ -24,6 +25,7 @@ function GamesPage() {
 
 	const searchQuery = useInfiniteQuery(gamesSearchQueryOptions(query ?? ""));
 	const popularQuery = useInfiniteQuery(popularGamesQueryOptions());
+	const recentlyViewed = useRecentlyViewed();
 
 	const handleSearch = (newQuery: string) => {
 		navigate({
@@ -64,6 +66,7 @@ function GamesPage() {
 						isError={searchQuery.isError}
 						error={searchQuery.error}
 						isFetching={searchQuery.isFetching && !searchQuery.isFetchingNextPage}
+						onRetry={() => searchQuery.refetch()}
 					/>
 					{searchQuery.hasNextPage && (
 						<div className="mt-8 flex justify-center">
@@ -79,12 +82,24 @@ function GamesPage() {
 				</>
 			) : (
 				<>
+					{recentlyViewed.length > 0 && (
+						<section className="mt-10">
+							<h2 className="font-semibold text-lg">Recently viewed</h2>
+							<GameList
+								games={recentlyViewed}
+								isLoading={false}
+								isError={false}
+								error={null}
+							/>
+						</section>
+					)}
 					<h2 className="mt-10 font-semibold text-lg">Popular right now</h2>
 					<GameList
 						games={popularQuery.data?.pages.flat()}
 						isLoading={popularQuery.isLoading}
 						isError={popularQuery.isError}
 						error={popularQuery.error}
+						onRetry={() => popularQuery.refetch()}
 					/>
 					{popularQuery.hasNextPage && (
 						<div className="mt-8 flex justify-center">

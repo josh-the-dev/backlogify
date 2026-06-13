@@ -66,9 +66,9 @@ Cheap once #2 exists (needs `finishedAt`).
 ## Polish backlog (grab-bag, any time)
 
 - [ ] `/` keyboard shortcut to focus search from anywhere
-- [ ] OG meta tags / social cards for game pages
-- [ ] Retry buttons on error states
-- [ ] Recently viewed games shelf on the search page
+- [x] OG meta tags / social cards for game pages (per-game `og:`/`twitter:` tags built in the `$id` route `head` from the loader, alongside the title)
+- [x] Retry buttons on error states (game details, search, popular, library; each refetches the failed query)
+- [x] Recently viewed games shelf on the search page (recorded in the `$id` loader, read via `useSyncExternalStore` over localStorage so it stays SSR-safe and effect-free; `lib/recently-viewed.ts`)
 
 ## Deliberately not doing (for now)
 
