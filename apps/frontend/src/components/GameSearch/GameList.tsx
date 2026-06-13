@@ -1,8 +1,9 @@
 import type { GameSearchResult } from "@backlogify/types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, RotateCw } from "lucide-react";
 import { motion } from "motion/react";
 import { Link } from "@tanstack/react-router";
 import { GameCard } from "./GameCard";
@@ -37,6 +38,7 @@ interface GameListProps {
 	error: Error | null;
 	/* Dims the grid while a background refetch replaces its contents */
 	isFetching?: boolean;
+	onRetry?: () => void;
 }
 
 export function GameList({
@@ -45,6 +47,7 @@ export function GameList({
 	isError,
 	error,
 	isFetching = false,
+	onRetry,
 }: GameListProps) {
 	if (isLoading) {
 		return (
@@ -58,12 +61,25 @@ export function GameList({
 
 	if (isError) {
 		return (
-			<Alert variant="destructive" className="mt-6">
-				<AlertCircle className="h-4 w-4" />
-				<AlertDescription>
-					{error?.message ?? "Something went wrong."}
-				</AlertDescription>
-			</Alert>
+			<div className="mt-6">
+				<Alert variant="destructive">
+					<AlertCircle className="h-4 w-4" />
+					<AlertDescription>
+						{error?.message ?? "Something went wrong."}
+					</AlertDescription>
+				</Alert>
+				{onRetry && (
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={onRetry}
+						className="mt-3"
+					>
+						<RotateCw className="size-4" />
+						Try again
+					</Button>
+				)}
+			</div>
 		);
 	}
 

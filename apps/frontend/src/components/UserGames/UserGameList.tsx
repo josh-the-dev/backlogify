@@ -2,7 +2,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { GameStatus, UserGame } from "@backlogify/types";
-import { AlertCircle, Gamepad2, Search } from "lucide-react";
+import { AlertCircle, Gamepad2, RotateCw, Search } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -64,10 +64,21 @@ export function UserGameList({ query, statusFilter }: UserGameListProps) {
 
 	if (query.isError) {
 		return (
-			<Alert variant="destructive" className="mt-6">
-				<AlertCircle className="h-4 w-4" />
-				<AlertDescription>{query.error.message}</AlertDescription>
-			</Alert>
+			<div className="mt-6">
+				<Alert variant="destructive">
+					<AlertCircle className="h-4 w-4" />
+					<AlertDescription>{query.error.message}</AlertDescription>
+				</Alert>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => query.refetch()}
+					className="mt-3"
+				>
+					<RotateCw className="size-4" />
+					Try again
+				</Button>
+			</div>
 		);
 	}
 
