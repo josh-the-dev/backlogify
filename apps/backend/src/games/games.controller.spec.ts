@@ -10,6 +10,7 @@ describe("GamesController", () => {
 	const mockGamesService = {
 		search: jest.fn(),
 		getPopularGames: jest.fn(),
+		getGameExtras: jest.fn(),
 	};
 
 	beforeEach(async () => {
@@ -142,6 +143,21 @@ describe("GamesController", () => {
 			);
 
 			expect(mockGamesService.getPopularGames).not.toHaveBeenCalled();
+		});
+
+		it("should return game extras for a valid id", async () => {
+			const extras = {
+				screenshots: ["https://example.com/a.jpg"],
+				stores: [{ storeId: 1, name: "Steam", url: "https://steam" }],
+				similar: [],
+			};
+
+			mockGamesService.getGameExtras.mockResolvedValue(extras);
+
+			const result = await controller.getGameExtras(123);
+
+			expect(result).toEqual(extras);
+			expect(mockGamesService.getGameExtras).toHaveBeenCalledWith("123");
 		});
 
 		it("should propagate service errors", async () => {

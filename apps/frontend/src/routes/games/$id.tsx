@@ -6,6 +6,23 @@ import { GameDetailsLoading } from "../../components/GameDetails/GameDetailsLoad
 import { gameDetailsQueryOptions } from "../../queries/games";
 
 export const Route = createFileRoute("/games/$id")({
+	// Warm the query cache and surface the game name so `head` can set the tab
+	// title declaratively. Failures degrade to the default title rather than
+	// throwing, leaving the component's own error UI to handle the load.
+	loader: async ({ context, params }) => {
+		try {
+			const game = await context.queryClient.ensureQueryData(
+				gameDetailsQueryOptions(params.id),
+			);
+			return { title: game.name };
+		} catch {
+			return { title: null };
+		}
+	},
+	head: ({ loaderData }) =>
+		loaderData?.title
+			? { meta: [{ title: `${loaderData.title} - Backlogify` }] }
+			: {},
 	component: GameDetailsPage,
 });
 

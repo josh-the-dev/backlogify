@@ -14,11 +14,15 @@ describe("GamesService", () => {
 	const loggerErrorSpy = jest
 		.spyOn(Logger.prototype, "error")
 		.mockImplementation(() => {});
+	jest.spyOn(Logger.prototype, "warn").mockImplementation(() => {});
 
 	const mockRawgService = {
 		searchGames: jest.fn(),
 		getGameDetails: jest.fn(),
 		getPopularGames: jest.fn(),
+		getScreenshots: jest.fn(),
+		getStores: jest.fn(),
+		getSuggestedGames: jest.fn(),
 	};
 
 	beforeEach(async () => {
@@ -275,6 +279,79 @@ describe("GamesService", () => {
 				"Failed to fetch game details",
 				error.stack,
 			);
+		});
+	});
+
+	describe("getGameExtras", () => {
+		it("should map screenshots, stores and similar games", async () => {
+			mockRawgService.getScreenshots.mockResolvedValue({
+				results: [
+					{ id: 1, image: "https://example.com/a.jpg" },
+					{ id: 2, image: "https://example.com/b.jpg", is_deleted: true },
+					{ id: 3, image: "" },
+				],
+			});
+			mockRawgService.getStores.mockResolvedValue({
+				results: [
+					{ id: 10, store_id: 1, url: "https://store.steampowered.com/app/1" },
+					{ id: 11, store_id: 999, url: "https://unknown.example/buy" },
+					{ id: 12, store_id: 5, url: "" },
+				],
+			});
+			mockRawgService.getSuggestedGames.mockResolvedValue({
+				results: [
+					{
+						id: 7,
+						name: "The Sequel",
+						background_image: "https://example.com/seq.jpg",
+						released: "2024-01-01",
+						metacritic: 88,
+					},
+				],
+			});
+
+			const result = await service.getGameExtras("123");
+
+			expect(result).toEqual({
+				screenshots: ["https://example.com/a.jpg"],
+				stores: [
+					{
+						storeId: 1,
+						name: "Steam",
+						url: "https://store.steampowered.com/app/1",
+					},
+					{
+						storeId: 999,
+						name: "Store",
+						url: "https://unknown.example/buy",
+					},
+				],
+				similar: [
+					{
+						id: 7,
+						name: "The Sequel",
+						coverUrl: "https://example.com/seq.jpg",
+						releaseDate: "2024-01-01",
+						metacritic: 88,
+					},
+				],
+			});
+		});
+
+		it("should degrade each sub-resource to empty when its RAWG call fails", async () => {
+			mockRawgService.getScreenshots.mockRejectedValue(new Error("boom"));
+			mockRawgService.getStores.mockResolvedValue({
+				results: [{ id: 1, store_id: 1, url: "https://steam" }],
+			});
+			mockRawgService.getSuggestedGames.mockRejectedValue(new Error("boom"));
+
+			const result = await service.getGameExtras("123");
+
+			expect(result).toEqual({
+				screenshots: [],
+				stores: [{ storeId: 1, name: "Steam", url: "https://steam" }],
+				similar: [],
+			});
 		});
 	});
 });

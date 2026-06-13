@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import DOMPurify from "dompurify";
 import { AddToBacklogButton } from "../AddToBacklogButton";
 import { GameCover } from "../GameSearch/GameCover";
+import { GameExtras } from "./GameExtras";
 import { GameNote } from "./GameNote";
 import { PlayNextButton } from "./PlayNextButton";
 
@@ -63,6 +64,8 @@ export function GameDetailsContent({ game }: { game: GameDetailsType }) {
 			<SignedIn>
 				<GameNote externalServiceId={game.id.toString()} />
 			</SignedIn>
+
+			<GameExtras gameId={game.id.toString()} />
 		</div>
 	);
 }

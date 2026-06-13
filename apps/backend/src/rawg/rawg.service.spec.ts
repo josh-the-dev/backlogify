@@ -82,6 +82,47 @@ describe("RawgService", () => {
 		jest.useRealTimers();
 	});
 
+	it("should request screenshots for a game", async () => {
+		const mockResponse = { data: { results: [{ id: 1, image: "a.jpg" }] } };
+		(httpService.get as jest.Mock).mockReturnValue(of(mockResponse));
+
+		const result = await service.getScreenshots("123");
+
+		expect(httpService.get).toHaveBeenCalledWith(
+			"https://api.rawg.io/api/games/123/screenshots",
+			{ params: { key: "test-api-key" } },
+		);
+		expect(result).toEqual(mockResponse.data);
+	});
+
+	it("should request stores for a game", async () => {
+		const mockResponse = {
+			data: { results: [{ id: 1, store_id: 1, url: "https://steam" }] },
+		};
+		(httpService.get as jest.Mock).mockReturnValue(of(mockResponse));
+
+		const result = await service.getStores("123");
+
+		expect(httpService.get).toHaveBeenCalledWith(
+			"https://api.rawg.io/api/games/123/stores",
+			{ params: { key: "test-api-key" } },
+		);
+		expect(result).toEqual(mockResponse.data);
+	});
+
+	it("should request suggested games from the game-series endpoint", async () => {
+		const mockResponse = { data: { results: [{ id: 1, name: "Sequel" }] } };
+		(httpService.get as jest.Mock).mockReturnValue(of(mockResponse));
+
+		const result = await service.getSuggestedGames("123");
+
+		expect(httpService.get).toHaveBeenCalledWith(
+			"https://api.rawg.io/api/games/123/game-series?page_size=12",
+			{ params: { key: "test-api-key" } },
+		);
+		expect(result).toEqual(mockResponse.data);
+	});
+
 	it("should throw UNAUTHORIZED HttpException on 401 error", async () => {
 		const error = {
 			message: "Unauthorized",

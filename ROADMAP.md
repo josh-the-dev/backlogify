@@ -42,12 +42,12 @@ Cheap once #2 exists (needs `finishedAt`).
 
 ## 5. Richer game pages (no schema changes)
 
-- [ ] Screenshot row (RAWG `/games/{id}/screenshots`)
-- [ ] "More like this" shelf (RAWG suggested/similar games)
-- [ ] Store links (RAWG `/games/{id}/stores`)
-- [ ] Per-route page titles (game name in the browser tab; tab currently always shows the site tagline)
+- [x] Screenshot row (RAWG `/games/{id}/screenshots`)
+- [x] "More like this" shelf (RAWG `/games/{id}/game-series`; the documented `/suggested` endpoint needs paid RAWG access, game-series is the free, reliable similar-games source)
+- [x] Store links (RAWG `/games/{id}/stores`; store names mapped from stable RAWG store IDs since that endpoint returns deep-link URLs but not names)
+- [x] Per-route page titles (game name in the browser tab; set client-side from the loaded detail query, matching the app's client-fetch architecture)
 
-**Size:** medium. New backend endpoints + frontend sections.
+**Size:** medium, as predicted. Collapsed the three RAWG sub-resources into one aggregated `GET /games/:id/extras` endpoint (parallel fetches, each degrading to an empty list on failure so a flaky upstream never blanks the page) instead of three separate endpoints. Frontend renders them in one `GameExtras` block below the note.
 
 ## 6. Public shareable backlog
 

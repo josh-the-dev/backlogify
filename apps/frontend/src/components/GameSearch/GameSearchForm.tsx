@@ -16,32 +16,29 @@ export function GameSearchForm({
 	const [searchTerm, setSearchTerm] = useState(defaultValue);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-	const onSearchRef = useRef(onSearch);
 
-	useEffect(() => {
-		onSearchRef.current = onSearch;
-	});
-
+	// Clearing the pending debounce timer on unmount is genuine external
+	// resource cleanup, the one case where an Effect is the right tool.
 	useEffect(() => () => clearTimeout(timerRef.current), []);
 
 	function handleChange(value: string) {
 		setSearchTerm(value);
 		clearTimeout(timerRef.current);
 		timerRef.current = setTimeout(() => {
-			onSearchRef.current(value.trim());
+			onSearch(value.trim());
 		}, DEBOUNCE_MS);
 	}
 
 	function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		clearTimeout(timerRef.current);
-		onSearchRef.current(searchTerm.trim());
+		onSearch(searchTerm.trim());
 	}
 
 	function handleClear() {
 		setSearchTerm("");
 		clearTimeout(timerRef.current);
-		onSearchRef.current("");
+		onSearch("");
 		inputRef.current?.focus();
 	}
 

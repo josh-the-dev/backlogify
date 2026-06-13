@@ -10,6 +10,26 @@ export interface RawgSearchResponse {
 	results: RawgGame[];
 }
 
+export interface RawgScreenshot {
+	id: number;
+	image: string;
+	is_deleted?: boolean;
+}
+
+export interface RawgScreenshotsResponse {
+	results: RawgScreenshot[];
+}
+
+export interface RawgStoreLink {
+	id: number;
+	store_id: number;
+	url: string;
+}
+
+export interface RawgStoresResponse {
+	results: RawgStoreLink[];
+}
+
 export interface RawgGameDetails {
 	id: number;
 	name: string;
