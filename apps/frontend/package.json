@@ -13,7 +13,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "@clerk/tanstack-react-start": "^0.26.5",
+    "@clerk/tanstack-react-start": "^1.4.2",
     "@fontsource-variable/bricolage-grotesque": "^5.2.10",
     "@fontsource-variable/figtree": "^5.2.10",
     "@radix-ui/react-dialog": "^1.1.15",

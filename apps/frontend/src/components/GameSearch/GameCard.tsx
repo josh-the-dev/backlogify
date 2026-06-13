@@ -1,5 +1,5 @@
 import type { GameSearchResult } from "@backlogify/types";
-import { SignedIn } from "@clerk/tanstack-react-start";
+import { Show } from "@clerk/tanstack-react-start";
 import { GameCover } from "./GameCover";
 import { QuickAddButton } from "./QuickAddButton";
 
@@ -14,7 +14,7 @@ export function GameCard({ game }: { game: GameSearchResult }) {
 
 	return (
 		<div className="group">
-			<div className="relative overflow-hidden rounded-lg border border-border/60 bg-card transition-colors duration-200 group-hover:border-primary/60">
+			<div className="border-border/60 bg-card group-hover:border-primary/60 relative overflow-hidden rounded-lg border transition-colors duration-200">
 				<GameCover
 					name={game.name}
 					coverUrl={game.coverUrl}
@@ -28,14 +28,14 @@ export function GameCard({ game }: { game: GameSearchResult }) {
 						{game.metacritic}
 					</span>
 				)}
-				<SignedIn>
+				<Show when="signed-in">
 					<QuickAddButton game={game} />
-				</SignedIn>
+				</Show>
 			</div>
 			<h3 className="mt-2 line-clamp-1 text-sm font-medium" title={game.name}>
 				{game.name}
 			</h3>
-			{year && <p className="text-xs text-muted-foreground">{year}</p>}
+			{year && <p className="text-muted-foreground text-xs">{year}</p>}
 		</div>
 	);
 }

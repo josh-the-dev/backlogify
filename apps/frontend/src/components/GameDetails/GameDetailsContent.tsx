@@ -1,5 +1,5 @@
 import type { GameDetails as GameDetailsType } from "@backlogify/types";
-import { SignedIn } from "@clerk/tanstack-react-start";
+import { Show } from "@clerk/tanstack-react-start";
 import { format } from "date-fns";
 import DOMPurify from "dompurify";
 import { AddToBacklogButton } from "../AddToBacklogButton";
@@ -38,9 +38,9 @@ export function GameDetailsContent({ game }: { game: GameDetailsType }) {
 							name={game.name}
 							coverUrl={game.coverUrl}
 						/>
-						<SignedIn>
+						<Show when="signed-in">
 							<PlayNextButton externalServiceId={game.id.toString()} />
-						</SignedIn>
+						</Show>
 					</div>
 				</div>
 			</div>
@@ -61,9 +61,9 @@ export function GameDetailsContent({ game }: { game: GameDetailsType }) {
 				}}
 			/>
 
-			<SignedIn>
+			<Show when="signed-in">
 				<GameNote externalServiceId={game.id.toString()} />
-			</SignedIn>
+			</Show>
 
 			<GameExtras gameId={game.id.toString()} />
 		</div>
