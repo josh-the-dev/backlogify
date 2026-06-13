@@ -11,6 +11,7 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { SearchCommand } from "../components/SearchCommand";
 import Header from "../components/Header";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
@@ -66,6 +67,7 @@ function RootComponent() {
 			</div>
 
 			<Footer />
+			<SearchCommand />
 		</>
 	);
 }

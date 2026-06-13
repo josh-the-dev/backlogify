@@ -65,7 +65,7 @@ Cheap once #2 exists (needs `finishedAt`).
 
 ## Polish backlog (grab-bag, any time)
 
-- [ ] `/` keyboard shortcut to focus search from anywhere
+- [x] `/` keyboard shortcut to search from anywhere (Spotlight-style command palette via cmdk: `/` or Cmd/Ctrl+K opens a centered search overlay with debounced RAWG results and recently-viewed; Enter/click jumps to the game. `components/SearchCommand.tsx`)
 - [x] OG meta tags / social cards for game pages (per-game `og:`/`twitter:` tags built in the `$id` route `head` from the loader, alongside the title)
 - [x] Retry buttons on error states (game details, search, popular, library; each refetches the failed query)
 - [x] Recently viewed games shelf on the search page (recorded in the `$id` loader, read via `useSyncExternalStore` over localStorage so it stays SSR-safe and effect-free; `lib/recently-viewed.ts`)
