@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
 	ConflictException,
 	Inject,
 	Injectable,
@@ -14,7 +15,10 @@ import * as schema from "../database/schema";
 import { PaginationDto } from "../user-games/dtos/pagination.dto";
 import { ProfileResponseDto } from "./dtos/profile.response.dto";
 import { PublicBacklogResponseDto } from "./dtos/public-backlog.response.dto";
-import { UpdateProfileDto } from "./dtos/update-profile.dto";
+import {
+	RESERVED_USERNAMES,
+	UpdateProfileDto,
+} from "./dtos/update-profile.dto";
 
 // Postgres unique-violation error code.
 const PG_UNIQUE_VIOLATION = "23505";
@@ -52,6 +56,10 @@ export class ProfilesService {
 		dto: UpdateProfileDto,
 	): Promise<ProfileResponseDto> {
 		const username = dto.username.toLowerCase();
+
+		if (RESERVED_USERNAMES.has(username)) {
+			throw new BadRequestException("That username isn't available");
+		}
 
 		try {
 			const [profile] = await this.db

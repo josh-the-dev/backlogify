@@ -1,4 +1,8 @@
-import { ConflictException, NotFoundException } from "@nestjs/common";
+import {
+	BadRequestException,
+	ConflictException,
+	NotFoundException,
+} from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { DRIZZLE } from "../database";
 import { ProfilesService } from "./profiles.service";
@@ -102,6 +106,14 @@ describe("ProfilesService", () => {
 			});
 
 			expect(result).toEqual({ username: "ada", isPublic: true });
+		});
+
+		it("throws BadRequestException for a reserved username", async () => {
+			await expect(
+				service.upsert("user-1", { username: "Admin", isPublic: true }),
+			).rejects.toThrow(BadRequestException);
+			// Should reject before touching the database.
+			expect(mockDb.insert).not.toHaveBeenCalled();
 		});
 
 		it("throws ConflictException when the username is taken", async () => {
