@@ -6,12 +6,11 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useQuery } from "@tanstack/react-query";
-import { Check, Copy, Share2 } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 import {
 	profileQueryOptions,
@@ -59,28 +58,39 @@ const RESERVED_USERNAMES = new Set([
 	"favicon",
 ]);
 
-export function ShareBacklogDialog() {
+interface ShareBacklogDialogProps {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+}
+
+export function ShareBacklogDialog({
+	open,
+	onOpenChange,
+}: ShareBacklogDialogProps) {
 	const profileQuery = useQuery(profileQueryOptions());
 	const updateProfile = useUpdateProfile();
 
-	const [open, setOpen] = useState(false);
-	const [username, setUsername] = useState("");
-	const [isPublic, setIsPublic] = useState(false);
+	// The form reads from the saved profile by default; `draft` holds the
+	// user's in-progress edits and overrides it. Clearing draft on close means
+	// the next open reflects the latest saved values - no prop-sync Effect.
+	const [draft, setDraft] = useState<{
+		username: string;
+		isPublic: boolean;
+	} | null>(null);
 	const [taken, setTaken] = useState(false);
 	const [copied, setCopied] = useState(false);
 
 	const profile = profileQuery.data;
+	const username = draft?.username ?? profile?.username ?? "";
+	const isPublic = draft?.isPublic ?? profile?.isPublic ?? false;
 
-	// Seed local state from the loaded profile when the dialog opens, so edits
-	// start from what's saved without a sync Effect.
-	const handleOpenChange = (next: boolean) => {
-		if (next) {
-			setUsername(profile?.username ?? "");
-			setIsPublic(profile?.isPublic ?? false);
+	const setOpen = (next: boolean) => {
+		if (!next) {
+			setDraft(null);
 			setTaken(false);
 			setCopied(false);
 		}
-		setOpen(next);
+		onOpenChange(next);
 	};
 
 	const isReserved = RESERVED_USERNAMES.has(username);
@@ -113,13 +123,7 @@ export function ShareBacklogDialog() {
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={handleOpenChange}>
-			<DialogTrigger asChild>
-				<Button variant="outline" size="sm">
-					<Share2 className="size-4" />
-					Share
-				</Button>
-			</DialogTrigger>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Share your backlog</DialogTitle>
@@ -139,9 +143,13 @@ export function ShareBacklogDialog() {
 							<Input
 								id="share-username"
 								value={username}
-								onChange={(e) =>
-									setUsername(e.target.value.toLowerCase().trim())
-								}
+								onChange={(e) => {
+									setTaken(false);
+									setDraft({
+										username: e.target.value.toLowerCase().trim(),
+										isPublic,
+									});
+								}}
 								placeholder="your-name"
 								maxLength={30}
 								aria-invalid={showError || taken}
@@ -175,7 +183,7 @@ export function ShareBacklogDialog() {
 						</div>
 						<Switch
 							checked={isPublic}
-							onCheckedChange={setIsPublic}
+							onCheckedChange={(next) => setDraft({ username, isPublic: next })}
 							aria-label="Make backlog public"
 						/>
 					</div>

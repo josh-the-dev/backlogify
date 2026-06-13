@@ -1,12 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Show, SignInButton, UserButton } from "@clerk/tanstack-react-start";
 import { Link } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
+import { Menu, Share2 } from "lucide-react";
 import { useState } from "react";
+import { ShareBacklogDialog } from "../UserGames/ShareBacklogDialog";
 import { MobileNav } from "./MobileNav";
 
 export default function Header() {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+	const [shareOpen, setShareOpen] = useState(false);
 
 	return (
 		<>
@@ -51,7 +53,19 @@ export default function Header() {
 							</SignInButton>
 						</Show>
 						<Show when="signed-in">
-							<UserButton />
+							<UserButton>
+								<UserButton.MenuItems>
+									<UserButton.Action
+										label="Share your backlog"
+										labelIcon={<Share2 className="size-4" />}
+										onClick={() => setShareOpen(true)}
+									/>
+								</UserButton.MenuItems>
+							</UserButton>
+							<ShareBacklogDialog
+								open={shareOpen}
+								onOpenChange={setShareOpen}
+							/>
 						</Show>
 
 						{/* Mobile menu button */}
