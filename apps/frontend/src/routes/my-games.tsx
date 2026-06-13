@@ -6,6 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../components/ui/button";
+import { ShareBacklogDialog } from "../components/UserGames/ShareBacklogDialog";
 import { LibraryStats } from "../components/UserGames/LibraryStats";
 import { StatusFilter } from "../components/UserGames/StatusFilter";
 import { UpNextCard } from "../components/UserGames/UpNextCard";
@@ -61,12 +62,15 @@ function MyGamesPage() {
 						library
 					</p>
 				</div>
-				<Button variant="outline" size="sm" asChild>
-					<Link to="/games">
-						<Plus className="size-4" />
-						Add games
-					</Link>
-				</Button>
+				<div className="flex items-center gap-2">
+					<ShareBacklogDialog />
+					<Button variant="outline" size="sm" asChild>
+						<Link to="/games">
+							<Plus className="size-4" />
+							Add games
+						</Link>
+					</Button>
+				</div>
 			</div>
 			{upNext && <UpNextCard game={upNext} />}
 			<LibraryStats games={games} />

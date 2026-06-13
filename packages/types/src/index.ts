@@ -60,6 +60,17 @@ export interface Backlog {
 	items: BacklogItem[];
 }
 
+// Public sharing types
+export interface UserProfile {
+	username: string;
+	isPublic: boolean;
+}
+
+export interface PublicBacklog {
+	username: string;
+	games: UserGame[];
+}
+
 // API error type
 export interface ApiError {
 	statusCode: number;

@@ -9,9 +9,16 @@ import { GameCover } from "../GameSearch/GameCover";
 
 /**
  * Hero slot at the top of My Games for the single pinned game. Render only
- * when a pinned game exists; an empty slot is just noise.
+ * when a pinned game exists; an empty slot is just noise. On the public
+ * /u/:username page it renders read-only (no unpin control).
  */
-export function UpNextCard({ game }: { game: UserGame }) {
+export function UpNextCard({
+	game,
+	readOnly = false,
+}: {
+	game: UserGame;
+	readOnly?: boolean;
+}) {
 	const updatePin = useUpdateUserGamePin();
 
 	return (
@@ -68,16 +75,18 @@ export function UpNextCard({ game }: { game: UserGame }) {
 					)}
 				</div>
 			</div>
-			<button
-				type="button"
-				onClick={() => updatePin.mutate({ gameId: game.id, pinned: false })}
-				disabled={updatePin.isPending}
-				aria-label={`Unpin ${game.name} from Up next`}
-				title="Unpin from Up next"
-				className="text-muted-foreground hover:bg-accent hover:text-foreground absolute right-3 top-3 flex size-8 items-center justify-center rounded-md transition-colors disabled:pointer-events-none"
-			>
-				<PinOff className="size-4" />
-			</button>
+			{!readOnly && (
+				<button
+					type="button"
+					onClick={() => updatePin.mutate({ gameId: game.id, pinned: false })}
+					disabled={updatePin.isPending}
+					aria-label={`Unpin ${game.name} from Up next`}
+					title="Unpin from Up next"
+					className="text-muted-foreground hover:bg-accent hover:text-foreground absolute right-3 top-3 flex size-8 items-center justify-center rounded-md transition-colors disabled:pointer-events-none"
+				>
+					<PinOff className="size-4" />
+				</button>
+			)}
 		</motion.section>
 	);
 }
