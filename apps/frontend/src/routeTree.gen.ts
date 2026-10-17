@@ -9,36 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignUpRouteImport } from './routes/sign-up'
-import { Route as SignInRouteImport } from './routes/sign-in'
-import { Route as MyGamesRouteImport } from './routes/my-games'
-import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as GamesIndexRouteImport } from './routes/games/index'
-import { Route as UUsernameRouteImport } from './routes/u/$username'
-import { Route as GamesIdRouteImport } from './routes/games/$id'
+import { Route as SplatRouteImport } from './routes/$'
+import { Route as MyGamesRouteImport } from './routes/my-games'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as ApiUserGamesRouteImport } from './routes/api/user-games'
-import { Route as ApiUserGamesGameIdRouteImport } from './routes/api/user-games.$gameId'
-import { Route as ApiProfilesMeRouteImport } from './routes/api/profiles/me'
-import { Route as ApiGamesSearchRouteImport } from './routes/api/games/search'
-import { Route as ApiGamesPopularRouteImport } from './routes/api/games/popular'
+import { Route as GamesIndexRouteImport } from './routes/games/index'
+import { Route as GamesIdRouteImport } from './routes/games/$id'
+import { Route as UUsernameRouteImport } from './routes/u/$username'
 import { Route as ApiGamesIdRouteImport } from './routes/api/games/$id'
-import { Route as ApiProfilesUsernameBacklogRouteImport } from './routes/api/profiles/$username.backlog'
+import { Route as ApiGamesPopularRouteImport } from './routes/api/games/popular'
+import { Route as ApiGamesSearchRouteImport } from './routes/api/games/search'
+import { Route as ApiProfilesMeRouteImport } from './routes/api/profiles/me'
+import { Route as ApiUserGamesGameIdRouteImport } from './routes/api/user-games.$gameId'
 import { Route as ApiGamesIdExtrasRouteImport } from './routes/api/games/$id.extras'
+import { Route as ApiProfilesUsernameBacklogRouteImport } from './routes/api/profiles/$username.backlog'
 
-const SignUpRoute = SignUpRouteImport.update({
-  id: '/sign-up',
-  path: '/sign-up',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignInRoute = SignInRouteImport.update({
-  id: '/sign-in',
-  path: '/sign-in',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MyGamesRoute = MyGamesRouteImport.update({
-  id: '/my-games',
-  path: '/my-games',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SplatRoute = SplatRouteImport.update({
@@ -46,24 +36,19 @@ const SplatRoute = SplatRouteImport.update({
   path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const MyGamesRoute = MyGamesRouteImport.update({
+  id: '/my-games',
+  path: '/my-games',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GamesIndexRoute = GamesIndexRouteImport.update({
-  id: '/games/',
-  path: '/games/',
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UUsernameRoute = UUsernameRouteImport.update({
-  id: '/u/$username',
-  path: '/u/$username',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GamesIdRoute = GamesIdRouteImport.update({
-  id: '/games/$id',
-  path: '/games/$id',
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiUserGamesRoute = ApiUserGamesRouteImport.update({
@@ -71,24 +56,19 @@ const ApiUserGamesRoute = ApiUserGamesRouteImport.update({
   path: '/api/user-games',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiUserGamesGameIdRoute = ApiUserGamesGameIdRouteImport.update({
-  id: '/$gameId',
-  path: '/$gameId',
-  getParentRoute: () => ApiUserGamesRoute,
-} as any)
-const ApiProfilesMeRoute = ApiProfilesMeRouteImport.update({
-  id: '/api/profiles/me',
-  path: '/api/profiles/me',
+const GamesIndexRoute = GamesIndexRouteImport.update({
+  id: '/games/',
+  path: '/games/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiGamesSearchRoute = ApiGamesSearchRouteImport.update({
-  id: '/api/games/search',
-  path: '/api/games/search',
+const GamesIdRoute = GamesIdRouteImport.update({
+  id: '/games/$id',
+  path: '/games/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiGamesPopularRoute = ApiGamesPopularRouteImport.update({
-  id: '/api/games/popular',
-  path: '/api/games/popular',
+const UUsernameRoute = UUsernameRouteImport.update({
+  id: '/u/$username',
+  path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGamesIdRoute = ApiGamesIdRouteImport.update({
@@ -96,17 +76,37 @@ const ApiGamesIdRoute = ApiGamesIdRouteImport.update({
   path: '/api/games/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGamesPopularRoute = ApiGamesPopularRouteImport.update({
+  id: '/api/games/popular',
+  path: '/api/games/popular',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGamesSearchRoute = ApiGamesSearchRouteImport.update({
+  id: '/api/games/search',
+  path: '/api/games/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProfilesMeRoute = ApiProfilesMeRouteImport.update({
+  id: '/api/profiles/me',
+  path: '/api/profiles/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUserGamesGameIdRoute = ApiUserGamesGameIdRouteImport.update({
+  id: '/$gameId',
+  path: '/$gameId',
+  getParentRoute: () => ApiUserGamesRoute,
+} as any)
+const ApiGamesIdExtrasRoute = ApiGamesIdExtrasRouteImport.update({
+  id: '/extras',
+  path: '/extras',
+  getParentRoute: () => ApiGamesIdRoute,
+} as any)
 const ApiProfilesUsernameBacklogRoute =
   ApiProfilesUsernameBacklogRouteImport.update({
     id: '/api/profiles/$username/backlog',
     path: '/api/profiles/$username/backlog',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiGamesIdExtrasRoute = ApiGamesIdExtrasRouteImport.update({
-  id: '/extras',
-  path: '/extras',
-  getParentRoute: () => ApiGamesIdRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -239,25 +239,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sign-up': {
-      id: '/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof SignUpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-in': {
-      id: '/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof SignInRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/my-games': {
-      id: '/my-games'
-      path: '/my-games'
-      fullPath: '/my-games'
-      preLoaderRoute: typeof MyGamesRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$': {
@@ -267,32 +253,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/my-games': {
+      id: '/my-games'
+      path: '/my-games'
+      fullPath: '/my-games'
+      preLoaderRoute: typeof MyGamesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/games/': {
-      id: '/games/'
-      path: '/games'
-      fullPath: '/games/'
-      preLoaderRoute: typeof GamesIndexRouteImport
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/u/$username': {
-      id: '/u/$username'
-      path: '/u/$username'
-      fullPath: '/u/$username'
-      preLoaderRoute: typeof UUsernameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/games/$id': {
-      id: '/games/$id'
-      path: '/games/$id'
-      fullPath: '/games/$id'
-      preLoaderRoute: typeof GamesIdRouteImport
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/user-games': {
@@ -302,32 +281,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUserGamesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/user-games/$gameId': {
-      id: '/api/user-games/$gameId'
-      path: '/$gameId'
-      fullPath: '/api/user-games/$gameId'
-      preLoaderRoute: typeof ApiUserGamesGameIdRouteImport
-      parentRoute: typeof ApiUserGamesRoute
-    }
-    '/api/profiles/me': {
-      id: '/api/profiles/me'
-      path: '/api/profiles/me'
-      fullPath: '/api/profiles/me'
-      preLoaderRoute: typeof ApiProfilesMeRouteImport
+    '/games/': {
+      id: '/games/'
+      path: '/games'
+      fullPath: '/games/'
+      preLoaderRoute: typeof GamesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/games/search': {
-      id: '/api/games/search'
-      path: '/api/games/search'
-      fullPath: '/api/games/search'
-      preLoaderRoute: typeof ApiGamesSearchRouteImport
+    '/games/$id': {
+      id: '/games/$id'
+      path: '/games/$id'
+      fullPath: '/games/$id'
+      preLoaderRoute: typeof GamesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/games/popular': {
-      id: '/api/games/popular'
-      path: '/api/games/popular'
-      fullPath: '/api/games/popular'
-      preLoaderRoute: typeof ApiGamesPopularRouteImport
+    '/u/$username': {
+      id: '/u/$username'
+      path: '/u/$username'
+      fullPath: '/u/$username'
+      preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/games/$id': {
@@ -337,12 +309,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGamesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/profiles/$username/backlog': {
-      id: '/api/profiles/$username/backlog'
-      path: '/api/profiles/$username/backlog'
-      fullPath: '/api/profiles/$username/backlog'
-      preLoaderRoute: typeof ApiProfilesUsernameBacklogRouteImport
+    '/api/games/popular': {
+      id: '/api/games/popular'
+      path: '/api/games/popular'
+      fullPath: '/api/games/popular'
+      preLoaderRoute: typeof ApiGamesPopularRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/games/search': {
+      id: '/api/games/search'
+      path: '/api/games/search'
+      fullPath: '/api/games/search'
+      preLoaderRoute: typeof ApiGamesSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profiles/me': {
+      id: '/api/profiles/me'
+      path: '/api/profiles/me'
+      fullPath: '/api/profiles/me'
+      preLoaderRoute: typeof ApiProfilesMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/user-games/$gameId': {
+      id: '/api/user-games/$gameId'
+      path: '/$gameId'
+      fullPath: '/api/user-games/$gameId'
+      preLoaderRoute: typeof ApiUserGamesGameIdRouteImport
+      parentRoute: typeof ApiUserGamesRoute
     }
     '/api/games/$id/extras': {
       id: '/api/games/$id/extras'
@@ -350,6 +343,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/games/$id/extras'
       preLoaderRoute: typeof ApiGamesIdExtrasRouteImport
       parentRoute: typeof ApiGamesIdRoute
+    }
+    '/api/profiles/$username/backlog': {
+      id: '/api/profiles/$username/backlog'
+      path: '/api/profiles/$username/backlog'
+      fullPath: '/api/profiles/$username/backlog'
+      preLoaderRoute: typeof ApiProfilesUsernameBacklogRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
