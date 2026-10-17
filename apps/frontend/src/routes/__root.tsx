@@ -20,7 +20,16 @@ interface MyRouterContext {
 	queryClient: QueryClient;
 }
 
+const SITE_URL = "https://backlogify.app";
+const SITE_TITLE = "Backlogify - every game you swore you'd get to";
+const SITE_DESCRIPTION =
+	"Track your game backlog. Search half a million titles, queue up the ones you mean to play, and keep track of what you actually finish.";
+// Social crawlers (LinkedIn, Slack, WhatsApp) need an absolute image URL.
+const OG_IMAGE = `${SITE_URL}/og-image.png`;
+
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+	// Site-wide defaults. Child routes that set the same name/property
+	// (games/$id, u/$username) override these.
 	head: () => ({
 		meta: [
 			{
@@ -30,14 +39,17 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				name: "viewport",
 				content: "width=device-width, initial-scale=1",
 			},
-			{
-				title: "Backlogify - every game you swore you'd get to",
-			},
-			{
-				name: "description",
-				content:
-					"Track your game backlog. Search half a million titles, queue up the ones you mean to play, and keep track of what you actually finish.",
-			},
+			{ title: SITE_TITLE },
+			{ name: "description", content: SITE_DESCRIPTION },
+			{ property: "og:site_name", content: "Backlogify" },
+			{ property: "og:type", content: "website" },
+			{ property: "og:title", content: SITE_TITLE },
+			{ property: "og:description", content: SITE_DESCRIPTION },
+			{ property: "og:image", content: OG_IMAGE },
+			{ name: "twitter:card", content: "summary_large_image" },
+			{ name: "twitter:title", content: SITE_TITLE },
+			{ name: "twitter:description", content: SITE_DESCRIPTION },
+			{ name: "twitter:image", content: OG_IMAGE },
 		],
 		links: [
 			{
