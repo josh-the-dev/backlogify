@@ -3,11 +3,10 @@ WORKDIR /app
 
 COPY . .
 
-# Delete the lockfile so npm resolves platform-specific binaries for Linux.
-# The lockfile is generated on Windows/Mac and records wrong platform binaries
-# for packages like lightningcss, rollup, esbuild, etc.
-# The full monorepo context ensures version resolution remains consistent.
-RUN rm package-lock.json && npm install
+# Install from the lockfile. It records optional native binaries for every
+# platform (lightningcss, rollup, esbuild, etc.), so Linux gets the right ones.
+# Re-resolving without it trips an npm 10 arborist bug ("reading 'edgesOut'").
+RUN npm ci
 
 ARG VITE_CLERK_PUBLISHABLE_KEY
 ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
