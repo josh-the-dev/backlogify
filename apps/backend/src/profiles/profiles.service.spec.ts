@@ -58,13 +58,13 @@ describe("ProfilesService", () => {
 			await expect(service.getMine("user-1")).resolves.toBeNull();
 		});
 
-		it("returns the profile without the userId field", async () => {
-			mockSelectOnce([{ userId: "user-1", username: "ada", isPublic: true }]);
+		// userId is stripped by the response schema on the way out, which
+		// the profiles e2e spec covers
+		it("returns the stored profile", async () => {
+			const row = { userId: "user-1", username: "ada", isPublic: true };
+			mockSelectOnce([row]);
 
-			const result = await service.getMine("user-1");
-
-			expect(result).toEqual({ username: "ada", isPublic: true });
-			expect(result).not.toHaveProperty("userId");
+			await expect(service.getMine("user-1")).resolves.toEqual(row);
 		});
 	});
 
@@ -152,7 +152,6 @@ describe("ProfilesService", () => {
 			mockSelectPaginatedOnce([
 				{
 					id: "game-1",
-					userId: "user-1",
 					externalServiceId: "ext-1",
 					name: "Game 1",
 					coverUrl: null,
@@ -169,8 +168,11 @@ describe("ProfilesService", () => {
 			expect(result.username).toBe("ada");
 			expect(result.games).toHaveLength(1);
 			expect(result.games[0].name).toBe("Game 1");
-			// The Clerk subject id must never leak on the public surface.
-			expect(result.games[0]).not.toHaveProperty("userId");
+			// The Clerk subject id must never leak on the public surface, so
+			// the games query doesn't select it at all
+			const gameColumns = mockDb.select.mock.calls[1][0];
+			expect(gameColumns).toHaveProperty("id");
+			expect(gameColumns).not.toHaveProperty("userId");
 		});
 	});
 });

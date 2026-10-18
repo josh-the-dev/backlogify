@@ -1,32 +1,12 @@
-import { ClassSerializerInterceptor, ValidationPipe } from "@nestjs/common";
-import { NestFactory, Reflector } from "@nestjs/core";
+import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
-import { AllExceptionsFilter } from "./common/http-exception.filter";
-import { LoggingInterceptor } from "./common/logging.interceptor";
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 
 	app.use(helmet());
-	app.useGlobalFilters(new AllExceptionsFilter());
-	app.useGlobalInterceptors(
-		new LoggingInterceptor(),
-		new ClassSerializerInterceptor(app.get(Reflector), {
-			excludeExtraneousValues: true,
-		}),
-	);
-	app.useGlobalPipes(
-		new ValidationPipe({
-			whitelist: true,
-			forbidNonWhitelisted: true,
-			transform: true,
-			transformOptions: {
-				enableImplicitConversion: true,
-			},
-		}),
-	);
 
 	app.enableCors({
 		origin: process.env.FRONTEND_URL || "http://localhost:3000",
@@ -37,7 +17,10 @@ async function bootstrap() {
 		.setDescription("REST API for the Backlogify video game backlog tracker")
 		.setVersion("1.0")
 		.addApiKey({ type: "apiKey", in: "header", name: "x-api-key" }, "api-key")
-		.addBearerAuth({ type: "http", scheme: "bearer", bearerFormat: "JWT" }, "clerk-jwt")
+		.addBearerAuth(
+			{ type: "http", scheme: "bearer", bearerFormat: "JWT" },
+			"clerk-jwt",
+		)
 		.build();
 
 	const document = SwaggerModule.createDocument(app, swaggerConfig);

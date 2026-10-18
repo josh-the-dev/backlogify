@@ -1,4 +1,4 @@
-import type { PublicBacklog, UserGame, UserProfile } from "@backlogify/types";
+import type { PublicBacklog, PublicGame, UserProfile } from "@backlogify/types";
 import {
 	queryOptions,
 	useMutation,
@@ -43,7 +43,7 @@ export const publicBacklogQueryOptions = (username: string) =>
 		// Pages through the backend until a short page, mirroring the authed
 		// library so the whole backlog loads as a flat list.
 		queryFn: async (): Promise<PublicBacklog> => {
-			const games: UserGame[] = [];
+			const games: PublicGame[] = [];
 
 			for (let page = 0; page < MAX_PAGES; page++) {
 				const res = await fetch(

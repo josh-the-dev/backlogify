@@ -43,7 +43,7 @@ apps/
   backend/    # NestJS API server (port 3001)
   frontend/   # TanStack Start SSR app (port 3000)
 packages/
-  types/      # Shared TypeScript interfaces (@backlogify/types)
+  types/      # Shared Zod schemas + inferred types (@backlogify/types)
 ```
 
 ### Frontend (TanStack Start + Vite + Nitro)
@@ -68,11 +68,12 @@ packages/
   - `@Public()` decorator - `SetMetadata('isPublic', true)` checked by `ApiKeyGuard` via `Reflector`. Used on the health endpoint.
 - **Security**: Helmet applied globally in `main.ts` (sets 11 security headers). Rate limiting via `ThrottlerModule` at 100 req/min. `ThrottlerGuard` registered as `APP_GUARD` before `ApiKeyGuard`.
 - **Env validation**: `ConfigModule.forRoot({ validate })` uses Zod schema in `app.module.ts`. Runs at module import time - env vars must be set before the module is imported (critical for e2e tests).
-- **Response DTOs**: All endpoints return typed DTOs (`UserGameResponseDto`, `GameSearchResultResponseDto`, `GameDetailsResponseDto`) decorated with `@Expose()`/`@Exclude()`. `ClassSerializerInterceptor` with `excludeExtraneousValues: true` is registered globally in `main.ts`. `plainToInstance(Dto, data, { excludeExtraneousValues: true })` is called in each service method.
-- **Pagination**: `src/user-games/dtos/pagination.dto.ts` - `limit` (default 50, max 100) and `offset` (default 0) with class-validator decorators. Applied to `GET /user-games`.
+- **Schemas, not DTOs**: request and response shapes are Zod schemas in `@backlogify/types` (no class-validator/class-transformer). Requests validate via `@Body({ schema })` / `@Query({ schema })` and the global `StandardSchemaValidationPipe`. Responses use `@ApiSchemaResponse(schema, { status, description, isArray? })` (`src/common/api-schema-response.decorator.ts`), which sets `@SerializeOptions({ schema })` for the global `StandardSchemaSerializerInterceptor` (strips fields the schema omits, encodes Dates to ISO strings) and documents the response in Swagger. Services return plain rows. A response that fails its schema becomes a masked 500, so services must fill required fields (e.g. RAWG's optional `description` defaults to `""`).
+- **Global pipeline**: the exception filter, interceptors and validation pipe are `APP_*` providers in `AppModule`, not `main.ts`, so e2e tests (built from `AppModule`) run the production pipeline.
+- **Pagination**: `paginationSchema` - `limit` (default 50, max 100) and `offset` (default 0), coerced from query strings. Applied to `GET /user-games` and the public backlog.
 - **Validation**: `ParseUUIDPipe` on all `gameId` route params - returns 400 for non-UUID strings before hitting the DB.
 - **Health check**: `GET /health` via `@nestjs/terminus`. Custom `DatabaseHealthIndicator` runs `SELECT 1` to confirm PostgreSQL connectivity. Public endpoint (no API key required).
-- **API docs**: Swagger UI served at `/api` via `@nestjs/swagger`. All controllers have `@ApiTags`, `@ApiOperation`, `@ApiResponse` with typed DTOs. Security schemes: `api-key` (header) and `clerk-jwt` (bearer).
+- **API docs**: Swagger UI served at `/api` via `@nestjs/swagger`. All controllers have `@ApiTags`, `@ApiOperation`, `@ApiResponse`; success responses, bodies and queries are generated from the Zod schemas. Security schemes: `api-key` (header) and `clerk-jwt` (bearer).
 - **Database**: Drizzle ORM with PostgreSQL. Schema in `src/database/schema.ts`. `user_games` table stores userId (from Clerk) + externalServiceId (RAWG game ID) + status enum. Migrations in `drizzle/`.
 
 ### Request Flow
@@ -81,8 +82,8 @@ Browser
   → TanStack Start SSR route (/api/...)    [adds API_KEY + Clerk JWT]
   → CorrelationIdMiddleware                [attaches X-Request-ID]
   → ThrottlerGuard → ApiKeyGuard → ClerkAuthGuard (user-games only)
-  → LoggingInterceptor (pre) → ClassSerializerInterceptor
-  → ValidationPipe → Controller → Service → Drizzle ORM → PostgreSQL
+  → LoggingInterceptor (pre) → StandardSchemaSerializerInterceptor
+  → StandardSchemaValidationPipe → Controller → Service → Drizzle ORM → PostgreSQL
   → LoggingInterceptor (post, logs timing)
   ← AllExceptionsFilter (on error)
 
@@ -90,7 +91,10 @@ Game search additionally calls RAWG external API from the backend service.
 ```
 
 ### Shared Types
-`packages/types/src/index.ts` exports: `GameSearchResult`, `GameDetails`, `UserGame`, `GameStatus`, `ApiError`. Import as `@backlogify/types`.
+`packages/types/src/index.ts` is the single source of truth for API shapes: Zod schemas (`userGameSchema`, `publicGameSchema`, `addUserGameSchema`, ...) with types inferred from their output (`UserGame`, `PublicGame`, ...), plus `USERNAME_PATTERN` / `RESERVED_USERNAMES`. Import as `@backlogify/types`.
+- **Dates are ISO strings** on the wire and in the types (a Zod codec encodes Drizzle's `Date`s on the way out). Optimistic updates must use `new Date().toISOString()`.
+- **Public vs private games**: `PublicGame` is `UserGame` without `userId`. Components shown on both the public backlog and My Games take `PublicGame`.
+- **Resolution**: types always resolve to `src/` (no build needed for tsc). At runtime the frontend (Vite, via tsconfig `paths`) and backend tests (Vitest alias) also use `src/`; only the compiled backend loads `dist/`, which Turbo builds first (`^build` on `build` and `dev`). Run `npm run build -w @backlogify/types` before starting the backend outside Turbo.
 
 ## Environment Setup
 

@@ -16,8 +16,6 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.2",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.12",
     "turbo": "^2.0.0",

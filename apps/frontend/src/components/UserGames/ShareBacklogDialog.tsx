@@ -1,3 +1,4 @@
+import { RESERVED_USERNAMES, USERNAME_PATTERN } from "@backlogify/types";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -17,46 +18,6 @@ import {
 	useUpdateProfile,
 	UsernameTakenError,
 } from "../../queries/profiles";
-
-// Mirrors the backend USERNAME_PATTERN + RESERVED_USERNAMES in
-// update-profile.dto.ts so the user gets instant feedback; the backend
-// enforces both regardless.
-const USERNAME_PATTERN = /^[a-z0-9](?:[a-z0-9_-]{1,28})[a-z0-9]$/;
-const RESERVED_USERNAMES = new Set([
-	"u",
-	"api",
-	"games",
-	"my-games",
-	"sign-in",
-	"sign-up",
-	"signin",
-	"signup",
-	"settings",
-	"profile",
-	"profiles",
-	"me",
-	"admin",
-	"administrator",
-	"root",
-	"support",
-	"help",
-	"about",
-	"contact",
-	"backlogify",
-	"official",
-	"staff",
-	"mod",
-	"moderator",
-	"system",
-	"null",
-	"undefined",
-	"anonymous",
-	"www",
-	"mail",
-	"assets",
-	"static",
-	"favicon",
-]);
 
 interface ShareBacklogDialogProps {
 	open: boolean;
@@ -93,6 +54,7 @@ export function ShareBacklogDialog({
 		onOpenChange(next);
 	};
 
+	// Same rules the backend enforces, for instant feedback
 	const isReserved = RESERVED_USERNAMES.has(username);
 	const isValid = USERNAME_PATTERN.test(username) && !isReserved;
 	const showError = username.length > 0 && !isValid;

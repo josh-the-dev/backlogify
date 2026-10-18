@@ -1,9 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { AllExceptionsFilter } from '../src/common/http-exception.filter';
-import { LoggingInterceptor } from '../src/common/logging.interceptor';
 import { RawgService } from '../src/rawg/rawg.service';
 
 const TEST_API_KEY = 'e2e-test-key';
@@ -57,16 +55,7 @@ describe('GamesController (e2e)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalFilters(new AllExceptionsFilter());
-    app.useGlobalInterceptors(new LoggingInterceptor());
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-        transformOptions: { enableImplicitConversion: true },
-      }),
-    );
+    // Filters, interceptors and pipes come from AppModule providers
     await app.init();
   });
 

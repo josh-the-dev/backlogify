@@ -1,6 +1,6 @@
 import { STATUS_DOT_CLASSES, STATUS_OPTIONS } from "@/constants/game-status";
 import { cn } from "@/lib/utils";
-import type { UserGame } from "@backlogify/types";
+import type { PublicGame } from "@backlogify/types";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Pin } from "lucide-react";
@@ -11,7 +11,7 @@ import { GameCover } from "../GameSearch/GameCover";
  * No mutation hooks, selects or dialogs - just the cover (linking into the
  * game page), name, status and any note.
  */
-export function PublicGameCard({ game }: { game: UserGame }) {
+export function PublicGameCard({ game }: { game: PublicGame }) {
 	const statusLabel = STATUS_OPTIONS.find(
 		(o) => o.value === game.status,
 	)?.label;
@@ -36,7 +36,7 @@ export function PublicGameCard({ game }: { game: UserGame }) {
 				{isPinned && (
 					<span
 						title="Up next"
-						className="bg-primary text-primary-foreground absolute left-1.5 top-1.5 flex size-7 items-center justify-center rounded-md backdrop-blur-sm"
+						className="bg-primary text-primary-foreground absolute top-1.5 left-1.5 flex size-7 items-center justify-center rounded-md backdrop-blur-sm"
 					>
 						<Pin className="size-3.5" />
 						<span className="sr-only">Up next</span>

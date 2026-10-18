@@ -1,14 +1,8 @@
-import {
-	ExecutionContext,
-	INestApplication,
-	ValidationPipe,
-} from "@nestjs/common";
+import { ExecutionContext, INestApplication } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import request from "supertest";
 import { AppModule } from "../src/app.module";
 import { ClerkAuthGuard } from "../src/auth";
-import { AllExceptionsFilter } from "../src/common/http-exception.filter";
-import { LoggingInterceptor } from "../src/common/logging.interceptor";
 
 const TEST_API_KEY = "e2e-test-key";
 const TEST_USER_ID = "e2e-test-user-999";
@@ -41,16 +35,7 @@ describe("UserGamesController (e2e)", () => {
 			.compile();
 
 		app = moduleFixture.createNestApplication();
-		app.useGlobalFilters(new AllExceptionsFilter());
-		app.useGlobalInterceptors(new LoggingInterceptor());
-		app.useGlobalPipes(
-			new ValidationPipe({
-				whitelist: true,
-				forbidNonWhitelisted: true,
-				transform: true,
-				transformOptions: { enableImplicitConversion: true },
-			}),
-		);
+		// Filters, interceptors and pipes come from AppModule providers
 		await app.init();
 	});
 

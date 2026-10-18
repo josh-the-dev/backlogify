@@ -17,7 +17,7 @@ A full-stack video game backlog tracker. Search 500k+ games via the RAWG API, ad
 - **Request Tracing** - Every request gets a `X-Request-ID` correlation ID threaded through logs and error responses
 - **Structured Logging** - `[correlationId] METHOD /path status - Xms` on every response via a global interceptor
 - **OpenAPI Docs** - Swagger UI at `/api` with typed request/response schemas for all endpoints
-- **Secure by Default** - Helmet security headers, Zod env validation at startup, response DTOs with `excludeExtraneousValues`
+- **Secure by Default** - Helmet security headers, Zod env validation at startup, responses serialized through shared Zod schemas
 - **Responsive UI** - Tailwind CSS + shadcn/ui, works on desktop and mobile
 
 ## Tech Stack
@@ -63,7 +63,7 @@ backlogify/
 │   ├── backend/          # NestJS API (port 3001)
 │   └── frontend/         # TanStack Start SSR app (port 3000)
 ├── packages/
-│   └── types/            # Shared TypeScript interfaces (@backlogify/types)
+│   └── types/            # Shared Zod schemas + inferred types (@backlogify/types)
 ├── .github/workflows/
 │   └── ci.yml            # CI pipeline
 ├── docker-compose.yml

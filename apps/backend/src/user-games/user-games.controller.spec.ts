@@ -1,7 +1,7 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { ClerkAuthGuard } from "../auth";
-import { PaginationDto } from "./dtos/pagination.dto";
+import type { Pagination } from "@backlogify/types";
 import { UserGamesController } from "./user-games.controller";
 import { UserGamesService } from "./user-games.service";
 
@@ -64,7 +64,7 @@ describe("UserGamesController", () => {
 
 			mockUserGamesService.getAll.mockReturnValue(expectedGames);
 
-			const pagination: PaginationDto = { limit: 50, offset: 0 };
+			const pagination: Pagination = { limit: 50, offset: 0 };
 			const result = controller.getAll(userId, pagination);
 
 			expect(result).toEqual(expectedGames);

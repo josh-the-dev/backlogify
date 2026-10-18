@@ -1,6 +1,20 @@
 {
-    "name": "@backlogify/types",
-    "version": "1.0.0",
-    "type": "module",
-    "main": "src/index.ts"
+	"name": "@backlogify/types",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./src/index.ts",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json"
+	},
+	"dependencies": {
+		"zod": "^4.6.7"
+	}
 }

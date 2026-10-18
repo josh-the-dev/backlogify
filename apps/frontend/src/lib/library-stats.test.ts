@@ -1,18 +1,17 @@
-import type { UserGame } from "@backlogify/types";
+import type { PublicGame } from "@backlogify/types";
 import { describe, expect, it } from "vitest";
 import { computeLibraryStats } from "./library-stats";
 
 const NOW = new Date("2026-06-12T12:00:00.000Z");
 
-function game(overrides: Partial<UserGame>): UserGame {
+function game(overrides: Partial<PublicGame>): PublicGame {
 	return {
 		id: "id",
-		userId: "user-1",
 		externalServiceId: "ext-1",
 		name: "Some Game",
 		coverUrl: null,
 		status: "backlog",
-		addedAt: new Date("2026-01-01T00:00:00.000Z"),
+		addedAt: "2026-01-01T00:00:00.000Z",
 		finishedAt: null,
 		note: null,
 		pinnedAt: null,
@@ -51,8 +50,14 @@ describe("computeLibraryStats", () => {
 	it("counts only games finished in the current year", () => {
 		const stats = computeLibraryStats(
 			[
-				game({ status: "played", finishedAt: new Date("2026-02-10") }),
-				game({ status: "played", finishedAt: new Date("2025-12-31") }),
+				game({
+					status: "played",
+					finishedAt: "2026-02-10T00:00:00.000Z",
+				}),
+				game({
+					status: "played",
+					finishedAt: "2025-12-31T00:00:00.000Z",
+				}),
 				game({ status: "backlog", finishedAt: null }),
 			],
 			NOW,
@@ -64,12 +69,18 @@ describe("computeLibraryStats", () => {
 	it("finds the oldest backlog entry, ignoring other statuses", () => {
 		const stats = computeLibraryStats(
 			[
-				game({ name: "Newer Backlog", addedAt: new Date("2026-03-01") }),
-				game({ name: "Oldest Backlog", addedAt: new Date("2025-04-15") }),
+				game({
+					name: "Newer Backlog",
+					addedAt: "2026-03-01T00:00:00.000Z",
+				}),
+				game({
+					name: "Oldest Backlog",
+					addedAt: "2025-04-15T00:00:00.000Z",
+				}),
 				game({
 					name: "Ancient But Playing",
 					status: "playing",
-					addedAt: new Date("2024-01-01"),
+					addedAt: "2024-01-01T00:00:00.000Z",
 				}),
 			],
 			NOW,
@@ -88,16 +99,16 @@ describe("computeLibraryStats", () => {
 		expect(stats.oldestBacklog).toBeNull();
 	});
 
-	it("handles date fields that arrive as ISO strings over JSON", () => {
+	it("handles date fields in their ISO string wire format", () => {
 		const stats = computeLibraryStats(
 			[
 				game({
 					status: "played",
-					addedAt: "2025-04-15T00:00:00.000Z" as unknown as Date,
-					finishedAt: "2026-02-10T00:00:00.000Z" as unknown as Date,
+					addedAt: "2025-04-15T00:00:00.000Z",
+					finishedAt: "2026-02-10T00:00:00.000Z",
 				}),
 				game({
-					addedAt: "2024-11-02T00:00:00.000Z" as unknown as Date,
+					addedAt: "2024-11-02T00:00:00.000Z",
 				}),
 			],
 			NOW,

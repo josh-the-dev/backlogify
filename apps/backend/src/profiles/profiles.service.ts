@@ -7,18 +7,23 @@ import {
 	Logger,
 	NotFoundException,
 } from "@nestjs/common";
-import { plainToInstance } from "class-transformer";
-import { eq } from "drizzle-orm";
+import {
+	RESERVED_USERNAMES,
+	type Pagination,
+	type UpdateProfile,
+} from "@backlogify/types";
+import { eq, getTableColumns } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { DRIZZLE, userGames, userProfiles } from "../database";
 import * as schema from "../database/schema";
-import { PaginationDto } from "../user-games/dtos/pagination.dto";
-import { ProfileResponseDto } from "./dtos/profile.response.dto";
-import { PublicBacklogResponseDto } from "./dtos/public-backlog.response.dto";
-import {
-	RESERVED_USERNAMES,
-	UpdateProfileDto,
-} from "./dtos/update-profile.dto";
+
+type ProfileRow = typeof userProfiles.$inferSelect;
+type PublicGameRow = Omit<typeof userGames.$inferSelect, "userId">;
+
+// Every user_games column except userId, so the Clerk subject id never
+// leaves the database on the public surface (the response schema strips it
+// too, this keeps it out even if that decorator were dropped)
+const { userId: _userId, ...publicGameColumns } = getTableColumns(userGames);
 
 // Postgres unique-violation error code.
 const PG_UNIQUE_VIOLATION = "23505";
@@ -29,7 +34,7 @@ export class ProfilesService {
 
 	constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
 
-	async getMine(userId: string): Promise<ProfileResponseDto | null> {
+	async getMine(userId: string): Promise<ProfileRow | null> {
 		try {
 			const [profile] = await this.db
 				.select()
@@ -37,11 +42,7 @@ export class ProfilesService {
 				.where(eq(userProfiles.userId, userId))
 				.limit(1);
 
-			if (!profile) return null;
-
-			return plainToInstance(ProfileResponseDto, profile, {
-				excludeExtraneousValues: true,
-			});
+			return profile ?? null;
 		} catch (error) {
 			this.logger.error(
 				"Failed to fetch profile",
@@ -51,10 +52,7 @@ export class ProfilesService {
 		}
 	}
 
-	async upsert(
-		userId: string,
-		dto: UpdateProfileDto,
-	): Promise<ProfileResponseDto> {
+	async upsert(userId: string, dto: UpdateProfile): Promise<ProfileRow> {
 		const username = dto.username.toLowerCase();
 
 		if (RESERVED_USERNAMES.has(username)) {
@@ -71,9 +69,7 @@ export class ProfilesService {
 				})
 				.returning();
 
-			return plainToInstance(ProfileResponseDto, profile, {
-				excludeExtraneousValues: true,
-			});
+			return profile;
 		} catch (error) {
 			// Another user already owns this username (unique constraint on the
 			// username column, separate from the userId primary key).
@@ -94,8 +90,8 @@ export class ProfilesService {
 
 	async getPublicBacklog(
 		username: string,
-		{ limit = 50, offset = 0 }: PaginationDto = {},
-	): Promise<PublicBacklogResponseDto> {
+		{ limit = 50, offset = 0 }: Partial<Pagination> = {},
+	): Promise<{ username: string; games: PublicGameRow[] }> {
 		try {
 			const [profile] = await this.db
 				.select()
@@ -110,17 +106,13 @@ export class ProfilesService {
 			}
 
 			const games = await this.db
-				.select()
+				.select(publicGameColumns)
 				.from(userGames)
 				.where(eq(userGames.userId, profile.userId))
 				.limit(limit)
 				.offset(offset);
 
-			return plainToInstance(
-				PublicBacklogResponseDto,
-				{ username: profile.username, games },
-				{ excludeExtraneousValues: true },
-			);
+			return { username: profile.username, games };
 		} catch (error) {
 			if (error instanceof NotFoundException) throw error;
 			this.logger.error(

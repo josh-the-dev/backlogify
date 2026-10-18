@@ -1,4 +1,4 @@
-import type { UserGame } from "@backlogify/types";
+import type { PublicGame } from "@backlogify/types";
 
 export interface LibraryStats {
 	total: number;
@@ -11,11 +11,11 @@ export interface LibraryStats {
 
 /**
  * Aggregates the library for the stats strip on My Games. Date fields
- * arrive as ISO strings over JSON despite the UserGame type, so they are
- * re-wrapped in `new Date()` before comparing.
+ * arrive as ISO strings, so they are wrapped in `new Date()` before
+ * comparing.
  */
 export function computeLibraryStats(
-	games: UserGame[],
+	games: PublicGame[],
 	now: Date = new Date(),
 ): LibraryStats {
 	const total = games.length;

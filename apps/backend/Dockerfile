@@ -1,28 +1,33 @@
-FROM node:22-alpine AS base
-
-FROM base AS deps
+# Built from the repo root (see docker-compose.yml) so the workspace
+# lockfile and the shared @backlogify/types package are available
+FROM node:22-alpine AS builder
 WORKDIR /app
-COPY package*.json ./
+
+COPY . .
 RUN npm ci
 
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
+RUN npm run build --workspace=@backlogify/types \
+	&& npm run build --workspace=backend
 
-FROM base AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nestjs
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
+# node_modules/@backlogify/types is a workspace symlink into packages/types,
+# so the package (manifest, built output, any nested deps) must sit at the
+# same path
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages/types ./packages/types
+COPY --from=builder /app/apps/backend/package.json ./apps/backend/package.json
+COPY --from=builder /app/apps/backend/node_modules ./apps/backend/node_modules
+COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
 
 USER nestjs
+WORKDIR /app/apps/backend
 
 EXPOSE 3001
 ENV PORT=3001
