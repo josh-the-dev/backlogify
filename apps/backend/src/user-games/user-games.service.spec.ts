@@ -1,3 +1,4 @@
+import type { Mock } from "vitest";
 import { NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { DRIZZLE } from "../database";
@@ -6,18 +7,18 @@ import { UserGamesService } from "./user-games.service";
 describe("UserGamesService", () => {
 	let service: UserGamesService;
 	let mockDb: {
-		select: jest.Mock;
-		insert: jest.Mock;
-		update: jest.Mock;
-		delete: jest.Mock;
+		select: Mock;
+		insert: Mock;
+		update: Mock;
+		delete: Mock;
 	};
 
 	beforeEach(async () => {
 		mockDb = {
-			select: jest.fn(),
-			insert: jest.fn(),
-			update: jest.fn(),
-			delete: jest.fn(),
+			select: vi.fn(),
+			insert: vi.fn(),
+			update: vi.fn(),
+			delete: vi.fn(),
 		};
 
 		const module: TestingModule = await Test.createTestingModule({
@@ -36,10 +37,10 @@ describe("UserGamesService", () => {
 	describe("getAll", () => {
 		it("should return empty array when user has no games", async () => {
 			mockDb.select.mockReturnValue({
-				from: jest.fn().mockReturnValue({
-					where: jest.fn().mockReturnValue({
-						limit: jest.fn().mockReturnValue({
-							offset: jest.fn().mockResolvedValue([]),
+				from: vi.fn().mockReturnValue({
+					where: vi.fn().mockReturnValue({
+						limit: vi.fn().mockReturnValue({
+							offset: vi.fn().mockResolvedValue([]),
 						}),
 					}),
 				}),
@@ -73,10 +74,10 @@ describe("UserGamesService", () => {
 			];
 
 			mockDb.select.mockReturnValue({
-				from: jest.fn().mockReturnValue({
-					where: jest.fn().mockReturnValue({
-						limit: jest.fn().mockReturnValue({
-							offset: jest.fn().mockResolvedValue(mockGames),
+				from: vi.fn().mockReturnValue({
+					where: vi.fn().mockReturnValue({
+						limit: vi.fn().mockReturnValue({
+							offset: vi.fn().mockResolvedValue(mockGames),
 						}),
 					}),
 				}),
@@ -103,8 +104,8 @@ describe("UserGamesService", () => {
 			};
 
 			mockDb.insert.mockReturnValue({
-				values: jest.fn().mockReturnValue({
-					returning: jest.fn().mockResolvedValue([insertedGame]),
+				values: vi.fn().mockReturnValue({
+					returning: vi.fn().mockResolvedValue([insertedGame]),
 				}),
 			});
 
@@ -137,8 +138,8 @@ describe("UserGamesService", () => {
 			};
 
 			mockDb.insert.mockReturnValue({
-				values: jest.fn().mockReturnValue({
-					returning: jest.fn().mockResolvedValue([insertedGame]),
+				values: vi.fn().mockReturnValue({
+					returning: vi.fn().mockResolvedValue([insertedGame]),
 				}),
 			});
 
@@ -155,9 +156,9 @@ describe("UserGamesService", () => {
 
 	describe("update", () => {
 		function mockUpdateChain(result: unknown[]) {
-			const setMock = jest.fn().mockReturnValue({
-				where: jest.fn().mockReturnValue({
-					returning: jest.fn().mockResolvedValue(result),
+			const setMock = vi.fn().mockReturnValue({
+				where: vi.fn().mockReturnValue({
+					returning: vi.fn().mockResolvedValue(result),
 				}),
 			});
 			mockDb.update.mockReturnValue({ set: setMock });
@@ -299,8 +300,8 @@ describe("UserGamesService", () => {
 	describe("remove", () => {
 		it("should remove an existing game", async () => {
 			mockDb.delete.mockReturnValue({
-				where: jest.fn().mockReturnValue({
-					returning: jest.fn().mockResolvedValue([{ id: "game-1" }]),
+				where: vi.fn().mockReturnValue({
+					returning: vi.fn().mockResolvedValue([{ id: "game-1" }]),
 				}),
 			});
 
@@ -309,8 +310,8 @@ describe("UserGamesService", () => {
 
 		it("should throw NotFoundException when game does not exist", async () => {
 			mockDb.delete.mockReturnValue({
-				where: jest.fn().mockReturnValue({
-					returning: jest.fn().mockResolvedValue([]),
+				where: vi.fn().mockReturnValue({
+					returning: vi.fn().mockResolvedValue([]),
 				}),
 			});
 

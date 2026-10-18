@@ -8,21 +8,21 @@ describe("GamesService", () => {
 	let service: GamesService;
 
 	// Create a spy/mock for Logger methods
-	const loggerLogSpy = jest
+	const loggerLogSpy = vi
 		.spyOn(Logger.prototype, "log")
 		.mockImplementation(() => {});
-	const loggerErrorSpy = jest
+	const loggerErrorSpy = vi
 		.spyOn(Logger.prototype, "error")
 		.mockImplementation(() => {});
-	jest.spyOn(Logger.prototype, "warn").mockImplementation(() => {});
+	vi.spyOn(Logger.prototype, "warn").mockImplementation(() => {});
 
 	const mockRawgService = {
-		searchGames: jest.fn(),
-		getGameDetails: jest.fn(),
-		getPopularGames: jest.fn(),
-		getScreenshots: jest.fn(),
-		getStores: jest.fn(),
-		getSuggestedGames: jest.fn(),
+		searchGames: vi.fn(),
+		getGameDetails: vi.fn(),
+		getPopularGames: vi.fn(),
+		getScreenshots: vi.fn(),
+		getStores: vi.fn(),
+		getSuggestedGames: vi.fn(),
 	};
 
 	beforeEach(async () => {
@@ -38,7 +38,7 @@ describe("GamesService", () => {
 
 		service = module.get<GamesService>(GamesService);
 
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 	});
 
 	describe("search", () => {
@@ -110,8 +110,20 @@ describe("GamesService", () => {
 			const result = await service.search(query);
 
 			expect(result).toEqual([
-				{ id: 3, name: "Game A", coverUrl: null, releaseDate: null, metacritic: null },
-				{ id: 4, name: "Game B", coverUrl: null, releaseDate: null, metacritic: null },
+				{
+					id: 3,
+					name: "Game A",
+					coverUrl: null,
+					releaseDate: null,
+					metacritic: null,
+				},
+				{
+					id: 4,
+					name: "Game B",
+					coverUrl: null,
+					releaseDate: null,
+					metacritic: null,
+				},
 			]);
 		});
 
@@ -217,7 +229,7 @@ describe("GamesService", () => {
 				],
 			};
 
-			mockRawgService.getGameDetails = jest.fn().mockResolvedValue(rawgGame);
+			mockRawgService.getGameDetails = vi.fn().mockResolvedValue(rawgGame);
 
 			const result = await service.getGameDetails(id);
 
@@ -249,7 +261,7 @@ describe("GamesService", () => {
 				platforms: [],
 			};
 
-			mockRawgService.getGameDetails = jest.fn().mockResolvedValue(rawgGame);
+			mockRawgService.getGameDetails = vi.fn().mockResolvedValue(rawgGame);
 
 			const result = await service.getGameDetails(id);
 
@@ -268,7 +280,7 @@ describe("GamesService", () => {
 			const id = "999";
 			const error = new Error("RAWG details fetch failed");
 
-			mockRawgService.getGameDetails = jest.fn().mockRejectedValue(error);
+			mockRawgService.getGameDetails = vi.fn().mockRejectedValue(error);
 
 			await expect(service.getGameDetails(id)).rejects.toThrow(error);
 

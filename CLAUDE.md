@@ -20,9 +20,9 @@ npm run test       # Run tests across monorepo
 ### Backend (`apps/backend`)
 ```bash
 npm run dev                  # NestJS watch mode
-npm run test                 # Jest unit tests (45 specs)
-npm run test:e2e             # Jest e2e tests (requires DATABASE_URL)
-npm run test -- --testPathPattern=common  # Single test file/pattern
+npm run test                 # Vitest unit tests (84 tests)
+npm run test:e2e             # Vitest e2e tests (requires DATABASE_URL)
+npm run test -- common       # Single test file/pattern
 npm run db:generate          # Generate Drizzle migration files
 npm run db:migrate           # Apply pending migrations
 npm run db:studio            # Open Drizzle Studio UI
@@ -56,7 +56,8 @@ packages/
 - **Avoid `useEffect`**: do not reach for Effects to derive/transform data for render, sync state to props, react to prop changes, or fetch data (see [You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect)). Compute during render, lift to event handlers, or use the framework's declarative hooks. Examples in this repo: page titles use the TanStack Router `head` API fed by a route `loader` (see `routes/games/$id.tsx`), not a `document.title` effect; server data comes from TanStack Query, not effect-driven fetches. Effects are acceptable only for genuine external-system synchronization/cleanup (e.g. clearing a debounce timer on unmount in `GameSearchForm`). When one is truly warranted, add a comment saying why.
 
 ### Backend (NestJS + Drizzle ORM)
-- **Modules**: `games` (RAWG search/popular/details - `GET /games/popular` returns most-added games of the last year and must stay declared before `GET /games/:id`), `user-games` (backlog CRUD), `auth` (guards/decorators), `database` (Drizzle setup), `rawg` (RAWG API service), `health` (terminus health check).
+- **Framework**: NestJS 12 (packages ship as ESM, loaded from our CommonJS build via require(esm)). Tests run on Vitest with `unplugin-swc`, since esbuild cannot emit the decorator metadata Nest DI needs. Jest cannot load the ESM packages on Node 22.
+- **Modules**: `games` (RAWG search/popular/details - `GET /games/popular` returns most-added games of the last year and must stay declared before `GET /games/:id`), `user-games` (backlog CRUD), `auth` (guards/decorators), `database` (Drizzle setup), `rawg` (RAWG API service, native `fetch` with a 10s timeout), `health` (terminus health check).
 - **Common** (`src/common/`):
   - `CorrelationIdMiddleware` - reads `X-Request-ID` from incoming headers or generates a UUID; attaches to request and echoes on response. Applied globally via `AppModule.configure()`.
   - `LoggingInterceptor` - logs `[correlationId] METHOD /url status - Xms` via RxJS `tap` after each response.
@@ -124,4 +125,4 @@ docker-compose up -d   # or use docker-compose.yml for full stack
 - **Build orchestration**: Turbo caches `build` and `test`; `dev` runs uncached in persistent mode.
 - **Database migrations**: Always run `db:generate` then `db:migrate` after schema changes in `src/database/schema.ts`. `drizzle-kit` version must stay in sync with `drizzle-orm` - currently both on the 0.31.x / 0.45.x compatible pair.
 - **CI pipeline**: `.github/workflows/ci.yml` runs on every push and PR to `main`. Jobs: `quality` (lint + tsc --noEmit), `backend-unit`, `backend-e2e` (PostgreSQL service container), `frontend-build`, `security` (npm audit --audit-level=critical). Branch protection on `main` requires all jobs to pass before merge.
-- **E2E tests**: `test/jest-e2e.json` config. Tests mock `RawgService` via `overrideProvider` and bypass `ClerkAuthGuard` via `overrideGuard`. Env vars are set in `test/e2e-env-setup.ts` via Jest `setupFiles` - this runs before any module imports, which is required because `ConfigModule.forRoot({ validate })` executes at import time. The `API_KEY` in `e2e-env-setup.ts` must match `TEST_API_KEY` in the spec files (`'e2e-test-key'`). To run locally, set `DATABASE_URL=postgresql://backlogify:backlogify_dev@localhost:5432/backlogify_test` (a migrated test DB in the dev docker container) - otherwise the fallback URL points at a DB that does not exist locally.
+- **E2E tests**: `test/vitest.e2e.config.ts` config (files run sequentially since they share one DB). Tests mock `RawgService` via `overrideProvider` and bypass `ClerkAuthGuard` via `overrideGuard`. Env vars are set in `test/e2e-env-setup.ts` via Vitest `setupFiles` - this runs before any module imports, which is required because `ConfigModule.forRoot({ validate })` executes at import time. The `API_KEY` in `e2e-env-setup.ts` must match `TEST_API_KEY` in the spec files (`'e2e-test-key'`). To run locally, set `DATABASE_URL=postgresql://backlogify:backlogify_dev@localhost:5432/backlogify_test` (a migrated test DB in the dev docker container) - otherwise the fallback URL points at a DB that does not exist locally.

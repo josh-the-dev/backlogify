@@ -1,8 +1,14 @@
+import type { MockInstance } from "vitest";
 import { CallHandler, ExecutionContext, Logger } from "@nestjs/common";
-import { of } from "rxjs";
+import { lastValueFrom, of } from "rxjs";
 import { LoggingInterceptor } from "./logging.interceptor";
 
-function makeContext(method: string, url: string, statusCode: number, correlationId?: string): ExecutionContext {
+function makeContext(
+	method: string,
+	url: string,
+	statusCode: number,
+	correlationId?: string,
+): ExecutionContext {
 	return {
 		switchToHttp: () => ({
 			getRequest: () => ({ method, url, correlationId }),
@@ -17,64 +23,54 @@ function makeCallHandler(value: unknown = {}): CallHandler {
 
 describe("LoggingInterceptor", () => {
 	let interceptor: LoggingInterceptor;
-	let logSpy: jest.SpyInstance;
+	let logSpy: MockInstance;
 
 	beforeEach(() => {
 		interceptor = new LoggingInterceptor();
-		logSpy = jest.spyOn(Logger.prototype, "log").mockImplementation(() => undefined);
+		logSpy = vi
+			.spyOn(Logger.prototype, "log")
+			.mockImplementation(() => undefined);
 	});
 
-	afterEach(() => jest.restoreAllMocks());
+	afterEach(() => vi.restoreAllMocks());
 
-	it("passes the response value through unchanged", (done) => {
+	it("passes the response value through unchanged", async () => {
 		const ctx = makeContext("GET", "/games", 200);
 		const handler = makeCallHandler({ id: 1 });
 
-		interceptor.intercept(ctx, handler).subscribe({
-			next: (value) => {
-				expect(value).toEqual({ id: 1 });
-				done();
-			},
-		});
+		const value = await lastValueFrom(interceptor.intercept(ctx, handler));
+
+		expect(value).toEqual({ id: 1 });
 	});
 
-	it("logs [correlationId] METHOD URL STATUS - Xms after the handler completes", (done) => {
+	it("logs [correlationId] METHOD URL STATUS - Xms after the handler completes", async () => {
 		const ctx = makeContext("POST", "/user-games", 201, "abc-123");
 		const handler = makeCallHandler();
 
-		interceptor.intercept(ctx, handler).subscribe({
-			complete: () => {
-				expect(logSpy).toHaveBeenCalledTimes(1);
-				const message: string = logSpy.mock.calls[0][0];
-				expect(message).toMatch(/^\[abc-123\] POST \/user-games 201 - \d+ms$/);
-				done();
-			},
-		});
+		await lastValueFrom(interceptor.intercept(ctx, handler));
+
+		expect(logSpy).toHaveBeenCalledTimes(1);
+		const message: string = logSpy.mock.calls[0][0];
+		expect(message).toMatch(/^\[abc-123\] POST \/user-games 201 - \d+ms$/);
 	});
 
-	it("uses - as the correlation ID placeholder when not set", (done) => {
+	it("uses - as the correlation ID placeholder when not set", async () => {
 		const ctx = makeContext("GET", "/health", 200);
 		const handler = makeCallHandler();
 
-		interceptor.intercept(ctx, handler).subscribe({
-			complete: () => {
-				const message: string = logSpy.mock.calls[0][0];
-				expect(message).toMatch(/^\[-\]/);
-				done();
-			},
-		});
+		await lastValueFrom(interceptor.intercept(ctx, handler));
+
+		const message: string = logSpy.mock.calls[0][0];
+		expect(message).toMatch(/^\[-\]/);
 	});
 
-	it("logs the correct status code from the response object", (done) => {
+	it("logs the correct status code from the response object", async () => {
 		const ctx = makeContext("DELETE", "/user-games/123", 204);
 		const handler = makeCallHandler();
 
-		interceptor.intercept(ctx, handler).subscribe({
-			complete: () => {
-				const message: string = logSpy.mock.calls[0][0];
-				expect(message).toContain("204");
-				done();
-			},
-		});
+		await lastValueFrom(interceptor.intercept(ctx, handler));
+
+		const message: string = logSpy.mock.calls[0][0];
+		expect(message).toContain("204");
 	});
 });

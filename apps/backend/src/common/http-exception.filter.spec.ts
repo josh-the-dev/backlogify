@@ -1,13 +1,19 @@
-import { ArgumentsHost, HttpException, HttpStatus, Logger } from "@nestjs/common";
+import type { Mock } from "vitest";
+import {
+	ArgumentsHost,
+	HttpException,
+	HttpStatus,
+	Logger,
+} from "@nestjs/common";
 import { AllExceptionsFilter } from "./http-exception.filter";
 
 function makeHost(
 	method = "GET",
 	url = "/test",
 	correlationId?: string,
-): { host: ArgumentsHost; json: jest.Mock; status: jest.Mock } {
-	const json = jest.fn();
-	const status = jest.fn().mockReturnValue({ json });
+): { host: ArgumentsHost; json: Mock; status: Mock } {
+	const json = vi.fn();
+	const status = vi.fn().mockReturnValue({ json });
 	const host = {
 		switchToHttp: () => ({
 			getResponse: () => ({ status }),
@@ -22,11 +28,11 @@ describe("AllExceptionsFilter", () => {
 
 	beforeEach(() => {
 		filter = new AllExceptionsFilter();
-		jest.spyOn(Logger.prototype, "log").mockImplementation(() => undefined);
-		jest.spyOn(Logger.prototype, "error").mockImplementation(() => undefined);
+		vi.spyOn(Logger.prototype, "log").mockImplementation(() => undefined);
+		vi.spyOn(Logger.prototype, "error").mockImplementation(() => undefined);
 	});
 
-	afterEach(() => jest.restoreAllMocks());
+	afterEach(() => vi.restoreAllMocks());
 
 	describe("HttpException handling", () => {
 		it("returns the correct status code and string message", () => {
@@ -34,12 +40,19 @@ describe("AllExceptionsFilter", () => {
 			filter.catch(new HttpException("Not found", HttpStatus.NOT_FOUND), host);
 
 			expect(status).toHaveBeenCalledWith(404);
-			expect(json).toHaveBeenCalledWith({ statusCode: 404, message: "Not found" });
+			expect(json).toHaveBeenCalledWith({
+				statusCode: 404,
+				message: "Not found",
+			});
 		});
 
 		it("passes through an object response from HttpException as-is", () => {
 			const { host, status, json } = makeHost();
-			const body = { statusCode: 400, message: ["name must not be empty"], error: "Bad Request" };
+			const body = {
+				statusCode: 400,
+				message: ["name must not be empty"],
+				error: "Bad Request",
+			};
 			filter.catch(new HttpException(body, HttpStatus.BAD_REQUEST), host);
 
 			expect(status).toHaveBeenCalledWith(400);
@@ -48,10 +61,19 @@ describe("AllExceptionsFilter", () => {
 
 		it("wraps an array message in statusCode + message shape", () => {
 			const { host, status, json } = makeHost();
-			filter.catch(new HttpException(["field is required"], HttpStatus.UNPROCESSABLE_ENTITY), host);
+			filter.catch(
+				new HttpException(
+					["field is required"],
+					HttpStatus.UNPROCESSABLE_ENTITY,
+				),
+				host,
+			);
 
 			expect(status).toHaveBeenCalledWith(422);
-			expect(json).toHaveBeenCalledWith({ statusCode: 422, message: ["field is required"] });
+			expect(json).toHaveBeenCalledWith({
+				statusCode: 422,
+				message: ["field is required"],
+			});
 		});
 	});
 
@@ -62,7 +84,10 @@ describe("AllExceptionsFilter", () => {
 
 			expect(status).toHaveBeenCalledWith(500);
 			expect(json).toHaveBeenCalledWith(
-				expect.objectContaining({ statusCode: 500, message: "Internal server error" }),
+				expect.objectContaining({
+					statusCode: 500,
+					message: "Internal server error",
+				}),
 			);
 		});
 
@@ -81,12 +106,17 @@ describe("AllExceptionsFilter", () => {
 
 			expect(status).toHaveBeenCalledWith(500);
 			expect(json).toHaveBeenCalledWith(
-				expect.objectContaining({ statusCode: 500, message: "Internal server error" }),
+				expect.objectContaining({
+					statusCode: 500,
+					message: "Internal server error",
+				}),
 			);
 		});
 
 		it("logs the unhandled exception with correlationId and route", () => {
-			const errorSpy = jest.spyOn(Logger.prototype, "error").mockImplementation(() => undefined);
+			const errorSpy = vi
+				.spyOn(Logger.prototype, "error")
+				.mockImplementation(() => undefined);
 			const { host } = makeHost("GET", "/games", "trace-xyz");
 			filter.catch(new Error("unexpected"), host);
 
