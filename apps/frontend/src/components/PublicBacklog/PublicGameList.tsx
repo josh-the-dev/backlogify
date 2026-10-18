@@ -1,4 +1,4 @@
-import type { GameStatus, UserGame } from "@backlogify/types";
+import type { GameStatus, PublicGame } from "@backlogify/types";
 import { AnimatePresence, motion } from "motion/react";
 import { PublicGameCard } from "./PublicGameCard";
 
@@ -28,7 +28,7 @@ const tile = {
 };
 
 interface PublicGameListProps {
-	games: UserGame[];
+	games: PublicGame[];
 	statusFilter: GameStatus | "all";
 }
 

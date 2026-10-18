@@ -1,9 +1,17 @@
-import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import {
+	MiddlewareConsumer,
+	Module,
+	NestModule,
+	StandardSchemaSerializerInterceptor,
+	StandardSchemaValidationPipe,
+} from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { APP_GUARD } from "@nestjs/core";
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { z } from "zod";
 import { CorrelationIdMiddleware } from "./common/correlation-id.middleware";
+import { AllExceptionsFilter } from "./common/http-exception.filter";
+import { LoggingInterceptor } from "./common/logging.interceptor";
 
 import { ApiKeyGuard, AuthModule } from "./auth";
 import { DatabaseModule } from "./database";
@@ -48,6 +56,17 @@ const envSchema = z.object({
 		// User-games routes additionally require a valid Clerk JWT via ClerkAuthGuard,
 		// which is applied at the controller level using @UseGuards(ClerkAuthGuard).
 		{ provide: APP_GUARD, useClass: ApiKeyGuard },
+		// Registered here rather than in main.ts so e2e tests, which build
+		// the app from AppModule, run the same pipeline as production.
+		// Bodies/queries validate against the schema passed to @Body/@Query,
+		// and responses serialize through the one set by @ApiSchemaResponse
+		{ provide: APP_FILTER, useClass: AllExceptionsFilter },
+		{ provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
+		{ provide: APP_INTERCEPTOR, useClass: StandardSchemaSerializerInterceptor },
+		{
+			provide: APP_PIPE,
+			useValue: new StandardSchemaValidationPipe({ transform: true }),
+		},
 	],
 })
 export class AppModule implements NestModule {

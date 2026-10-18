@@ -11,7 +11,6 @@ import {
 	Post,
 	Query,
 	UseGuards,
-	ValidationPipe,
 } from "@nestjs/common";
 import {
 	ApiBearerAuth,
@@ -20,11 +19,17 @@ import {
 	ApiSecurity,
 	ApiTags,
 } from "@nestjs/swagger";
+import {
+	addUserGameSchema,
+	paginationSchema,
+	updateUserGameSchema,
+	userGameSchema,
+	type AddUserGame,
+	type Pagination,
+	type UpdateUserGame,
+} from "@backlogify/types";
 import { ClerkAuthGuard, UserId } from "../auth";
-import { AddUserGameDto } from "./dtos/add-user-game.dto";
-import { PaginationDto } from "./dtos/pagination.dto";
-import { UpdateUserGameDto } from "./dtos/update-user-game.dto";
-import { UserGameResponseDto } from "./dtos/user-game.response.dto";
+import { ApiSchemaResponse } from "../common/api-schema-response.decorator";
 import { UserGamesService } from "./user-games.service";
 
 @ApiTags("user-games")
@@ -37,33 +42,32 @@ export class UserGamesController {
 
 	@Get()
 	@ApiOperation({ summary: "Get the authenticated user's game backlog" })
-	@ApiResponse({
+	@ApiSchemaResponse(userGameSchema, {
 		status: 200,
-		type: [UserGameResponseDto],
 		description: "Paginated list of user games",
+		isArray: true,
 	})
 	@ApiResponse({ status: 401, description: "Invalid or missing API key / JWT" })
 	getAll(
 		@UserId() userId: string,
-		@Query(ValidationPipe) pagination: PaginationDto,
-	): Promise<UserGameResponseDto[]> {
+		@Query({ schema: paginationSchema }) pagination: Pagination,
+	) {
 		return this.userGamesService.getAll(userId, pagination);
 	}
 
 	@Post()
 	@HttpCode(201)
 	@ApiOperation({ summary: "Add a game to the authenticated user's backlog" })
-	@ApiResponse({
+	@ApiSchemaResponse(userGameSchema, {
 		status: 201,
-		type: UserGameResponseDto,
 		description: "Game added to backlog",
 	})
 	@ApiResponse({ status: 400, description: "Invalid request body" })
 	@ApiResponse({ status: 401, description: "Invalid or missing API key / JWT" })
 	addGame(
 		@UserId() userId: string,
-		@Body(ValidationPipe) body: AddUserGameDto,
-	): Promise<UserGameResponseDto> {
+		@Body({ schema: addUserGameSchema }) body: AddUserGame,
+	) {
 		return this.userGamesService.add(userId, body);
 	}
 
@@ -71,9 +75,8 @@ export class UserGamesController {
 	@ApiOperation({
 		summary: "Update a game's status, note, finish date, or Up next pin",
 	})
-	@ApiResponse({
+	@ApiSchemaResponse(userGameSchema, {
 		status: 200,
-		type: UserGameResponseDto,
 		description: "Game updated",
 	})
 	@ApiResponse({
@@ -85,8 +88,8 @@ export class UserGamesController {
 	update(
 		@UserId() userId: string,
 		@Param("gameId", ParseUUIDPipe) gameId: string,
-		@Body(ValidationPipe) body: UpdateUserGameDto,
-	): Promise<UserGameResponseDto> {
+		@Body({ schema: updateUserGameSchema }) body: UpdateUserGame,
+	) {
 		if (
 			body.status === undefined &&
 			body.note === undefined &&

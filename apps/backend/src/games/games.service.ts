@@ -1,10 +1,11 @@
+import type {
+	GameDetails,
+	GameExtras,
+	GameSearchResult,
+} from "@backlogify/types";
 import { Injectable, Logger } from "@nestjs/common";
-import { plainToInstance } from "class-transformer";
 import type { RawgGame } from "../rawg/interfaces/rawg.interface";
 import { RawgService } from "../rawg/rawg.service";
-import { GameDetailsResponseDto } from "./dtos/game-details.response.dto";
-import { GameExtrasResponseDto } from "./dtos/game-extras.response.dto";
-import { GameSearchResultResponseDto } from "./dtos/game-search-result.response.dto";
 
 /**
  * RAWG store IDs are stable public constants; the per-game stores endpoint
@@ -31,10 +32,7 @@ export class GamesService {
 
 	constructor(private readonly rawgService: RawgService) {}
 
-	async search(
-		query: string,
-		page = 1,
-	): Promise<GameSearchResultResponseDto[]> {
+	async search(query: string, page = 1): Promise<GameSearchResult[]> {
 		try {
 			this.logger.log(`Searching games for query: "${query}" (page ${page})`);
 
@@ -50,7 +48,7 @@ export class GamesService {
 		}
 	}
 
-	async getPopularGames(page = 1): Promise<GameSearchResultResponseDto[]> {
+	async getPopularGames(page = 1): Promise<GameSearchResult[]> {
 		try {
 			this.logger.log(`Fetching popular games (page ${page})`);
 
@@ -66,43 +64,37 @@ export class GamesService {
 		}
 	}
 
-	private toSearchResults(games: RawgGame[]): GameSearchResultResponseDto[] {
-		return plainToInstance(
-			GameSearchResultResponseDto,
-			games.map((game) => ({
-				id: game.id,
-				name: game.name,
-				coverUrl: game.background_image || null,
-				releaseDate: game.released ?? null,
-				metacritic: game.metacritic ?? null,
-			})),
-			{ excludeExtraneousValues: true },
-		);
+	private toSearchResults(games: RawgGame[]): GameSearchResult[] {
+		return games.map((game) => ({
+			id: game.id,
+			name: game.name,
+			coverUrl: game.background_image || null,
+			releaseDate: game.released ?? null,
+			metacritic: game.metacritic ?? null,
+		}));
 	}
 
-	async getGameDetails(id: string): Promise<GameDetailsResponseDto> {
+	async getGameDetails(id: string): Promise<GameDetails> {
 		try {
 			this.logger.log(`Fetching game details for ID: "${id}"`);
 
 			const game = await this.rawgService.getGameDetails(id);
 
-			return plainToInstance(
-				GameDetailsResponseDto,
-				{
-					id: game.id,
-					name: game.name,
-					description: game.description,
-					releaseDate: game.released,
-					coverUrl: game.background_image || null,
-					genres: game.genres?.map((g: { name: string }) => g.name) ?? [],
-					platforms:
-						game.platforms?.map(
-							(p: { platform?: { name: string }; name?: string }) =>
-								p.platform?.name ?? p.name ?? "Unknown",
-						) ?? [],
-				},
-				{ excludeExtraneousValues: true },
-			);
+			return {
+				id: game.id,
+				name: game.name,
+				// RAWG sometimes omits these, and the response schema requires
+				// a string / explicit null
+				description: game.description ?? "",
+				releaseDate: game.released ?? null,
+				coverUrl: game.background_image || null,
+				genres: game.genres?.map((g: { name: string }) => g.name) ?? [],
+				platforms:
+					game.platforms?.map(
+						(p: { platform?: { name: string }; name?: string }) =>
+							p.platform?.name ?? p.name ?? "Unknown",
+					) ?? [],
+			};
 		} catch (error) {
 			this.logger.error(
 				"Failed to fetch game details",
@@ -117,7 +109,7 @@ export class GamesService {
 	 * games). Each RAWG sub-resource is fetched independently and degrades to
 	 * an empty list on failure, so a flaky upstream never blanks the page.
 	 */
-	async getGameExtras(id: string): Promise<GameExtrasResponseDto> {
+	async getGameExtras(id: string): Promise<GameExtras> {
 		this.logger.log(`Fetching game extras for ID: "${id}"`);
 
 		const [screenshots, stores, similar] = await Promise.all([
@@ -126,24 +118,20 @@ export class GamesService {
 			this.safe(() => this.rawgService.getSuggestedGames(id), "similar", id),
 		]);
 
-		return plainToInstance(
-			GameExtrasResponseDto,
-			{
-				screenshots: (screenshots?.results ?? [])
-					.filter((shot) => shot.image && !shot.is_deleted)
-					.slice(0, MAX_SCREENSHOTS)
-					.map((shot) => shot.image),
-				stores: (stores?.results ?? [])
-					.filter((link) => link.url)
-					.map((link) => ({
-						storeId: link.store_id,
-						name: RAWG_STORE_NAMES[link.store_id] ?? "Store",
-						url: link.url,
-					})),
-				similar: this.toSearchResults(similar?.results ?? []),
-			},
-			{ excludeExtraneousValues: true },
-		);
+		return {
+			screenshots: (screenshots?.results ?? [])
+				.filter((shot) => shot.image && !shot.is_deleted)
+				.slice(0, MAX_SCREENSHOTS)
+				.map((shot) => shot.image),
+			stores: (stores?.results ?? [])
+				.filter((link) => link.url)
+				.map((link) => ({
+					storeId: link.store_id,
+					name: RAWG_STORE_NAMES[link.store_id] ?? "Store",
+					url: link.url,
+				})),
+			similar: this.toSearchResults(similar?.results ?? []),
+		};
 	}
 
 	/**

@@ -1,4 +1,4 @@
-import type { UserGame } from "@backlogify/types";
+import type { PublicGame } from "@backlogify/types";
 import { formatDistanceToNowStrict } from "date-fns";
 import { computeLibraryStats } from "../../lib/library-stats";
 
@@ -24,7 +24,7 @@ function StatTile({
 
 /** Stats strip under the My Games header. Renders nothing for an empty
  *  library; the page's empty state covers that. */
-export function LibraryStats({ games }: { games: UserGame[] }) {
+export function LibraryStats({ games }: { games: PublicGame[] }) {
 	if (games.length === 0) return null;
 
 	const stats = computeLibraryStats(games);

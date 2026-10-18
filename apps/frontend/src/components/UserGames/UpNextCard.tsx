@@ -1,6 +1,6 @@
 import { STATUS_DOT_CLASSES, STATUS_OPTIONS } from "@/constants/game-status";
 import { cn } from "@/lib/utils";
-import type { UserGame } from "@backlogify/types";
+import type { PublicGame } from "@backlogify/types";
 import { Link } from "@tanstack/react-router";
 import { PinOff } from "lucide-react";
 import { motion } from "motion/react";
@@ -16,7 +16,7 @@ export function UpNextCard({
 	game,
 	readOnly = false,
 }: {
-	game: UserGame;
+	game: PublicGame;
 	readOnly?: boolean;
 }) {
 	const updatePin = useUpdateUserGamePin();
@@ -43,7 +43,7 @@ export function UpNextCard({
 					/>
 				</Link>
 				<div className="min-w-0 flex-1 self-center py-1">
-					<p className="text-primary text-xs font-semibold uppercase tracking-widest">
+					<p className="text-primary text-xs font-semibold tracking-widest uppercase">
 						Up next
 					</p>
 					<h2 className="font-display mt-1.5 text-2xl font-bold tracking-tight sm:text-3xl">
@@ -82,7 +82,7 @@ export function UpNextCard({
 					disabled={updatePin.isPending}
 					aria-label={`Unpin ${game.name} from Up next`}
 					title="Unpin from Up next"
-					className="text-muted-foreground hover:bg-accent hover:text-foreground absolute right-3 top-3 flex size-8 items-center justify-center rounded-md transition-colors disabled:pointer-events-none"
+					className="text-muted-foreground hover:bg-accent hover:text-foreground absolute top-3 right-3 flex size-8 items-center justify-center rounded-md transition-colors disabled:pointer-events-none"
 				>
 					<PinOff className="size-4" />
 				</button>

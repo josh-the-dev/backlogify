@@ -9,3 +9,5 @@ node_modules
 .git
 .turbo
 **/storybook-static
+**/dist
+**/coverage

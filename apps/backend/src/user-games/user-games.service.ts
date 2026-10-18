@@ -5,15 +5,17 @@ import {
 	Logger,
 	NotFoundException,
 } from "@nestjs/common";
-import { plainToInstance } from "class-transformer";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { eq, and, isNotNull } from "drizzle-orm";
+import type {
+	AddUserGame,
+	Pagination,
+	UpdateUserGame,
+} from "@backlogify/types";
 import { DRIZZLE, userGames } from "../database";
 import * as schema from "../database/schema";
-import { AddUserGameDto } from "./dtos/add-user-game.dto";
-import { PaginationDto } from "./dtos/pagination.dto";
-import { UpdateUserGameDto } from "./dtos/update-user-game.dto";
-import { UserGameResponseDto } from "./dtos/user-game.response.dto";
+
+type UserGameRow = typeof userGames.$inferSelect;
 
 @Injectable()
 export class UserGamesService {
@@ -23,19 +25,15 @@ export class UserGamesService {
 
 	async getAll(
 		userId: string,
-		{ limit = 50, offset = 0 }: PaginationDto = {},
-	): Promise<UserGameResponseDto[]> {
+		{ limit = 50, offset = 0 }: Partial<Pagination> = {},
+	): Promise<UserGameRow[]> {
 		try {
-			const results = await this.db
+			return await this.db
 				.select()
 				.from(userGames)
 				.where(eq(userGames.userId, userId))
 				.limit(limit)
 				.offset(offset);
-
-			return plainToInstance(UserGameResponseDto, results, {
-				excludeExtraneousValues: true,
-			});
 		} catch (error) {
 			if (error instanceof NotFoundException) throw error;
 			this.logger.error(
@@ -46,7 +44,7 @@ export class UserGamesService {
 		}
 	}
 
-	async add(userId: string, dto: AddUserGameDto): Promise<UserGameResponseDto> {
+	async add(userId: string, dto: AddUserGame): Promise<UserGameRow> {
 		try {
 			const [inserted] = await this.db
 				.insert(userGames)
@@ -60,9 +58,7 @@ export class UserGamesService {
 				})
 				.returning();
 
-			return plainToInstance(UserGameResponseDto, inserted, {
-				excludeExtraneousValues: true,
-			});
+			return inserted;
 		} catch (error) {
 			this.logger.error(
 				"Failed to add user game",
@@ -75,8 +71,8 @@ export class UserGamesService {
 	async update(
 		userId: string,
 		gameId: string,
-		dto: UpdateUserGameDto,
-	): Promise<UserGameResponseDto> {
+		dto: UpdateUserGame,
+	): Promise<UserGameRow> {
 		const changes: Partial<typeof userGames.$inferInsert> = {};
 
 		if (dto.status !== undefined) {
@@ -127,9 +123,7 @@ export class UserGamesService {
 				throw new NotFoundException("Game not found for this user");
 			}
 
-			return plainToInstance(UserGameResponseDto, updated, {
-				excludeExtraneousValues: true,
-			});
+			return updated;
 		} catch (error) {
 			if (error instanceof NotFoundException) throw error;
 			this.logger.error(

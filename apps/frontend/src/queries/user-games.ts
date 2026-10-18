@@ -71,9 +71,13 @@ export function useAddUserGame() {
 					userId: userId ?? "",
 					externalServiceId: newGame.externalServiceId,
 					name: newGame.name,
-					coverUrl: newGame.coverUrl,
+					coverUrl: newGame.coverUrl ?? null,
 					status: newGame.status,
-					addedAt: new Date(),
+					addedAt: new Date().toISOString(),
+					finishedAt:
+						newGame.status === "played" ? new Date().toISOString() : null,
+					note: null,
+					pinnedAt: null,
 				};
 				queryClient.setQueryData<UserGame[]>(
 					["user-games"],
@@ -137,7 +141,8 @@ export function useUpdateUserGameStatus() {
 									// Mirror the backend: played stamps the finish
 									// date, anything else clears it; finishing or
 									// abandoning also frees the Up next slot
-									finishedAt: status === "played" ? new Date() : null,
+									finishedAt:
+										status === "played" ? new Date().toISOString() : null,
 									pinnedAt:
 										status === "played" || status === "abandoned"
 											? null
@@ -248,7 +253,7 @@ export function useUpdateUserGamePin() {
 					// pinning steals it from whoever had it
 					previousGames.map((game) =>
 						game.id === gameId
-							? { ...game, pinnedAt: pinned ? new Date() : null }
+							? { ...game, pinnedAt: pinned ? new Date().toISOString() : null }
 							: pinned
 								? { ...game, pinnedAt: null }
 								: game,

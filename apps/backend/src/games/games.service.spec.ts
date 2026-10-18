@@ -268,7 +268,7 @@ describe("GamesService", () => {
 			expect(result).toEqual({
 				id: 456,
 				name: "Mystery Game",
-				description: null,
+				description: "",
 				releaseDate: null,
 				coverUrl: null,
 				genres: [],
