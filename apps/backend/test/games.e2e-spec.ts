@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { AllExceptionsFilter } from '../src/common/http-exception.filter';
 import { LoggingInterceptor } from '../src/common/logging.interceptor';
@@ -9,12 +9,12 @@ import { RawgService } from '../src/rawg/rawg.service';
 const TEST_API_KEY = 'e2e-test-key';
 
 const mockRawgService = {
-  searchGames: jest.fn().mockResolvedValue({
+  searchGames: vi.fn().mockResolvedValue({
     results: [
       { id: 1, name: 'Doom', background_image: 'https://example.com/doom.jpg' },
     ],
   }),
-  getPopularGames: jest.fn().mockResolvedValue({
+  getPopularGames: vi.fn().mockResolvedValue({
     results: [
       {
         id: 2,
@@ -25,7 +25,7 @@ const mockRawgService = {
       },
     ],
   }),
-  getGameDetails: jest.fn().mockResolvedValue({
+  getGameDetails: vi.fn().mockResolvedValue({
     id: 1,
     name: 'Doom',
     description_raw: 'A classic shooter.',

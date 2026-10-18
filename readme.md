@@ -139,10 +139,10 @@ All endpoints are rate-limited to **100 req/min**. Pagination defaults: `limit=5
 ## Testing
 
 ```bash
-# Unit tests (Jest, 45 specs, fully mocked)
+# Unit tests (Vitest, 84 tests, fully mocked)
 npm test -w apps/backend
 
-# E2E tests (Jest + Supertest, real PostgreSQL, mocked Clerk/RAWG)
+# E2E tests (Vitest + Supertest, real PostgreSQL, mocked Clerk/RAWG)
 npm run test:e2e -w apps/backend
 
 # Frontend component tests (Vitest + Testing Library)

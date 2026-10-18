@@ -1,3 +1,4 @@
+import type { Mock } from "vitest";
 import {
 	BadRequestException,
 	ConflictException,
@@ -10,14 +11,14 @@ import { ProfilesService } from "./profiles.service";
 describe("ProfilesService", () => {
 	let service: ProfilesService;
 	let mockDb: {
-		select: jest.Mock;
-		insert: jest.Mock;
+		select: Mock;
+		insert: Mock;
 	};
 
 	beforeEach(async () => {
 		mockDb = {
-			select: jest.fn(),
-			insert: jest.fn(),
+			select: vi.fn(),
+			insert: vi.fn(),
 		};
 
 		const module: TestingModule = await Test.createTestingModule({
@@ -30,9 +31,9 @@ describe("ProfilesService", () => {
 	// .select().from().where().limit() resolves to `rows`.
 	function mockSelectOnce(rows: unknown[]) {
 		mockDb.select.mockReturnValueOnce({
-			from: jest.fn().mockReturnValue({
-				where: jest.fn().mockReturnValue({
-					limit: jest.fn().mockResolvedValue(rows),
+			from: vi.fn().mockReturnValue({
+				where: vi.fn().mockReturnValue({
+					limit: vi.fn().mockResolvedValue(rows),
 				}),
 			}),
 		});
@@ -41,10 +42,10 @@ describe("ProfilesService", () => {
 	// .select().from().where().limit().offset() resolves to `rows`.
 	function mockSelectPaginatedOnce(rows: unknown[]) {
 		mockDb.select.mockReturnValueOnce({
-			from: jest.fn().mockReturnValue({
-				where: jest.fn().mockReturnValue({
-					limit: jest.fn().mockReturnValue({
-						offset: jest.fn().mockResolvedValue(rows),
+			from: vi.fn().mockReturnValue({
+				where: vi.fn().mockReturnValue({
+					limit: vi.fn().mockReturnValue({
+						offset: vi.fn().mockResolvedValue(rows),
 					}),
 				}),
 			}),
@@ -69,19 +70,19 @@ describe("ProfilesService", () => {
 
 	describe("upsert", () => {
 		function mockInsert(returned: unknown[]) {
-			const returning = jest.fn().mockResolvedValue(returned);
+			const returning = vi.fn().mockResolvedValue(returned);
 			mockDb.insert.mockReturnValue({
-				values: jest.fn().mockReturnValue({
-					onConflictDoUpdate: jest.fn().mockReturnValue({ returning }),
+				values: vi.fn().mockReturnValue({
+					onConflictDoUpdate: vi.fn().mockReturnValue({ returning }),
 				}),
 			});
 			return returning;
 		}
 
 		it("lowercases the username before storing", async () => {
-			const valuesMock = jest.fn().mockReturnValue({
-				onConflictDoUpdate: jest.fn().mockReturnValue({
-					returning: jest
+			const valuesMock = vi.fn().mockReturnValue({
+				onConflictDoUpdate: vi.fn().mockReturnValue({
+					returning: vi
 						.fn()
 						.mockResolvedValue([{ username: "ada", isPublic: false }]),
 				}),
@@ -118,9 +119,9 @@ describe("ProfilesService", () => {
 
 		it("throws ConflictException when the username is taken", async () => {
 			mockDb.insert.mockReturnValue({
-				values: jest.fn().mockReturnValue({
-					onConflictDoUpdate: jest.fn().mockReturnValue({
-						returning: jest.fn().mockRejectedValue({ code: "23505" }),
+				values: vi.fn().mockReturnValue({
+					onConflictDoUpdate: vi.fn().mockReturnValue({
+						returning: vi.fn().mockRejectedValue({ code: "23505" }),
 					}),
 				}),
 			});

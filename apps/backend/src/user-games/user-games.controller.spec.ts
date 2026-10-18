@@ -9,14 +9,14 @@ describe("UserGamesController", () => {
 	let controller: UserGamesController;
 
 	const mockUserGamesService = {
-		getAll: jest.fn(),
-		add: jest.fn(),
-		update: jest.fn(),
-		remove: jest.fn(),
+		getAll: vi.fn(),
+		add: vi.fn(),
+		update: vi.fn(),
+		remove: vi.fn(),
 	};
 
 	const mockClerkAuthGuard = {
-		canActivate: jest.fn().mockReturnValue(true),
+		canActivate: vi.fn().mockReturnValue(true),
 	};
 
 	beforeEach(async () => {
@@ -35,7 +35,7 @@ describe("UserGamesController", () => {
 
 		controller = module.get<UserGamesController>(UserGamesController);
 
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 	});
 
 	describe("getAll", () => {

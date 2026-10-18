@@ -8,9 +8,9 @@ describe("GamesController", () => {
 	let _service: GamesService;
 
 	const mockGamesService = {
-		search: jest.fn(),
-		getPopularGames: jest.fn(),
-		getGameExtras: jest.fn(),
+		search: vi.fn(),
+		getPopularGames: vi.fn(),
+		getGameExtras: vi.fn(),
 	};
 
 	beforeEach(async () => {
@@ -29,7 +29,7 @@ describe("GamesController", () => {
 	});
 
 	afterEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 	});
 
 	describe("search", () => {

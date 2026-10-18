@@ -1,8 +1,5 @@
-import { HttpService } from "@nestjs/axios";
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { AxiosError } from "axios";
-import { firstValueFrom } from "rxjs";
 import type {
 	RawgGameDetails,
 	RawgScreenshotsResponse,
@@ -14,12 +11,10 @@ import type {
 export class RawgService {
 	private readonly logger = new Logger(RawgService.name);
 	private readonly baseUrl = "https://api.rawg.io/api";
+	private readonly timeoutMs = 10_000;
 	private readonly apiKey: string;
 
-	constructor(
-		private readonly httpService: HttpService,
-		private readonly configService: ConfigService,
-	) {
+	constructor(private readonly configService: ConfigService) {
 		this.apiKey = this.configService.get<string>("RAWG_API_KEY") ?? "";
 
 		if (!this.apiKey) {
@@ -37,26 +32,48 @@ export class RawgService {
 		endpoint: string,
 		context: string,
 	): Promise<T> {
+		this.logger.log(`Making RAWG API request: ${context}`);
+
+		// Appended by hand because URLSearchParams would re-encode the commas
+		// in params like dates=a,b
+		const separator = endpoint.includes("?") ? "&" : "?";
+		const url = `${this.baseUrl}${endpoint}${separator}key=${encodeURIComponent(this.apiKey)}`;
+
+		let response: Response;
 		try {
-			this.logger.log(`Making RAWG API request: ${context}`);
-			const url = `${this.baseUrl}${endpoint}`;
-			const response = await firstValueFrom(
-				this.httpService.get<T>(url, { params: { key: this.apiKey } }),
-			);
-			return response.data;
+			response = await fetch(url, {
+				signal: AbortSignal.timeout(this.timeoutMs),
+			});
 		} catch (error) {
-			this.handleError(error, context);
+			// Network failure or timeout, so there is no upstream status to map
+			const err = error as Error;
+			this.handleError(err.message, context, undefined, err.stack);
 		}
+
+		// fetch resolves on 4xx/5xx, unlike axios, so check the status here
+		if (!response.ok) {
+			this.handleError(
+				`${response.status} ${response.statusText}`,
+				context,
+				response.status,
+			);
+		}
+
+		return (await response.json()) as T;
 	}
 
 	/**
 	 * Maps RAWG API errors to user-friendly HttpExceptions.
 	 */
-	private handleError(error: AxiosError, context: string): never {
-		const message = `RAWG API request failed (${context}): ${error.message}`;
-		this.logger.error(message, error.stack);
+	private handleError(
+		reason: string,
+		context: string,
+		status?: number,
+		stack?: string,
+	): never {
+		const message = `RAWG API request failed (${context}): ${reason}`;
+		this.logger.error(message, stack);
 
-		const status = error.response?.status;
 		switch (status) {
 			case 401:
 				throw new HttpException(
