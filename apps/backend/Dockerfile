@@ -6,8 +6,8 @@ WORKDIR /app
 COPY . .
 RUN npm ci
 
-RUN npm run build --workspace=@backlogify/types \
-	&& npm run build --workspace=backend
+# The backend's prebuild hook builds @backlogify/types first
+RUN npm run build --workspace=backend
 
 FROM node:22-alpine AS runner
 WORKDIR /app
