@@ -22,12 +22,9 @@
     "vitest": "^4.1.6"
   },
   "overrides": {
-    "srvx": "0.8.15",
+    "srvx": "^0.11.22",
     "@nestjs/core": "^12.1.3",
     "@nestjs/platform-express": "^12.1.3",
     "rxjs": "^7.8.2"
-  },
-  "dependencies": {
-    "srvx": "0.8.15"
   }
 }

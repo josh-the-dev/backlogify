@@ -5,19 +5,16 @@ import {
 	useQueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import {
+	getMyProfile,
+	getPublicBacklog,
+	updateMyProfile,
+} from "../server/profiles";
 
 /* Backend caps limit at 100 per request */
 const PAGE_LIMIT = 100;
 /* Hard stop (5000 games) so a misbehaving backend can never loop forever */
 const MAX_PAGES = 50;
-
-/** Thrown when a public backlog is missing or private (both surface as 404). */
-export class BacklogNotFoundError extends Error {
-	constructor() {
-		super("No public backlog found");
-		this.name = "BacklogNotFoundError";
-	}
-}
 
 /** Thrown by the update mutation when another user owns the username. */
 export class UsernameTakenError extends Error {
@@ -30,28 +27,24 @@ export class UsernameTakenError extends Error {
 export const profileQueryOptions = () =>
 	queryOptions({
 		queryKey: ["profile"],
-		queryFn: async (): Promise<UserProfile | null> => {
-			const res = await fetch("/api/profiles/me");
-			if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-			return res.json();
-		},
+		queryFn: () => getMyProfile(),
 	});
 
 export const publicBacklogQueryOptions = (username: string) =>
 	queryOptions({
 		queryKey: ["public-backlog", username.toLowerCase()],
 		// Pages through the backend until a short page, mirroring the authed
-		// library so the whole backlog loads as a flat list.
-		queryFn: async (): Promise<PublicBacklog> => {
+		// library so the whole backlog loads as a flat list. A missing or
+		// private backlog resolves to null rather than failing: a failed query
+		// prefetched during SSR could reach the browser stuck pending.
+		queryFn: async (): Promise<PublicBacklog | null> => {
 			const games: PublicGame[] = [];
 
 			for (let page = 0; page < MAX_PAGES; page++) {
-				const res = await fetch(
-					`/api/profiles/${encodeURIComponent(username)}/backlog?limit=${PAGE_LIMIT}&offset=${page * PAGE_LIMIT}`,
-				);
-				if (res.status === 404) throw new BacklogNotFoundError();
-				if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-				const batch: PublicBacklog = await res.json();
+				const batch = await getPublicBacklog({
+					data: { username, limit: PAGE_LIMIT, offset: page * PAGE_LIMIT },
+				});
+				if (!batch) return null;
 				games.push(...batch.games);
 				if (batch.games.length < PAGE_LIMIT) {
 					return { username: batch.username, games };
@@ -60,8 +53,6 @@ export const publicBacklogQueryOptions = (username: string) =>
 
 			return { username, games };
 		},
-		retry: (failureCount, error) =>
-			error instanceof BacklogNotFoundError ? false : failureCount < 3,
 	});
 
 export function useUpdateProfile() {
@@ -69,17 +60,9 @@ export function useUpdateProfile() {
 
 	return useMutation({
 		mutationFn: async (profile: UserProfile): Promise<UserProfile> => {
-			const res = await fetch("/api/profiles/me", {
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(profile),
-			});
-			if (res.status === 409) throw new UsernameTakenError();
-			if (!res.ok) {
-				const error = await res.json().catch(() => ({}));
-				throw new Error(error.error || `Request failed: ${res.status}`);
-			}
-			return res.json();
+			const result = await updateMyProfile({ data: profile });
+			if (result.status === "taken") throw new UsernameTakenError();
+			return result.profile;
 		},
 		onSuccess: (data) => {
 			queryClient.setQueryData(["profile"], data);

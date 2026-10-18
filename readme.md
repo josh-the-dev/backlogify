@@ -74,7 +74,7 @@ backlogify/
 
 ```
 Browser
-  → TanStack Start SSR route (/api/...)   [injects API_KEY + Clerk JWT]
+  → TanStack Start server function       [injects API_KEY + Clerk JWT]
   → CorrelationIdMiddleware               [attaches X-Request-ID]
   → ThrottlerGuard → ApiKeyGuard → ClerkAuthGuard (user-games only)
   → LoggingInterceptor → ValidationPipe → Controller → Service

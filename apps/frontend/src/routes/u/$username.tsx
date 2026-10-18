@@ -9,10 +9,7 @@ import { PublicGameList } from "../../components/PublicBacklog/PublicGameList";
 import { LibraryStats } from "../../components/UserGames/LibraryStats";
 import { StatusFilter } from "../../components/UserGames/StatusFilter";
 import { UpNextCard } from "../../components/UserGames/UpNextCard";
-import {
-	BacklogNotFoundError,
-	publicBacklogQueryOptions,
-} from "../../queries/profiles";
+import { publicBacklogQueryOptions } from "../../queries/profiles";
 
 type FilterOption = GameStatus | "all";
 
@@ -25,15 +22,16 @@ export const Route = createFileRoute("/u/$username")({
 			const backlog = await context.queryClient.ensureQueryData(
 				publicBacklogQueryOptions(params.username),
 			);
+			if (!backlog) return { username: null, image: null };
 			const cover =
 				backlog.games.find((g) => g.pinnedAt)?.coverUrl ??
 				backlog.games[0]?.coverUrl ??
 				null;
 			return { username: backlog.username, image: cover };
 		} catch {
-			// Drop the rejected query so it isn't dehydrated to the client as a
-			// pending-then-rejecting promise; the client refetches and renders the
-			// not-found state cleanly.
+			// Drop the rejected query (a genuine failure, since not-found resolves
+			// to null) so it isn't dehydrated to the client as a
+			// pending-then-rejecting promise; the client refetches instead.
 			context.queryClient.removeQueries({
 				queryKey: publicBacklogQueryOptions(params.username).queryKey,
 			});
@@ -83,7 +81,7 @@ function PublicBacklogPage() {
 		);
 	}
 
-	if (query.error instanceof BacklogNotFoundError) {
+	if (query.data === null) {
 		return (
 			<div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-5 px-6 py-24 text-center">
 				<div className="border-border bg-card flex size-14 items-center justify-center rounded-2xl border">
@@ -140,7 +138,7 @@ function PublicBacklogPage() {
 	return (
 		<div className="mx-auto w-full max-w-6xl px-6 py-10">
 			<div>
-				<p className="text-primary text-xs font-semibold uppercase tracking-widest">
+				<p className="text-primary text-xs font-semibold tracking-widest uppercase">
 					Public backlog
 				</p>
 				<h1 className="font-display mt-1 text-3xl font-bold tracking-tight">

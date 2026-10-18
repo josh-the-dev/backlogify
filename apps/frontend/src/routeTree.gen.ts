@@ -14,17 +14,9 @@ import { Route as SplatRouteImport } from './routes/$'
 import { Route as MyGamesRouteImport } from './routes/my-games'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
-import { Route as ApiUserGamesRouteImport } from './routes/api/user-games'
 import { Route as GamesIndexRouteImport } from './routes/games/index'
 import { Route as GamesIdRouteImport } from './routes/games/$id'
 import { Route as UUsernameRouteImport } from './routes/u/$username'
-import { Route as ApiGamesIdRouteImport } from './routes/api/games/$id'
-import { Route as ApiGamesPopularRouteImport } from './routes/api/games/popular'
-import { Route as ApiGamesSearchRouteImport } from './routes/api/games/search'
-import { Route as ApiProfilesMeRouteImport } from './routes/api/profiles/me'
-import { Route as ApiUserGamesGameIdRouteImport } from './routes/api/user-games.$gameId'
-import { Route as ApiGamesIdExtrasRouteImport } from './routes/api/games/$id.extras'
-import { Route as ApiProfilesUsernameBacklogRouteImport } from './routes/api/profiles/$username.backlog'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -51,11 +43,6 @@ const SignUpRoute = SignUpRouteImport.update({
   path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiUserGamesRoute = ApiUserGamesRouteImport.update({
-  id: '/api/user-games',
-  path: '/api/user-games',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const GamesIndexRoute = GamesIndexRouteImport.update({
   id: '/games/',
   path: '/games/',
@@ -71,42 +58,6 @@ const UUsernameRoute = UUsernameRouteImport.update({
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiGamesIdRoute = ApiGamesIdRouteImport.update({
-  id: '/api/games/$id',
-  path: '/api/games/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiGamesPopularRoute = ApiGamesPopularRouteImport.update({
-  id: '/api/games/popular',
-  path: '/api/games/popular',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiGamesSearchRoute = ApiGamesSearchRouteImport.update({
-  id: '/api/games/search',
-  path: '/api/games/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiProfilesMeRoute = ApiProfilesMeRouteImport.update({
-  id: '/api/profiles/me',
-  path: '/api/profiles/me',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiUserGamesGameIdRoute = ApiUserGamesGameIdRouteImport.update({
-  id: '/$gameId',
-  path: '/$gameId',
-  getParentRoute: () => ApiUserGamesRoute,
-} as any)
-const ApiGamesIdExtrasRoute = ApiGamesIdExtrasRouteImport.update({
-  id: '/extras',
-  path: '/extras',
-  getParentRoute: () => ApiGamesIdRoute,
-} as any)
-const ApiProfilesUsernameBacklogRoute =
-  ApiProfilesUsernameBacklogRouteImport.update({
-    id: '/api/profiles/$username/backlog',
-    path: '/api/profiles/$username/backlog',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -114,17 +65,9 @@ export interface FileRoutesByFullPath {
   '/my-games': typeof MyGamesRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/games/$id': typeof GamesIdRoute
   '/u/$username': typeof UUsernameRoute
   '/games/': typeof GamesIndexRoute
-  '/api/games/$id': typeof ApiGamesIdRouteWithChildren
-  '/api/games/popular': typeof ApiGamesPopularRoute
-  '/api/games/search': typeof ApiGamesSearchRoute
-  '/api/profiles/me': typeof ApiProfilesMeRoute
-  '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
-  '/api/games/$id/extras': typeof ApiGamesIdExtrasRoute
-  '/api/profiles/$username/backlog': typeof ApiProfilesUsernameBacklogRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -132,17 +75,9 @@ export interface FileRoutesByTo {
   '/my-games': typeof MyGamesRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/games/$id': typeof GamesIdRoute
   '/u/$username': typeof UUsernameRoute
   '/games': typeof GamesIndexRoute
-  '/api/games/$id': typeof ApiGamesIdRouteWithChildren
-  '/api/games/popular': typeof ApiGamesPopularRoute
-  '/api/games/search': typeof ApiGamesSearchRoute
-  '/api/profiles/me': typeof ApiProfilesMeRoute
-  '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
-  '/api/games/$id/extras': typeof ApiGamesIdExtrasRoute
-  '/api/profiles/$username/backlog': typeof ApiProfilesUsernameBacklogRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -151,17 +86,9 @@ export interface FileRoutesById {
   '/my-games': typeof MyGamesRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/api/user-games': typeof ApiUserGamesRouteWithChildren
   '/games/$id': typeof GamesIdRoute
   '/u/$username': typeof UUsernameRoute
   '/games/': typeof GamesIndexRoute
-  '/api/games/$id': typeof ApiGamesIdRouteWithChildren
-  '/api/games/popular': typeof ApiGamesPopularRoute
-  '/api/games/search': typeof ApiGamesSearchRoute
-  '/api/profiles/me': typeof ApiProfilesMeRoute
-  '/api/user-games/$gameId': typeof ApiUserGamesGameIdRoute
-  '/api/games/$id/extras': typeof ApiGamesIdExtrasRoute
-  '/api/profiles/$username/backlog': typeof ApiProfilesUsernameBacklogRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,17 +98,9 @@ export interface FileRouteTypes {
     | '/my-games'
     | '/sign-in'
     | '/sign-up'
-    | '/api/user-games'
     | '/games/$id'
     | '/u/$username'
     | '/games/'
-    | '/api/games/$id'
-    | '/api/games/popular'
-    | '/api/games/search'
-    | '/api/profiles/me'
-    | '/api/user-games/$gameId'
-    | '/api/games/$id/extras'
-    | '/api/profiles/$username/backlog'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -189,17 +108,9 @@ export interface FileRouteTypes {
     | '/my-games'
     | '/sign-in'
     | '/sign-up'
-    | '/api/user-games'
     | '/games/$id'
     | '/u/$username'
     | '/games'
-    | '/api/games/$id'
-    | '/api/games/popular'
-    | '/api/games/search'
-    | '/api/profiles/me'
-    | '/api/user-games/$gameId'
-    | '/api/games/$id/extras'
-    | '/api/profiles/$username/backlog'
   id:
     | '__root__'
     | '/'
@@ -207,17 +118,9 @@ export interface FileRouteTypes {
     | '/my-games'
     | '/sign-in'
     | '/sign-up'
-    | '/api/user-games'
     | '/games/$id'
     | '/u/$username'
     | '/games/'
-    | '/api/games/$id'
-    | '/api/games/popular'
-    | '/api/games/search'
-    | '/api/profiles/me'
-    | '/api/user-games/$gameId'
-    | '/api/games/$id/extras'
-    | '/api/profiles/$username/backlog'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -226,15 +129,9 @@ export interface RootRouteChildren {
   MyGamesRoute: typeof MyGamesRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
-  ApiUserGamesRoute: typeof ApiUserGamesRouteWithChildren
   GamesIdRoute: typeof GamesIdRoute
   UUsernameRoute: typeof UUsernameRoute
   GamesIndexRoute: typeof GamesIndexRoute
-  ApiGamesIdRoute: typeof ApiGamesIdRouteWithChildren
-  ApiGamesPopularRoute: typeof ApiGamesPopularRoute
-  ApiGamesSearchRoute: typeof ApiGamesSearchRoute
-  ApiProfilesMeRoute: typeof ApiProfilesMeRoute
-  ApiProfilesUsernameBacklogRoute: typeof ApiProfilesUsernameBacklogRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -274,13 +171,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/user-games': {
-      id: '/api/user-games'
-      path: '/api/user-games'
-      fullPath: '/api/user-games'
-      preLoaderRoute: typeof ApiUserGamesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/games/': {
       id: '/games/'
       path: '/games'
@@ -302,81 +192,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/games/$id': {
-      id: '/api/games/$id'
-      path: '/api/games/$id'
-      fullPath: '/api/games/$id'
-      preLoaderRoute: typeof ApiGamesIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/games/popular': {
-      id: '/api/games/popular'
-      path: '/api/games/popular'
-      fullPath: '/api/games/popular'
-      preLoaderRoute: typeof ApiGamesPopularRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/games/search': {
-      id: '/api/games/search'
-      path: '/api/games/search'
-      fullPath: '/api/games/search'
-      preLoaderRoute: typeof ApiGamesSearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/profiles/me': {
-      id: '/api/profiles/me'
-      path: '/api/profiles/me'
-      fullPath: '/api/profiles/me'
-      preLoaderRoute: typeof ApiProfilesMeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/user-games/$gameId': {
-      id: '/api/user-games/$gameId'
-      path: '/$gameId'
-      fullPath: '/api/user-games/$gameId'
-      preLoaderRoute: typeof ApiUserGamesGameIdRouteImport
-      parentRoute: typeof ApiUserGamesRoute
-    }
-    '/api/games/$id/extras': {
-      id: '/api/games/$id/extras'
-      path: '/extras'
-      fullPath: '/api/games/$id/extras'
-      preLoaderRoute: typeof ApiGamesIdExtrasRouteImport
-      parentRoute: typeof ApiGamesIdRoute
-    }
-    '/api/profiles/$username/backlog': {
-      id: '/api/profiles/$username/backlog'
-      path: '/api/profiles/$username/backlog'
-      fullPath: '/api/profiles/$username/backlog'
-      preLoaderRoute: typeof ApiProfilesUsernameBacklogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
-
-interface ApiUserGamesRouteChildren {
-  ApiUserGamesGameIdRoute: typeof ApiUserGamesGameIdRoute
-}
-
-const ApiUserGamesRouteChildren: ApiUserGamesRouteChildren = {
-  ApiUserGamesGameIdRoute: ApiUserGamesGameIdRoute,
-}
-
-const ApiUserGamesRouteWithChildren = ApiUserGamesRoute._addFileChildren(
-  ApiUserGamesRouteChildren,
-)
-
-interface ApiGamesIdRouteChildren {
-  ApiGamesIdExtrasRoute: typeof ApiGamesIdExtrasRoute
-}
-
-const ApiGamesIdRouteChildren: ApiGamesIdRouteChildren = {
-  ApiGamesIdExtrasRoute: ApiGamesIdExtrasRoute,
-}
-
-const ApiGamesIdRouteWithChildren = ApiGamesIdRoute._addFileChildren(
-  ApiGamesIdRouteChildren,
-)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -384,15 +201,9 @@ const rootRouteChildren: RootRouteChildren = {
   MyGamesRoute: MyGamesRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
-  ApiUserGamesRoute: ApiUserGamesRouteWithChildren,
   GamesIdRoute: GamesIdRoute,
   UUsernameRoute: UUsernameRoute,
   GamesIndexRoute: GamesIndexRoute,
-  ApiGamesIdRoute: ApiGamesIdRouteWithChildren,
-  ApiGamesPopularRoute: ApiGamesPopularRoute,
-  ApiGamesSearchRoute: ApiGamesSearchRoute,
-  ApiProfilesMeRoute: ApiProfilesMeRoute,
-  ApiProfilesUsernameBacklogRoute: ApiProfilesUsernameBacklogRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

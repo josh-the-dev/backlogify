@@ -1,4 +1,4 @@
-import type { GameStatus, UserGame } from "@backlogify/types";
+import type { AddUserGame, GameStatus, UserGame } from "@backlogify/types";
 import { useAuth } from "@clerk/tanstack-react-start";
 import {
 	queryOptions,
@@ -6,6 +6,12 @@ import {
 	useQueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import {
+	addUserGame,
+	listUserGames,
+	removeUserGame,
+	updateUserGame,
+} from "../server/user-games";
 
 /* Backend caps limit at 100 per request */
 const PAGE_LIMIT = 100;
@@ -22,11 +28,9 @@ export const userGamesQueryOptions = () =>
 			const games: UserGame[] = [];
 
 			for (let page = 0; page < MAX_PAGES; page++) {
-				const res = await fetch(
-					`/api/user-games?limit=${PAGE_LIMIT}&offset=${page * PAGE_LIMIT}`,
-				);
-				if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-				const batch: UserGame[] = await res.json();
+				const batch = await listUserGames({
+					data: { limit: PAGE_LIMIT, offset: page * PAGE_LIMIT },
+				});
 				games.push(...batch);
 				if (batch.length < PAGE_LIMIT) break;
 			}
@@ -35,264 +39,137 @@ export const userGamesQueryOptions = () =>
 		},
 	});
 
-interface AddUserGameParams {
-	externalServiceId: string;
-	name: string;
-	coverUrl?: string;
-	status: GameStatus;
+const userGamesKey = userGamesQueryOptions().queryKey;
+
+/**
+ * Shared shape for library mutations: optionally apply the change to the
+ * cached library straight away, roll back and toast on failure, and always
+ * refetch afterwards so the cache matches the backend.
+ */
+function useUserGamesMutation<TVariables, TData>({
+	mutationFn,
+	optimistic,
+	errorMessage,
+	onSuccess,
+}: {
+	mutationFn: (variables: TVariables) => Promise<TData>;
+	optimistic?: (games: UserGame[], variables: TVariables) => UserGame[];
+	errorMessage: string;
+	onSuccess?: (data: TData, variables: TVariables) => void;
+}) {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn,
+		onMutate: async (variables) => {
+			if (!optimistic) return {};
+			await queryClient.cancelQueries({ queryKey: userGamesKey });
+			const previousGames = queryClient.getQueryData(userGamesKey);
+			if (previousGames) {
+				queryClient.setQueryData(
+					userGamesKey,
+					optimistic(previousGames, variables),
+				);
+			}
+			return { previousGames };
+		},
+		onError: (_error, _variables, context) => {
+			if (context?.previousGames) {
+				queryClient.setQueryData(userGamesKey, context.previousGames);
+			}
+			toast.error(errorMessage);
+		},
+		onSuccess,
+		onSettled: () => queryClient.invalidateQueries({ queryKey: userGamesKey }),
+	});
 }
 
 export function useAddUserGame() {
-	const queryClient = useQueryClient();
 	const { userId } = useAuth();
 
-	return useMutation({
-		mutationFn: async (params: AddUserGameParams): Promise<UserGame> => {
-			const res = await fetch("/api/user-games", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(params),
-			});
-			if (!res.ok) {
-				const error = await res.json().catch(() => ({}));
-				throw new Error(error.error || `Request failed: ${res.status}`);
-			}
-			return res.json();
-		},
-		onMutate: async (newGame) => {
-			await queryClient.cancelQueries({ queryKey: ["user-games"] });
-			const previousGames = queryClient.getQueryData<UserGame[]>([
-				"user-games",
-			]);
-
-			if (previousGames) {
-				const optimisticGame: UserGame = {
+	return useUserGamesMutation({
+		mutationFn: (game: AddUserGame) => addUserGame({ data: game }),
+		optimistic: (games, game) => {
+			const now = new Date().toISOString();
+			return [
+				...games,
+				{
 					id: `temp-${Date.now()}`,
 					userId: userId ?? "",
-					externalServiceId: newGame.externalServiceId,
-					name: newGame.name,
-					coverUrl: newGame.coverUrl ?? null,
-					status: newGame.status,
-					addedAt: new Date().toISOString(),
-					finishedAt:
-						newGame.status === "played" ? new Date().toISOString() : null,
+					externalServiceId: game.externalServiceId,
+					name: game.name,
+					coverUrl: game.coverUrl ?? null,
+					status: game.status,
+					addedAt: now,
+					finishedAt: game.status === "played" ? now : null,
 					note: null,
 					pinnedAt: null,
-				};
-				queryClient.setQueryData<UserGame[]>(
-					["user-games"],
-					[...previousGames, optimisticGame],
-				);
-			}
-
-			return { previousGames };
+				},
+			];
 		},
-		onError: (_err, _newGame, context) => {
-			if (context?.previousGames) {
-				queryClient.setQueryData(["user-games"], context.previousGames);
-			}
-			toast.error("Failed to add game to library");
-		},
-		onSuccess: (_data, newGame) => {
-			toast.success(`${newGame.name} added to your backlog`);
-		},
-		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: ["user-games"] });
+		errorMessage: "Failed to add game to library",
+		onSuccess: (_data, game) => {
+			toast.success(`${game.name} added to your backlog`);
 		},
 	});
 }
 
 export function useUpdateUserGameStatus() {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: async ({
-			gameId,
-			status,
-		}: {
-			gameId: string;
-			status: GameStatus;
-		}): Promise<UserGame> => {
-			const res = await fetch(`/api/user-games/${gameId}`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ status }),
-			});
-			if (!res.ok) {
-				const error = await res.json().catch(() => ({}));
-				throw new Error(error.error || `Request failed: ${res.status}`);
-			}
-			return res.json();
-		},
-		onMutate: async ({ gameId, status }) => {
-			await queryClient.cancelQueries({ queryKey: ["user-games"] });
-			const previousGames = queryClient.getQueryData<UserGame[]>([
-				"user-games",
-			]);
-
-			if (previousGames) {
-				queryClient.setQueryData<UserGame[]>(
-					["user-games"],
-					previousGames.map((game) =>
-						game.id === gameId
-							? {
-									...game,
-									status,
-									// Mirror the backend: played stamps the finish
-									// date, anything else clears it; finishing or
-									// abandoning also frees the Up next slot
-									finishedAt:
-										status === "played" ? new Date().toISOString() : null,
-									pinnedAt:
-										status === "played" || status === "abandoned"
-											? null
-											: game.pinnedAt,
-								}
-							: game,
-					),
-				);
-			}
-
-			return { previousGames };
-		},
-		onError: (_err, _variables, context) => {
-			if (context?.previousGames) {
-				queryClient.setQueryData(["user-games"], context.previousGames);
-			}
-			toast.error("Failed to update game status");
-		},
-		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: ["user-games"] });
-		},
+	return useUserGamesMutation({
+		mutationFn: (variables: { gameId: string; status: GameStatus }) =>
+			updateUserGame({ data: variables }),
+		optimistic: (games, { gameId, status }) =>
+			games.map((game) =>
+				game.id === gameId
+					? {
+							...game,
+							status,
+							// Mirror the backend: played stamps the finish date,
+							// anything else clears it; finishing or abandoning also
+							// frees the Up next slot
+							finishedAt: status === "played" ? new Date().toISOString() : null,
+							pinnedAt:
+								status === "played" || status === "abandoned"
+									? null
+									: game.pinnedAt,
+						}
+					: game,
+			),
+		errorMessage: "Failed to update game status",
 	});
 }
 
 export function useUpdateUserGameNote() {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: async ({
-			gameId,
-			note,
-		}: {
-			gameId: string;
-			note: string | null;
-		}): Promise<UserGame> => {
-			const res = await fetch(`/api/user-games/${gameId}`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ note }),
-			});
-			if (!res.ok) {
-				const error = await res.json().catch(() => ({}));
-				throw new Error(error.error || `Request failed: ${res.status}`);
-			}
-			return res.json();
-		},
-		onMutate: async ({ gameId, note }) => {
-			await queryClient.cancelQueries({ queryKey: ["user-games"] });
-			const previousGames = queryClient.getQueryData<UserGame[]>([
-				"user-games",
-			]);
-
-			if (previousGames) {
-				queryClient.setQueryData<UserGame[]>(
-					["user-games"],
-					previousGames.map((game) =>
-						game.id === gameId ? { ...game, note } : game,
-					),
-				);
-			}
-
-			return { previousGames };
-		},
-		onError: (_err, _variables, context) => {
-			if (context?.previousGames) {
-				queryClient.setQueryData(["user-games"], context.previousGames);
-			}
-			toast.error("Failed to save note");
-		},
-		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: ["user-games"] });
-		},
+	return useUserGamesMutation({
+		mutationFn: (variables: { gameId: string; note: string | null }) =>
+			updateUserGame({ data: variables }),
+		optimistic: (games, { gameId, note }) =>
+			games.map((game) => (game.id === gameId ? { ...game, note } : game)),
+		errorMessage: "Failed to save note",
 	});
 }
 
 export function useUpdateUserGamePin() {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: async ({
-			gameId,
-			pinned,
-		}: {
-			gameId: string;
-			pinned: boolean;
-		}): Promise<UserGame> => {
-			const res = await fetch(`/api/user-games/${gameId}`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ pinned }),
-			});
-			if (!res.ok) {
-				const error = await res.json().catch(() => ({}));
-				throw new Error(error.error || `Request failed: ${res.status}`);
-			}
-			return res.json();
-		},
-		onMutate: async ({ gameId, pinned }) => {
-			await queryClient.cancelQueries({ queryKey: ["user-games"] });
-			const previousGames = queryClient.getQueryData<UserGame[]>([
-				"user-games",
-			]);
-
-			if (previousGames) {
-				queryClient.setQueryData<UserGame[]>(
-					["user-games"],
-					// Mirror the backend: the Up next slot holds one game, so
-					// pinning steals it from whoever had it
-					previousGames.map((game) =>
-						game.id === gameId
-							? { ...game, pinnedAt: pinned ? new Date().toISOString() : null }
-							: pinned
-								? { ...game, pinnedAt: null }
-								: game,
-					),
-				);
-			}
-
-			return { previousGames };
-		},
-		onError: (_err, _variables, context) => {
-			if (context?.previousGames) {
-				queryClient.setQueryData(["user-games"], context.previousGames);
-			}
-			toast.error("Failed to update Up next");
-		},
-		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: ["user-games"] });
-		},
+	return useUserGamesMutation({
+		mutationFn: (variables: { gameId: string; pinned: boolean }) =>
+			updateUserGame({ data: variables }),
+		// Mirror the backend: the Up next slot holds one game, so pinning
+		// steals it from whoever had it
+		optimistic: (games, { gameId, pinned }) =>
+			games.map((game) =>
+				game.id === gameId
+					? { ...game, pinnedAt: pinned ? new Date().toISOString() : null }
+					: pinned
+						? { ...game, pinnedAt: null }
+						: game,
+			),
+		errorMessage: "Failed to update Up next",
 	});
 }
 
 export function useRemoveUserGame() {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: async (gameId: string): Promise<void> => {
-			const res = await fetch(`/api/user-games/${gameId}`, {
-				method: "DELETE",
-			});
-			if (!res.ok) {
-				const error = await res.json().catch(() => ({}));
-				throw new Error(error.error || `Request failed: ${res.status}`);
-			}
-		},
-		onError: () => {
-			toast.error("Failed to remove game from library");
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["user-games"] });
-		},
+	return useUserGamesMutation({
+		mutationFn: (gameId: string) => removeUserGame({ data: { gameId } }),
+		errorMessage: "Failed to remove game from library",
 	});
 }
